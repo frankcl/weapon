@@ -5,7 +5,7 @@
     <parent>
         <artifactId>weapon</artifactId>
         <groupId>com.manong</groupId>
-        <version>1.0-release</version>
+        <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

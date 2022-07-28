@@ -7,7 +7,7 @@
     <groupId>com.manong</groupId>
     <artifactId>weapon</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-release</version>
+    <version>1.0</version>
     <modules>
         <module>weapon-base</module>
         <module>weapon-aliyun</module>
@@ -29,6 +29,7 @@
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
         <tablestore.version>5.13.10</tablestore.version>
+        <weapon.version>1.0</weapon.version>
     </properties>
 
     <build>
