@@ -1,0 +1,169 @@
+package com.manong.weapon.aliyun.ots;
+
+import com.alicloud.openservices.tablestore.ClientConfiguration;
+import com.alicloud.openservices.tablestore.SyncClient;
+import com.alicloud.openservices.tablestore.TableStoreException;
+import com.alicloud.openservices.tablestore.model.*;
+import com.manong.weapon.base.record.KVRecord;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Map;
+
+/**
+ * OTS客户端
+ *
+ * @author frankcl
+ * @create 2019-05-28 20:29
+ */
+public class OTSClient {
+
+    private final static Logger logger = LoggerFactory.getLogger(OTSClient.class);
+
+    private final static String ERR_CODE_CONDITION_CHECK_FAIL = "OTSConditionCheckFail";
+
+    private OTSClientConfig config;
+    private SyncClient syncClient;
+
+    public OTSClient(OTSClientConfig config) {
+        this.config = config;
+        ClientConfiguration clientConf = new ClientConfiguration();
+        clientConf.setConnectionTimeoutInMillisecond(config.connectionTimeoutMs);
+        clientConf.setSocketTimeoutInMillisecond(config.socketTimeoutMs);
+        clientConf.setConnectionRequestTimeoutInMillisecond(config.connectionRequestTimeoutMs);
+        syncClient = new SyncClient(config.endpoint, config.keySecret.accessKey,
+                config.keySecret.secretKey, config.instance, clientConf);
+    }
+
+    /**
+     * 关闭OTS客户端
+     */
+    public void close() {
+        logger.info("OTS client is closing ...");
+        if (syncClient != null) syncClient.shutdown();
+        logger.info("OTS client has been closed");
+    }
+
+    /**
+     * 获取数据
+     *
+     * @param tableName 表名
+     * @param keyMap 主键映射
+     * @return 如果存在返回数据，否则返回null
+     */
+    public KVRecord get(String tableName, Map<String, Object> keyMap) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
+        SingleRowQueryCriteria criteria = new SingleRowQueryCriteria(tableName, primaryKey);
+        criteria.setMaxVersions(1);
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                GetRowResponse response = syncClient.getRow(new GetRowRequest(criteria));
+                Row row = response.getRow();
+                return row == null ? null : OTSConverter.convertRecord(row);
+            } catch (Exception e) {
+                logger.error("get failed for table[{}] and primary keys[{}], retry {} times",
+                        tableName, primaryKey.toString(), i + 1);
+                logger.error(e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据key删除数据
+     *
+     * @param tableName 表名
+     * @param keyMap 主键
+     * @param condition 删除条件，无条件删除使用null
+     * @return OTS状态
+     */
+    public OTSStatus delete(String tableName, Map<String, Object> keyMap, Condition condition) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
+        RowDeleteChange change = new RowDeleteChange(tableName, primaryKey);
+        if (condition != null) change.setCondition(condition);
+        try {
+            DeleteRowResponse response = syncClient.deleteRow(new DeleteRowRequest(change));
+            return response == null ? OTSStatus.FAIL : OTSStatus.SUCCESS;
+        } catch (Exception e) {
+            if (e instanceof TableStoreException && ERR_CODE_CONDITION_CHECK_FAIL.equals(
+                    ((TableStoreException) e).getErrorCode())) {
+                logger.warn("delete condition check failed for table[{}] and primary keys[{}]",
+                        tableName, primaryKey.toString());
+                return OTSStatus.CHECK_CONDITION_FAIL;
+            }
+            logger.error("delete failed for table[{}] and primary keys[{}]", tableName, primaryKey.toString());
+            logger.error(e.getMessage(), e);
+            return OTSStatus.FAIL;
+        }
+    }
+
+    /**
+     * 添加数据
+     *
+     * @param tableName 表名
+     * @param kvRecord 数据
+     * @param condition 添加条件，无条件添加传递null
+     * @return OTS状态
+     */
+    public OTSStatus put(String tableName, KVRecord kvRecord, Condition condition) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table name is empty");
+        Row record = OTSConverter.convertRecord(kvRecord);
+        RowPutChange change = new RowPutChange(tableName, record.getPrimaryKey());
+        change.addColumns(record.getColumns());
+        if (condition != null) change.setCondition(condition);
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                PutRowResponse response = syncClient.putRow(new PutRowRequest(change));
+                return response == null ? OTSStatus.FAIL : OTSStatus.SUCCESS;
+            } catch (Exception e) {
+                if (e instanceof TableStoreException && ERR_CODE_CONDITION_CHECK_FAIL.equals(
+                        ((TableStoreException) e).getErrorCode())) {
+                    logger.debug("put condition failed for table[{}] and primary keys[{}]",
+                            tableName, record.getPrimaryKey().toString());
+                    return OTSStatus.CHECK_CONDITION_FAIL;
+                }
+                logger.error("put failed for table[{}] and primary keys[{}], retry {} times",
+                        tableName, record.getPrimaryKey().toString(), i + 1);
+                logger.error(e.getMessage(), e);
+            }
+        }
+        return OTSStatus.FAIL;
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param tableName 表名
+     * @param kvRecord 更新数据
+     * @param condition 更新条件，无条件更新使用null
+     * @return OTS状态
+     */
+    public OTSStatus update(String tableName, KVRecord kvRecord, Condition condition) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        Row record = OTSConverter.convertRecord(kvRecord);
+        RowUpdateChange change = new RowUpdateChange(tableName, record.getPrimaryKey());
+        change.put(Arrays.asList(record.getColumns()));
+        if (condition != null) change.setCondition(condition);
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                UpdateRowResponse response = syncClient.updateRow(new UpdateRowRequest(change));
+                return response == null ? OTSStatus.FAIL : OTSStatus.SUCCESS;
+            } catch (Exception e) {
+                if (e instanceof TableStoreException && ERR_CODE_CONDITION_CHECK_FAIL.equals(
+                        ((TableStoreException) e).getErrorCode())) {
+                    logger.warn("update condition check failed for table[{}] and primary keys[{}]",
+                            tableName, record.getPrimaryKey().toString());
+                    return OTSStatus.CHECK_CONDITION_FAIL;
+                }
+                logger.error("update failed for table[{}] and primary keys[{}], retry {} times",
+                        tableName, record.getPrimaryKey().toString(), i + 1);
+                logger.error(e.getMessage(), e);
+            }
+        }
+        return OTSStatus.FAIL;
+    }
+}

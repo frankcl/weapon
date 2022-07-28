@@ -1,0 +1,27 @@
+{
+  "key1": [
+    [
+      {
+        "company": {
+          "id": "company_1",
+          "name": "company_x",
+          "category": ["xxx", "yyy"]
+        },
+        "description": "aaa"
+      }
+    ],
+    [
+      {
+        "industry": {
+          "id": "industry_1",
+          "name": "industry_x",
+        },
+        "description": "bbb"
+      }
+    ]
+  ],
+  "key2": {
+     "xxx": 1,
+     "array": [1, 2]
+  }
+}

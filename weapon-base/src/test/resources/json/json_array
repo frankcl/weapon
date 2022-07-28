@@ -1,0 +1,50 @@
+[
+  {
+    "company": {
+      "id": "company_id1",
+      "name": "company_name1"
+    },
+    "stock": {
+      "id": "stock_id1",
+      "name": "stock_name1"
+    },
+    "industry": {
+      "id": "industry_id1",
+      "name": "industry_name1"
+    },
+    "market": [
+      {
+        "code": "market_code11",
+        "name": "market_name11"
+      },
+      {
+        "code": "market_code12",
+        "name": "market_name12"
+      }
+    ]
+  },
+  {
+    "company": {
+      "id": "company_id2",
+      "name": "company_name2"
+    },
+    "stock": {
+      "id": "stock_id2",
+      "name": "stock_name2"
+    },
+    "industry": {
+      "id": "industry_id2",
+      "name": "industry_name2"
+    },
+    "market": [
+      {
+        "code": "market_code21",
+        "name": "market_name21"
+      },
+      {
+        "code": "market_code22",
+        "name": "market_name22"
+      }
+    ]
+  }
+]
