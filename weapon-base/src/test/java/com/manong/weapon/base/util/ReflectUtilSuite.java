@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -47,6 +48,24 @@ public class ReflectUtilSuite {
     public void testConstructorWithoutParams() {
         Map map = (Map) ReflectUtil.newInstance("java.util.HashMap", null);
         Assert.assertTrue(map != null);
+    }
+
+    @Test
+    public void testGetFields() {
+        {
+            String str = "abc";
+            Field[] fields = ReflectUtil.getFields(str);
+            Assert.assertEquals(5, fields.length);
+        }
+        {
+            Object object = new Object();
+            Field[] fields = ReflectUtil.getFields(object);
+            Assert.assertEquals(0, fields.length);
+        }
+        {
+            Field[] fields = ReflectUtil.getFields(null);
+            Assert.assertEquals(0, fields.length);
+        }
     }
 
     @Test(expected = RuntimeException.class)

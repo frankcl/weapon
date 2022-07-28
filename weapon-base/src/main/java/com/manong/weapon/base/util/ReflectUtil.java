@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 反射工具
@@ -116,6 +115,23 @@ public class ReflectUtil {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 获取对象所有字段
+     *
+     * @param object 对象
+     * @return 字段数组
+     */
+    public static Field[] getFields(Object object) {
+        List<Field> fields = new ArrayList<>();
+        if (object == null) return fields.toArray(new Field[0]);
+        Class clazz = object.getClass();
+        while (clazz != null) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
+        }
+        return fields.toArray(new Field[0]);
     }
 
     /**
