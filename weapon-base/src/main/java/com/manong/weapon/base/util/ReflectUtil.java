@@ -61,6 +61,24 @@ public class ReflectUtil {
     }
 
     /**
+     * 设置目标对象指定字段值
+     *
+     * @param object 目标对象
+     * @param field 目标字段
+     * @param value 字段值
+     */
+    public static void setFieldValue(Object object, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(object, value);
+        } catch (Exception e) {
+            logger.error("set value failed for field[{}] of class[{}]", field.getName(), object.getClass().getName());
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 方法调用
      *
      * @param methodName 方法名
