@@ -42,7 +42,7 @@ class ReflectClass {
             if (fieldMap.containsKey(fieldName)) return fieldMap.get(fieldName);
             synchronized (fieldMap) {
                 if (fieldMap.containsKey(fieldName)) return fieldMap.get(fieldName);
-                Field field = clazz.getDeclaredField(fieldName);
+                Field field = deepGetField(fieldName);
                 fieldMap.put(fieldName, field);
                 return field;
             }
@@ -66,7 +66,7 @@ class ReflectClass {
             if (methodMap.containsKey(key)) return methodMap.get(key);
             synchronized (methodMap) {
                 if (methodMap.containsKey(key)) return methodMap.get(key);
-                Method method = clazz.getMethod(methodName, parameterTypes);
+                Method method = deepGetMethod(methodName, parameterTypes);
                 method.setAccessible(true);
                 methodMap.put(key, method);
                 return method;
@@ -100,6 +100,47 @@ class ReflectClass {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 根据字段名获取字段
+     * 深度搜索父类字段
+     *
+     * @param fieldName 字段名
+     * @return 字段
+     * @throws NoSuchFieldException 如果字段不存在抛出该异常
+     */
+    private Field deepGetField(String fieldName) throws NoSuchFieldException {
+        Class c = clazz;
+        while (c != null) {
+            try {
+                return c.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
+    }
+
+    /**
+     * 获取方法
+     * 深度搜索父类方法
+     *
+     * @param methodName 方法名
+     * @param parameterTypes 方法参数
+     * @return 方法
+     * @throws NoSuchMethodException 如果方法不存在抛出该异常
+     */
+    private Method deepGetMethod(String methodName, Class... parameterTypes) throws NoSuchMethodException {
+        Class c = clazz;
+        while (c != null) {
+            try {
+                return c.getDeclaredMethod(methodName, parameterTypes);
+            } catch (NoSuchMethodException e) {
+                c = c.getSuperclass();
+            }
+        }
+        throw new NoSuchMethodException(getMethodKey(methodName, parameterTypes));
     }
 
     /**
