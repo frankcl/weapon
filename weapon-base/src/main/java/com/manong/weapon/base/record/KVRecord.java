@@ -1,5 +1,6 @@
 package com.manong.weapon.base.record;
 
+import com.manong.weapon.base.util.RandomID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +20,18 @@ public class KVRecord implements Serializable {
 
     private final static Logger logger = LoggerFactory.getLogger(KVRecord.class);
 
+    private String id;
     private final Set<String> keys;
     private final Map<String, Object> fieldMap;
 
     public KVRecord() {
+        id = RandomID.build();
         keys = new HashSet<>();
         fieldMap = new HashMap<>();
     }
 
     public KVRecord(Set<String> keys, Map<String, Object> fieldMap) {
+        id = RandomID.build();
         this.keys = keys;
         this.fieldMap = fieldMap;
     }
@@ -154,6 +158,19 @@ public class KVRecord implements Serializable {
     public void setFieldMap(Map<String, Object> fieldMap) {
         this.fieldMap.clear();
         if (fieldMap != null) this.fieldMap.putAll(fieldMap);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof KVRecord)) return false;
+        KVRecord kvRecord = (KVRecord) object;
+        return id.equals(kvRecord.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     @Override
