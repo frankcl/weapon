@@ -25,5 +25,7 @@ public class ContextSuite {
         Assert.assertFalse(context.contains("k1"));
         Map<String, Object> featureMap = context.getFeatureMap();
         Assert.assertEquals(1, featureMap.size());
+        context.sweep();
+        Assert.assertTrue(context.getFeatureMap().isEmpty());
     }
 }

@@ -57,6 +57,14 @@ public class Context {
     }
 
     /**
+     * 清理上下文
+     */
+    public void sweep() {
+        featureMap.clear();
+        featureMap = new HashMap<>();
+    }
+
+    /**
      * 获取内部feature map
      *
      * @return feature map对象
