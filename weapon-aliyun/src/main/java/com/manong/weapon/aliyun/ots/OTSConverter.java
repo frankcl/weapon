@@ -22,6 +22,24 @@ public class OTSConverter {
     private final static Logger logger = LoggerFactory.getLogger(OTSConverter.class);
 
     /**
+     * 转换流数据
+     *
+     * @param streamRecord 流数据
+     * @return 成功返回转换结果，否则返回null
+     */
+    public static KVRecord convertStreamRecord(StreamRecord streamRecord) {
+        if (streamRecord == null) return null;
+        Map<String, Object> keyMap = convertPrimaryKey(streamRecord.getPrimaryKey());
+        if (keyMap.isEmpty()) return null;
+        KVRecord kvRecord = new KVRecord(keyMap.keySet(), keyMap);
+        StreamRecord.RecordType recordType = streamRecord.getRecordType();
+        if (recordType == StreamRecord.RecordType.DELETE) return kvRecord;
+        Map<String, Object> fieldMap = convertRecordColumns(streamRecord.getColumns());
+        kvRecord.getFieldMap().putAll(fieldMap);
+        return kvRecord;
+    }
+
+    /**
      * 转换OTS数据
      *
      * @param row 原始OTS数据
@@ -65,6 +83,24 @@ public class OTSConverter {
     /**
      * 主键转换
      *
+     * @param primaryKey OTS主键
+     * @return 如果成功返回转换结果，否则抛出RuntimeException
+     */
+    public static Map<String, Object> convertPrimaryKey(PrimaryKey primaryKey) {
+        Map<String, Object> keyMap = new HashMap<>();
+        PrimaryKeyColumn[] primaryKeyColumns = primaryKey.getPrimaryKeyColumns();
+        if (primaryKeyColumns == null) return keyMap;
+        for (int i = 0; i < primaryKeyColumns.length; i++) {
+            String name = primaryKeyColumns[i].getName();
+            PrimaryKeyValue primaryKeyValue = primaryKeyColumns[i].getValue();
+            keyMap.put(name, convertPrimaryKeyValue(primaryKeyValue));
+        }
+        return keyMap;
+    }
+
+    /**
+     * 主键转换
+     *
      * @param keyMap 主键映射
      * @return 如果成功返回转换结果，否则抛出RuntimeException
      */
@@ -89,6 +125,24 @@ public class OTSConverter {
             }
         }
         return builder.build();
+    }
+
+    /**
+     * 转换列
+     *
+     * @param recordColumns OTS流数据列
+     * @return 如果成功返回转换结果，否则抛出RuntimeException
+     */
+    public static Map<String, Object> convertRecordColumns(List<RecordColumn> recordColumns) {
+        Map<String, Object> columnMap = new HashMap<>();
+        for (RecordColumn recordColumn : recordColumns) {
+            RecordColumn.ColumnType columnType = recordColumn.getColumnType();
+            if (columnType == RecordColumn.ColumnType.DELETE_ALL_VERSION ||
+                    columnType == RecordColumn.ColumnType.DELETE_ONE_VERSION) continue;
+            Column column = recordColumn.getColumn();
+            columnMap.put(column.getName(), convertColumnValue(column.getValue()));
+        }
+        return columnMap;
     }
 
     /**
