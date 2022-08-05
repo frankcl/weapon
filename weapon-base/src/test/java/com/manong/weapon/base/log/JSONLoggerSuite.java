@@ -29,6 +29,6 @@ public class JSONLoggerSuite {
         Map<String, Object> featureMap = new HashMap<>();
         featureMap.put("k1", "v1");
         featureMap.put("k2", 222);
-        logger.logging(featureMap);
+        logger.commit(featureMap);
     }
 }

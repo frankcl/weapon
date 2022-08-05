@@ -49,11 +49,11 @@ public class JSONLogger {
     }
 
     /**
-     * JSON日志
+     * 提交日志
      *
      * @param featureMap 日志数据
      */
-    public void logging(Map<String, Object> featureMap) {
+    public void commit(Map<String, Object> featureMap) {
         JSONObject loggerMap = KEYS == null ? new JSONObject(featureMap) : new JSONObject();
         loggerMap.put(KEY_LOGGER_TIME, DATE_FORMAT.format(new Date()));
         Iterator<String> iterator = KEYS == null ? null : KEYS.iterator();
