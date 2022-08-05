@@ -6,10 +6,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * OTS数据转换
@@ -31,9 +28,9 @@ public class OTSConverter {
         if (streamRecord == null) return null;
         Map<String, Object> keyMap = convertPrimaryKey(streamRecord.getPrimaryKey());
         if (keyMap.isEmpty()) return null;
-        KVRecord kvRecord = new KVRecord(keyMap.keySet(), keyMap);
+        KVRecord kvRecord = new KVRecord(new HashSet<>(keyMap.keySet()), keyMap);
         StreamRecord.RecordType recordType = streamRecord.getRecordType();
-        if (recordType == StreamRecord.RecordType.DELETE) return kvRecord;
+        if (recordType != null && recordType == StreamRecord.RecordType.DELETE) return kvRecord;
         Map<String, Object> fieldMap = convertRecordColumns(streamRecord.getColumns());
         kvRecord.getFieldMap().putAll(fieldMap);
         return kvRecord;

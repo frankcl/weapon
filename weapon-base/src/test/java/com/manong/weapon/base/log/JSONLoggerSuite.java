@@ -1,5 +1,6 @@
 package com.manong.weapon.base.log;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,21 +14,21 @@ import java.util.Set;
  */
 public class JSONLoggerSuite {
 
-    @Test
-    public void testLoggerAll() {
-        Map<String, Object> featureMap = new HashMap<>();
-        featureMap.put("k1", "v1");
-        featureMap.put("k2", 222);
-        JSONLogger.logging(featureMap, null);
+    JSONLogger logger;
+
+    @Before
+    public void setUp() {
+        Set<String> keys = new HashSet();
+        keys.add("k1");
+        logger = new JSONLogger("test.log", keys);
     }
 
     @Test
-    public void testLoggerKeys() {
-        Set<String> keys = new HashSet();
-        keys.add("k1");
+    public void testLogger() {
+
         Map<String, Object> featureMap = new HashMap<>();
         featureMap.put("k1", "v1");
         featureMap.put("k2", 222);
-        JSONLogger.logging(featureMap, keys);
+        logger.logging(featureMap);
     }
 }
