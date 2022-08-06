@@ -2,6 +2,7 @@ package com.manong.weapon.aliyun.ots;
 
 import com.alicloud.openservices.tablestore.model.*;
 import com.manong.weapon.base.record.KVRecord;
+import com.manong.weapon.base.record.RecordType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,8 @@ public class OTSConverter {
         if (keyMap.isEmpty()) return null;
         KVRecord kvRecord = new KVRecord(new HashSet<>(keyMap.keySet()), keyMap);
         StreamRecord.RecordType recordType = streamRecord.getRecordType();
-        if (recordType != null && recordType == StreamRecord.RecordType.DELETE) return kvRecord;
+        if (recordType != null) kvRecord.setRecordType(RecordType.valueOf(recordType.name()));
+        if (kvRecord.getRecordType() == RecordType.DELETE) return kvRecord;
         Map<String, Object> fieldMap = convertRecordColumns(streamRecord.getColumns());
         kvRecord.getFieldMap().putAll(fieldMap);
         return kvRecord;

@@ -21,17 +21,20 @@ public class KVRecord implements Serializable {
     private final static Logger logger = LoggerFactory.getLogger(KVRecord.class);
 
     private String id;
+    private RecordType recordType;
     private final Set<String> keys;
     private final Map<String, Object> fieldMap;
 
     public KVRecord() {
         id = RandomID.build();
+        recordType = RecordType.PUT;
         keys = new HashSet<>();
         fieldMap = new HashMap<>();
     }
 
     public KVRecord(Set<String> keys, Map<String, Object> fieldMap) {
         id = RandomID.build();
+        recordType = RecordType.PUT;
         this.keys = keys;
         this.fieldMap = fieldMap;
     }
@@ -43,6 +46,7 @@ public class KVRecord implements Serializable {
      */
     public KVRecord copy() {
         KVRecord replica = new KVRecord();
+        replica.recordType = recordType;
         replica.setKeys(keys);
         replica.setFieldMap(fieldMap);
         return replica;
@@ -148,6 +152,33 @@ public class KVRecord implements Serializable {
      */
     public Map<String, Object> getFieldMap() {
         return fieldMap;
+    }
+
+    /**
+     * 获取数据ID
+     *
+     * @return 数据ID
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * 获取数据类型
+     *
+     * @return 数据类型枚举
+     */
+    public RecordType getRecordType() {
+        return recordType;
+    }
+
+    /**
+     * 设置数据类型
+     *
+     * @param recordType 数据类型枚举
+     */
+    public void setRecordType(RecordType recordType) {
+        this.recordType = recordType;
     }
 
     /**

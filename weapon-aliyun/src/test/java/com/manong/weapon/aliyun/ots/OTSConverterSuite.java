@@ -2,6 +2,7 @@ package com.manong.weapon.aliyun.ots;
 
 import com.alicloud.openservices.tablestore.model.*;
 import com.manong.weapon.base.record.KVRecord;
+import com.manong.weapon.base.record.RecordType;
 import org.checkerframework.checker.units.qual.C;
 import org.junit.Assert;
 import org.junit.Test;
@@ -145,6 +146,7 @@ public class OTSConverterSuite {
         Assert.assertEquals(1, kvRecord.getFieldCount());
         Assert.assertTrue(kvRecord.has("key"));
         Assert.assertEquals("k1", kvRecord.get("key"));
+        Assert.assertEquals(RecordType.DELETE, kvRecord.getRecordType());
     }
     @Test
     public void testConvertStreamRecord() {
@@ -177,6 +179,7 @@ public class OTSConverterSuite {
         Assert.assertEquals(123L, kvRecord.get("c2"));
         Assert.assertEquals(1d, kvRecord.get("c3"));
         Assert.assertEquals(false, kvRecord.get("c4"));
+        Assert.assertEquals(RecordType.PUT, kvRecord.getRecordType());
     }
 
     @Test(expected = RuntimeException.class)
