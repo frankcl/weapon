@@ -118,6 +118,8 @@ public class OTSConverter {
             } else if (value instanceof byte[]) {
                 PrimaryKeyValue primaryKeyValue = PrimaryKeyValue.fromBinary((byte[]) value);
                 builder.addPrimaryKeyColumn(entry.getKey(), primaryKeyValue);
+            } else if (value == PrimaryKeyValue.INF_MIN || value == PrimaryKeyValue.INF_MAX) {
+                builder.addPrimaryKeyColumn(entry.getKey(), (PrimaryKeyValue) value);
             } else {
                 PrimaryKeyValue primaryKeyValue = PrimaryKeyValue.fromString((String) value);
                 builder.addPrimaryKeyColumn(entry.getKey(), primaryKeyValue);
@@ -188,6 +190,8 @@ public class OTSConverter {
         if (keyValue instanceof Integer) return;
         if (keyValue instanceof Long) return;
         if (keyValue instanceof byte[]) return;
+        if (keyValue == PrimaryKeyValue.INF_MIN) return;
+        if (keyValue == PrimaryKeyValue.INF_MAX) return;
         logger.error("unexpected primary key type[{}]", keyValue.getClass().getName());
         throw new RuntimeException(String.format("unexpected primary key type[%s]", keyValue.getClass().getName()));
     }
@@ -217,6 +221,7 @@ public class OTSConverter {
      * @return 如果类型非法抛出异常，否则返回主键值
      */
     private static Object convertPrimaryKeyValue(PrimaryKeyValue primaryKeyValue) {
+        if (primaryKeyValue.isInfMax() || primaryKeyValue.isInfMin()) return primaryKeyValue;
         PrimaryKeyType primaryKeyType = primaryKeyValue.getType();
         if (primaryKeyType == PrimaryKeyType.BINARY) {
             return primaryKeyValue.asBinary();

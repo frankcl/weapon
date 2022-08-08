@@ -22,20 +22,25 @@ public class OTSConverterSuite {
         Map<String, Object> keyMap = new HashMap<>();
         keyMap.put("k1", "abc");
         keyMap.put("k2", 123);
+        keyMap.put("k3", PrimaryKeyValue.INF_MAX);
         PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
         Assert.assertTrue(primaryKey != null);
-        Assert.assertTrue(primaryKey.getPrimaryKeyColumns().length == 2);
+        Assert.assertTrue(primaryKey.getPrimaryKeyColumns().length == 3);
         Assert.assertEquals("k1", primaryKey.getPrimaryKeyColumn("k1").getName());
         Assert.assertEquals("abc", primaryKey.getPrimaryKeyColumn("k1").getValue().asString());
         Assert.assertEquals("k2", primaryKey.getPrimaryKeyColumn("k2").getName());
         Assert.assertEquals(123L, primaryKey.getPrimaryKeyColumn("k2").getValue().asLong());
+        Assert.assertEquals("k3", primaryKey.getPrimaryKeyColumn("k3").getName());
+        Assert.assertTrue(PrimaryKeyValue.INF_MAX == primaryKey.getPrimaryKeyColumn("k3").getValue());
 
         keyMap = OTSConverter.convertPrimaryKey(primaryKey);
-        Assert.assertTrue(keyMap != null && keyMap.size() == 2);
+        Assert.assertTrue(keyMap != null && keyMap.size() == 3);
         Assert.assertTrue(keyMap.containsKey("k1"));
         Assert.assertTrue(keyMap.containsKey("k2"));
+        Assert.assertTrue(keyMap.containsKey("k3"));
         Assert.assertEquals("abc", keyMap.get("k1"));
         Assert.assertEquals(123L, keyMap.get("k2"));
+        Assert.assertTrue(PrimaryKeyValue.INF_MAX == keyMap.get("k3"));
     }
 
     @Test
