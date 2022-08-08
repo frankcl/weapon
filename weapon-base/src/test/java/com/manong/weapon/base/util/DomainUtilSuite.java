@@ -27,6 +27,9 @@ public class DomainUtilSuite {
         Assert.assertEquals("geosociety.gd.cn", DomainUtil.getDomain("www.geosociety.gd.cn"));
         Assert.assertEquals("cmu.edu", DomainUtil.getDomain("www.cmu.edu"));
         Assert.assertEquals("a.ac.cn", DomainUtil.getDomain("www.a.ac.cn"));
+        Assert.assertEquals("gov.hk", DomainUtil.getDomain("www.gov.hk"));
+        Assert.assertEquals("immd.gov.hk", DomainUtil.getDomain("www.immd.gov.hk"));
+        Assert.assertEquals("immd.gov.hk", DomainUtil.getDomain("immd.gov.hk"));
     }
 
     @Test
