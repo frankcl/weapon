@@ -9,10 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * OTS客户端
@@ -46,6 +43,31 @@ public class OTSClient {
         logger.info("OTS client is closing ...");
         if (syncClient != null) syncClient.shutdown();
         logger.info("OTS client has been closed");
+    }
+
+    /**
+     * 按照范围迭代数据
+     *
+     * @param tableName 表名
+     * @param startKeyMap 起始主键
+     * @param endKeyMap 结束主键
+     * @return 数据迭代器
+     */
+    public RecordIterator rangeIterator(String tableName, Map<String, Object> startKeyMap,
+                                        Map<String, Object> endKeyMap) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        PrimaryKey startPrimaryKey = OTSConverter.convertPrimaryKey(startKeyMap);
+        PrimaryKey endPrimaryKey = OTSConverter.convertPrimaryKey(endKeyMap);
+        if (startKeyMap.size() != endKeyMap.size() ||
+                !startKeyMap.keySet().containsAll(endKeyMap.keySet())) {
+            throw new RuntimeException("start keys and end keys are not consistent");
+        }
+        RangeIteratorParameter rangeIteratorParameter = new RangeIteratorParameter(tableName);
+        rangeIteratorParameter.setInclusiveStartPrimaryKey(startPrimaryKey);
+        rangeIteratorParameter.setExclusiveEndPrimaryKey(endPrimaryKey);
+        rangeIteratorParameter.setMaxVersions(1);
+        Iterator<Row> iterator = syncClient.createRangeIterator(rangeIteratorParameter);
+        return new RecordIterator(iterator);
     }
 
     /**
