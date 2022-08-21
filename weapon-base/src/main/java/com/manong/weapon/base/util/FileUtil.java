@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,6 +20,17 @@ public class FileUtil {
     private final static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private final static int BUFFER_SIZE = 4096;
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     * @return 成功返回true，否则返回false
+     */
+    public static boolean delete(String filePath) {
+        File file = new File(filePath);
+        return file.delete();
+    }
 
     /**
      * 读取文件字符内容，并按照charset进行编码
