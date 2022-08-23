@@ -23,4 +23,12 @@ public class FileUtilSuite {
         Assert.assertTrue(content != null && content.length > 0);
     }
 
+    @Test
+    public void testGetFileSuffix() {
+        Assert.assertEquals("", FileUtil.getFileSuffix(null));
+        Assert.assertEquals("", FileUtil.getFileSuffix(""));
+        Assert.assertEquals("jar", FileUtil.getFileSuffix("test.jar"));
+        Assert.assertEquals("cpp", FileUtil.getFileSuffix("test.cpp"));
+    }
+
 }

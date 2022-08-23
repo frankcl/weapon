@@ -1,5 +1,6 @@
 package com.manong.weapon.base.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,18 @@ public class FileUtil {
     private final static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private final static int BUFFER_SIZE = 4096;
+
+    /**
+     * 获取文件后缀
+     *
+     * @param filename 文件名
+     * @return 存在返回文件后缀，否则返回空字符串
+     */
+    public static String getFileSuffix(String filename) {
+        if (StringUtils.isEmpty(filename)) return "";
+        int idx = filename.lastIndexOf(".");
+        return idx == -1 ? "" : filename.substring(idx + 1);
+    }
 
     /**
      * 删除文件
