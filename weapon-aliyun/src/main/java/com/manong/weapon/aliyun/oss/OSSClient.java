@@ -118,15 +118,31 @@ public class OSSClient {
         }
         for (int i = 0; i < config.retryCnt; i++) {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
-            PutObjectResult result = instance.putObject(bucket, key, inputStream);
-            if (result == null || StringUtils.isEmpty(result.getETag())) {
-                logger.error("put object failed for bucket[{}] and key[{}], retry {} times", bucket, key, i + 1);
-                continue;
-            }
-            return true;
+            if (putObject(bucket, key, inputStream)) return true;
         }
         logger.error("put object failed for bucket[{}] and key[{}]", bucket, key);
         return false;
+    }
+
+    /**
+     * 上传数据
+     *
+     * @param bucket
+     * @param key
+     * @param inputStream 输入流
+     * @return 成功返回true，否则返回false
+     */
+    public boolean putObject(String bucket, String key, InputStream inputStream) {
+        if (inputStream == null) {
+            logger.error("input stream is null");
+            return false;
+        }
+        PutObjectResult result = instance.putObject(bucket, key, inputStream);
+        if (result == null || StringUtils.isEmpty(result.getETag())) {
+            logger.error("put object failed for bucket[{}] and key[{}]", bucket, key);
+            return false;
+        }
+        return true;
     }
 
     /**

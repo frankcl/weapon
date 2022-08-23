@@ -75,7 +75,7 @@ public class OSSClientSuite {
         String key = "frankcl/unknown.mp4";
         byte[] content = ossClient.getObject(bucket, key);
         Assert.assertTrue(content == null);
-        Assert.assertFalse(ossClient.putObject(bucket, key, null));
+        Assert.assertFalse(ossClient.putObject(bucket, key, (byte[]) null));
     }
 
     @Test
