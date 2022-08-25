@@ -88,6 +88,7 @@ public class WeaponAutoConfiguration {
         onsProducerConfig.requestTimeoutMs = this.onsProducerConfig.requestTimeoutMs;
         onsProducerConfig.retryCnt = this.onsProducerConfig.retryCnt;
         onsProducerConfig.serverURL = this.onsProducerConfig.serverURL;
+        logger.info("auto build ons producer success for weapon starter");
         return new ONSProducer(onsProducerConfig);
     }
 }
