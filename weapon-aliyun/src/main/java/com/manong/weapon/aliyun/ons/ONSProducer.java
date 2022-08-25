@@ -31,9 +31,9 @@ public class ONSProducer {
         logger.info("ONS producer is init ...");
         if (!config.check()) return false;
         Properties properties = new Properties();
-        properties.put(PropertyKeyConst.AccessKey, config.keySecret.accessKey);
-        properties.put(PropertyKeyConst.SecretKey, config.keySecret.secretKey);
-        properties.put(PropertyKeyConst.SendMsgTimeoutMillis, config.requestTimeout);
+        properties.put(PropertyKeyConst.AccessKey, config.aliyunSecret.accessKey);
+        properties.put(PropertyKeyConst.SecretKey, config.aliyunSecret.secretKey);
+        properties.put(PropertyKeyConst.SendMsgTimeoutMillis, config.requestTimeoutMs);
         properties.put(PropertyKeyConst.NAMESRV_ADDR, config.serverURL);
         try {
             producer = ONSFactory.createProducer(properties);

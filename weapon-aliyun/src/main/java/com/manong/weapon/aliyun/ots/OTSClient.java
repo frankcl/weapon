@@ -32,8 +32,8 @@ public class OTSClient {
         clientConf.setConnectionTimeoutInMillisecond(config.connectionTimeoutMs);
         clientConf.setSocketTimeoutInMillisecond(config.socketTimeoutMs);
         clientConf.setConnectionRequestTimeoutInMillisecond(config.connectionRequestTimeoutMs);
-        syncClient = new SyncClient(config.endpoint, config.keySecret.accessKey,
-                config.keySecret.secretKey, config.instance, clientConf);
+        syncClient = new SyncClient(config.endpoint, config.aliyunSecret.accessKey,
+                config.aliyunSecret.secretKey, config.instance, clientConf);
     }
 
     /**

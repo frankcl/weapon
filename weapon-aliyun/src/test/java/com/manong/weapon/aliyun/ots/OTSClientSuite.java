@@ -3,7 +3,7 @@ package com.manong.weapon.aliyun.ots;
 import com.alibaba.fastjson2.JSON;
 import com.alicloud.openservices.tablestore.model.Condition;
 import com.alicloud.openservices.tablestore.model.RowExistenceExpectation;
-import com.manong.weapon.aliyun.secret.KeySecret;
+import com.manong.weapon.aliyun.secret.AliyunSecret;
 import com.manong.weapon.base.record.KVRecord;
 import com.manong.weapon.base.util.FileUtil;
 import org.junit.After;
@@ -28,9 +28,9 @@ public class OTSClientSuite {
     @Before
     public void setUp() {
         String content = FileUtil.read(secretFile, Charset.forName("UTF-8"));
-        KeySecret keySecret = JSON.parseObject(content, KeySecret.class);
+        AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);
         OTSClientConfig config = new OTSClientConfig();
-        config.keySecret = keySecret;
+        config.aliyunSecret = aliyunSecret;
         config.endpoint = "http://newsDataTest-news-data-test.cn-hangzhou.vpc.ots.aliyuncs.com";
         config.instance = "news-data-test";
         Assert.assertTrue(config.check());

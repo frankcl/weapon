@@ -5,14 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 秘钥
+ * 阿里云秘钥
  *
  * @author frankcl
  * @date 2022-07-23 13:18:11
  */
-public class KeySecret {
+public class AliyunSecret {
 
-    private final static Logger logger = LoggerFactory.getLogger(KeySecret.class);
+    private final static Logger logger = LoggerFactory.getLogger(AliyunSecret.class);
 
     public String accessKey;
     public String secretKey;

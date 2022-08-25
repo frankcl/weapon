@@ -11,18 +11,21 @@
     <modules>
         <module>weapon-base</module>
         <module>weapon-aliyun</module>
+        <module>weapon-spring-boot-starter</module>
     </modules>
 
     <properties>
         <jdk.version>1.8</jdk.version>
         <slf4j-log4j.version>1.7.25</slf4j-log4j.version>
         <junit.version>4.12</junit.version>
+        <lombok.version>1.18.24</lombok.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-codec.version>1.10</commons-codec.version>
         <okhttp3.version>4.9.3</okhttp3.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
         <webp-imageio.version>0.1.6</webp-imageio.version>
+        <spring-boot.version>2.7.3</spring-boot.version>
         <fastjson.version>2.0.9</fastjson.version>
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
@@ -59,6 +62,12 @@
                 <version>${slf4j-log4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
@@ -87,6 +96,17 @@
                 <groupId>org.sejda.imageio</groupId>
                 <artifactId>webp-imageio</artifactId>
                 <version>${webp-imageio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${spring-boot.version}</version>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>

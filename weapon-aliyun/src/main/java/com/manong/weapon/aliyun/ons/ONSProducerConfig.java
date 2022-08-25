@@ -1,6 +1,6 @@
 package com.manong.weapon.aliyun.ons;
 
-import com.manong.weapon.aliyun.secret.KeySecret;
+import com.manong.weapon.aliyun.secret.AliyunSecret;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,9 @@ public class ONSProducerConfig {
     private final static int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
 
     public int retryCnt = DEFAULT_RETRY_CNT;
-    public int requestTimeout = DEFAULT_REQUEST_TIMEOUT_MS;
+    public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String serverURL;
-    public KeySecret keySecret;
+    public AliyunSecret aliyunSecret;
 
     /**
      * 检测合法性
@@ -33,7 +33,7 @@ public class ONSProducerConfig {
             logger.error("server url is empty");
             return false;
         }
-        if (keySecret == null || !keySecret.check()) {
+        if (aliyunSecret == null || !aliyunSecret.check()) {
             logger.error("key secret is invalid");
             return false;
         }

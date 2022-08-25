@@ -1,6 +1,6 @@
 package com.manong.weapon.aliyun.ots;
 
-import com.manong.weapon.aliyun.secret.KeySecret;
+import com.manong.weapon.aliyun.secret.AliyunSecret;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class OTSClientConfig {
     public int socketTimeoutMs = DEFAULT_SOCKET_TIMEOUT_MS;
     public String endpoint;
     public String instance;
-    public KeySecret keySecret;
+    public AliyunSecret aliyunSecret;
 
     /**
      * 检测合法性
@@ -42,7 +42,7 @@ public class OTSClientConfig {
             logger.error("instance is empty");
             return false;
         }
-        if (keySecret == null || !keySecret.check()) {
+        if (aliyunSecret == null || !aliyunSecret.check()) {
             logger.error("key secret is invalid");
             return false;
         }

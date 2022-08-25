@@ -37,7 +37,7 @@ public class OSSClient {
         ClientBuilderConfiguration configuration = new ClientBuilderConfiguration();
         configuration.setConnectionTimeout(config.connectionTimeoutMs);
         configuration.setSocketTimeout(config.socketTimeoutMs);
-        instance = new OSSClientBuilder().build(config.endpoint, config.keySecret.accessKey, config.keySecret.secretKey);
+        instance = new OSSClientBuilder().build(config.endpoint, config.aliyunSecret.accessKey, config.aliyunSecret.secretKey);
     }
 
     /**

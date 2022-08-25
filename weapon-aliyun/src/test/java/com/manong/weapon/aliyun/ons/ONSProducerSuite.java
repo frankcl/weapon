@@ -3,7 +3,7 @@ package com.manong.weapon.aliyun.ons;
 import com.alibaba.fastjson2.JSON;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.SendResult;
-import com.manong.weapon.aliyun.secret.KeySecret;
+import com.manong.weapon.aliyun.secret.AliyunSecret;
 import com.manong.weapon.base.util.FileUtil;
 import org.junit.After;
 import org.junit.Assert;
@@ -24,9 +24,9 @@ public class ONSProducerSuite {
     @Before
     public void setUp() {
         String content = FileUtil.read(secretFile, Charset.forName("UTF-8"));
-        KeySecret keySecret = JSON.parseObject(content, KeySecret.class);
+        AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);
         ONSProducerConfig config = new ONSProducerConfig();
-        config.keySecret = keySecret;
+        config.aliyunSecret = aliyunSecret;
         config.serverURL = "http://onsaddr.mq-internet-access.mq-internet.aliyuncs.com:80";
         producer = new ONSProducer(config);
         Assert.assertTrue(producer.init());
