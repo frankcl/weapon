@@ -1,6 +1,7 @@
 package com.manong.weapon.aliyun.oss;
 
 import com.manong.weapon.aliyun.secret.AliyunSecret;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
  * @author frankcl
  * @create 2019-08-26 18:28:12
  */
+@Data
 public class OSSClientConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OSSClientConfig.class);
