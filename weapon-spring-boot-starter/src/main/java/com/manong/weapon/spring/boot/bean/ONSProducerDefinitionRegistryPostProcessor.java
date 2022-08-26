@@ -21,9 +21,9 @@ import java.util.Map;
  * @date 2022-08-26 11:25:16
  */
 @Component
-public class ONSProducerBeanDefinitionRegistryPostProcessor extends AliyunBeanDefinitionRegistryPostProcessor {
+public class ONSProducerDefinitionRegistryPostProcessor extends AliyunBeanDefinitionRegistryPostProcessor {
 
-    private final static Logger logger = LoggerFactory.getLogger(ONSProducerBeanDefinitionRegistryPostProcessor.class);
+    private final static Logger logger = LoggerFactory.getLogger(ONSProducerDefinitionRegistryPostProcessor.class);
 
     private final static String BINDING_KEY = "weapon.aliyun.ons.producer";
 

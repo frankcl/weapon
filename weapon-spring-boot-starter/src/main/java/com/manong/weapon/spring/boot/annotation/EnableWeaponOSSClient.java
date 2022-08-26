@@ -1,6 +1,6 @@
 package com.manong.weapon.spring.boot.annotation;
 
-import com.manong.weapon.spring.boot.bean.OSSClientBeanDefinitionRegistryPostProcessor;
+import com.manong.weapon.spring.boot.bean.OSSClientDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -14,6 +14,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({OSSClientBeanDefinitionRegistryPostProcessor.class})
+@Import({OSSClientDefinitionRegistryPostProcessor.class})
 public @interface EnableWeaponOSSClient {
 }

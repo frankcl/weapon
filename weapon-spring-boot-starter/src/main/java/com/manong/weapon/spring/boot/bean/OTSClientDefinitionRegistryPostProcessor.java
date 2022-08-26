@@ -1,7 +1,7 @@
 package com.manong.weapon.spring.boot.bean;
 
-import com.manong.weapon.aliyun.oss.OSSClient;
-import com.manong.weapon.aliyun.oss.OSSClientConfig;
+import com.manong.weapon.aliyun.ots.OTSClient;
+import com.manong.weapon.aliyun.ots.OTSClientConfig;
 import com.manong.weapon.aliyun.secret.AliyunSecret;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,40 +15,40 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 阿里云OSS客户端bean定义注册
+ * 阿里云OTS客户端bean定义注册
  *
  * @author frankcl
  * @date 2022-08-26 11:25:16
  */
 @Component
-public class OSSClientBeanDefinitionRegistryPostProcessor extends AliyunBeanDefinitionRegistryPostProcessor {
+public class OTSClientDefinitionRegistryPostProcessor extends AliyunBeanDefinitionRegistryPostProcessor {
 
-    private final static Logger logger = LoggerFactory.getLogger(OSSClientBeanDefinitionRegistryPostProcessor.class);
+    private final static Logger logger = LoggerFactory.getLogger(OTSClientDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.oss";
+    private final static String BINDING_KEY = "weapon.aliyun.ots";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)
             throws BeansException {
         AliyunSecret secret = bindAliyunSecret();
         if (secret == null) return;
-        Map<String, OSSClientConfig> configMap;
+        Map<String, OTSClientConfig> configMap;
         try {
             configMap = Binder.get(environment).bind(BINDING_KEY, Bindable.mapOf(
-                    String.class, OSSClientConfig.class)).get();
+                    String.class, OTSClientConfig.class)).get();
         } catch (Exception e) {
-            logger.warn("bind OSS client config failed");
+            logger.warn("bind OTS client config failed");
             return;
         }
-        for (Map.Entry<String, OSSClientConfig> entry : configMap.entrySet()) {
-            String name = String.format("%sOSSClient", entry.getKey());
-            OSSClientConfig config = entry.getValue();
+        for (Map.Entry<String, OTSClientConfig> entry : configMap.entrySet()) {
+            String name = String.format("%sOTSClient", entry.getKey());
+            OTSClientConfig config = entry.getValue();
             config.aliyunSecret = secret;
-            RootBeanDefinition beanDefinition = new RootBeanDefinition(OSSClient.class, () -> new OSSClient(config));
+            RootBeanDefinition beanDefinition = new RootBeanDefinition(OTSClient.class, () -> new OTSClient(config));
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register OSS client bean definition success for name[{}]", name);
+            logger.info("register OTS client bean definition success for name[{}]", name);
         }
     }
 }
