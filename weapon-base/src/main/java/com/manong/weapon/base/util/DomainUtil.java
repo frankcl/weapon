@@ -39,6 +39,27 @@ public class DomainUtil {
             put("aero", "航空工业");
             put("xxx", "成人、色情网站");
             put("idv", "个人");
+            put("xin", "诚信机构或个人");
+            put("top", "高端、顶级");
+            put("xyz", "无限制，企业或个人");
+            put("vip", "重要尊贵");
+            put("win", "");
+            put("red", "红色、吉祥、热情、勤奋");
+            put("wang", "华人域名");
+            put("mobi", "手机移动");
+            put("travel", "旅游网站");
+            put("club", "俱乐部等在线社区");
+            put("post", "邮政");
+            put("rec", "娱乐机构");
+            put("asia", "亚洲机构");
+            put("art", "艺术文化领域服务");
+            put("firm", "公司企业");
+            put("nom", "个人");
+            put("store", "销售类公司企业");
+            put("web", "从事WWW活动的机构");
+            put("fans", "粉丝");
+            put("ren", "人");
+            put("city", "城市");
         }
     };
     public final static Map<String, String> COUNTRY_TOP_DOMAINS = new HashMap<String, String>() {
