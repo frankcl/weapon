@@ -22,6 +22,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <jsoup.version>1.15.3</jsoup.version>
         <okhttp3.version>4.9.3</okhttp3.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
         <webp-imageio.version>0.1.6</webp-imageio.version>
@@ -81,6 +82,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons-collections4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
