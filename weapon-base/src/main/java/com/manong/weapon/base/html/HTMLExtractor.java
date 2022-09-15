@@ -96,6 +96,7 @@ public class HTMLExtractor {
             htmlElements.add(htmlElement);
         } else if (node instanceof Element) {
             Element element = (Element) node;
+            if (!isVisible(element)) return htmlElements;
             if (element.tagName().equals("img")) {
                 htmlElements.add(element.clone());
                 return htmlElements;
