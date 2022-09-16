@@ -136,6 +136,7 @@ public class HTMLExtractor {
     private static Element buildImageElement(Element imageElement) {
         Element htmlElement = new Element("img");
         String sourceURL = imageElement.attr("abs:src");
+        if (StringUtils.isEmpty(sourceURL)) sourceURL = imageElement.attr("abs:data-src");
         if (StringUtils.isEmpty(sourceURL)) return null;
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
         htmlElement.attr("src", sourceURL);
