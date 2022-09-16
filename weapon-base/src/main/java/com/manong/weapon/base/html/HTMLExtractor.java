@@ -102,7 +102,7 @@ public class HTMLExtractor {
                 return htmlElements;
             } else if (tagName.equals("img") || tagName.equals("video")) {
                 Element htmlElement = tagName.equals("img") ?
-                        buildImageElement(element) : buildImageElement(element);
+                        buildImageElement(element) : buildVideoElement(element);
                 if (htmlElement != null) htmlElements.add(htmlElement);
                 return htmlElements;
             }
