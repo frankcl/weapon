@@ -23,30 +23,25 @@ public class HTMLExtractor {
         add("noscript");
         add("style");
         add("iframe");
-        add("br");
         add("select");
         add("input");
         add("button");
-        add("comment");
     }};
 
     /**
      * 抽取HTML主体元素
+     * 针对新闻文章网页生效
      *
-     * @param url 网页URL
      * @param html 网页HTML
+     * @param url 网页URL
      * @return 存在返回正文主体元素，否则返回null
      */
-    public static Element extractMainElement(String url, String html) {
-        if (StringUtils.isEmpty(url)) {
-            logger.error("page URL is empty");
-            return null;
-        }
+    public static Element extractMainElement(String html, String url) {
         if (StringUtils.isEmpty(html)) {
             logger.error("page HTML is empty");
             return null;
         }
-        Document document = Jsoup.parse(html, url);
+        Document document = StringUtils.isEmpty(url) ? Jsoup.parse(html) : Jsoup.parse(html, url);
         document.select(String.join(",", EXCLUDE_NODES)).remove();
         Element body = document.body();
         if (body == null) {
@@ -59,12 +54,14 @@ public class HTMLExtractor {
     }
 
     /**
-     * 构建主体HTML内容
+     * 构建HTML内容
+     * 以分段元素p构建HTML内容
      *
      * @param mainElement 主体元素
      * @return HTML内容
      */
     public static String buildMainHTML(Element mainElement) {
+        if (mainElement == null) return "";
         List<Element> htmlElements = new ArrayList<>();
         for (Node childNode : mainElement.childNodes()) {
             htmlElements.addAll(buildHTMLElements(childNode));
@@ -79,6 +76,7 @@ public class HTMLExtractor {
 
     /**
      * 构建HTML元素列表
+     * 以分段元素p构建HTML内容
      *
      * @param node HTML节点
      * @return HTML元素列表
@@ -96,9 +94,16 @@ public class HTMLExtractor {
             htmlElements.add(htmlElement);
         } else if (node instanceof Element) {
             Element element = (Element) node;
+            String tagName = element.tagName();
             if (!isVisible(element)) return htmlElements;
-            if (element.tagName().equals("img")) {
-                htmlElements.add(element.clone());
+            if (tagName.equals("br")) {
+                Element htmlElement = new Element("br");
+                htmlElements.add(htmlElement);
+                return htmlElements;
+            } else if (tagName.equals("img") || tagName.equals("video")) {
+                Element htmlElement = tagName.equals("img") ?
+                        buildImageElement(element) : buildImageElement(element);
+                if (htmlElement != null) htmlElements.add(htmlElement);
                 return htmlElements;
             }
             List<Element> children = new ArrayList<>();
@@ -110,8 +115,8 @@ public class HTMLExtractor {
             } else if (children.size() == 1) {
                 Element htmlElement = new Element("p");
                 Element child = children.get(0);
-                if (child.tagName().equals("img")) htmlElement.appendChild(child);
-                else htmlElement.appendChildren(child.childNodes());
+                if (child.tagName().equals("p")) htmlElement.appendChildren(child.childNodes());
+                else htmlElement.appendChild(child);
                 htmlElements.add(htmlElement);
                 return htmlElements;
             }
@@ -120,6 +125,36 @@ public class HTMLExtractor {
             htmlElements.add(htmlElement);
         }
         return htmlElements;
+    }
+
+    /**
+     * 构建图片元素
+     *
+     * @param imageElement 原始图片元素
+     * @return 新构建图片元素
+     */
+    private static Element buildImageElement(Element imageElement) {
+        Element htmlElement = new Element("img");
+        String sourceURL = imageElement.attr("abs:src");
+        if (StringUtils.isEmpty(sourceURL)) return null;
+        if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
+        htmlElement.attr("src", sourceURL);
+        return htmlElement;
+    }
+
+    /**
+     * 构建视频元素
+     *
+     * @param videoElement 原始视频元素
+     * @return 新构建视频元素
+     */
+    private static Element buildVideoElement(Element videoElement) {
+        Element htmlElement = new Element("video");
+        String sourceURL = videoElement.attr("abs:src");
+        if (StringUtils.isEmpty(sourceURL)) return null;
+        if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
+        htmlElement.attr("src", sourceURL);
+        return htmlElement;
     }
 
     /**
@@ -148,7 +183,8 @@ public class HTMLExtractor {
             if (textCount > 0) htmlNode.segmentTextCounts.add(textCount);
         } else if (htmlNode.node instanceof Element) {
             Element element = (Element) htmlNode.node;
-            if (!isVisible(element)) return;
+            String tagName = element.tagName();
+            if (!isVisible(element) || tagName.equals("br")) return;
             for (Node childNode : element.childNodes()) {
                 if (childNode instanceof Comment) continue;
                 HTMLNode childHTMLNode = new HTMLNode(childNode);
@@ -156,7 +192,6 @@ public class HTMLExtractor {
                 accumulateChildNode(htmlNode, childHTMLNode);
             }
             htmlNode.nodeCount++;
-            String tagName = element.tagName();
             if (tagName.equals("p")) htmlNode.paragraphNodeCount++;
             else if (tagName.equals("a")) {
                 htmlNode.anchorNodeCount++;
@@ -191,13 +226,12 @@ public class HTMLExtractor {
     private static double computeVariance(List<Integer> segmentTextCounts) {
         if (segmentTextCounts == null || segmentTextCounts.isEmpty()) return 0d;
         if (segmentTextCounts.size() == 1) return segmentTextCounts.get(0) * 1.0d / 2;
-        double sum = 0d, mean = 0d;
+        double sum = 0d;
         for (Integer count : segmentTextCounts) sum += count;
-        mean = sum / segmentTextCounts.size();
+        double mean = sum / segmentTextCounts.size();
         sum = 0d;
         for (Integer count : segmentTextCounts) sum += (count - mean) * (count - mean);
-        sum = sum / segmentTextCounts.size();
-        return Math.sqrt(sum + 1);
+        return Math.sqrt(sum / segmentTextCounts.size() + 1);
     }
 
     /**

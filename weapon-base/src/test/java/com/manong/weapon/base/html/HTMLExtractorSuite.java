@@ -31,7 +31,7 @@ public class HTMLExtractorSuite {
         Assert.assertEquals(200, response.code());
         String html = response.body().string();
         response.close();
-        Element element = HTMLExtractor.extractMainElement(request.requestURL, html);
+        Element element = HTMLExtractor.extractMainElement(html, request.requestURL);
         Assert.assertTrue(element != null);
         HTMLExtractor.buildMainHTML(element);
     }
@@ -39,13 +39,13 @@ public class HTMLExtractorSuite {
     @Test
     public void testBuildMainHTML() throws Exception {
         HttpRequest request = new HttpRequest();
-        request.requestURL = "https://news.sina.com.cn/gov/xlxw/2022-09-15/doc-imqqsmrn9056118.shtml";
+        request.requestURL = "https://blog.csdn.net/zhangppmm/article/details/51119658";
         request.method = RequestMethod.GET;
         Response response = httpClient.execute(request);
         Assert.assertEquals(200, response.code());
         String html = response.body().string();
         response.close();
-        Element element = HTMLExtractor.extractMainElement(request.requestURL, html);
+        Element element = HTMLExtractor.extractMainElement(html, request.requestURL);
         Assert.assertTrue(element != null);
         String content = HTMLExtractor.buildMainHTML(element);
         Assert.assertTrue(content != null && content.length() > 0);
