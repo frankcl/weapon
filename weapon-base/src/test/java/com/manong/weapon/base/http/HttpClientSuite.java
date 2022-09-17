@@ -20,7 +20,6 @@ public class HttpClientSuite {
     public void setUp() {
         HttpClientConfig config = new HttpClientConfig();
         httpClient = new HttpClient(config);
-        Assert.assertTrue(httpClient.init());
     }
 
     @Test

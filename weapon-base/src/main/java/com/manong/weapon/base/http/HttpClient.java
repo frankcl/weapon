@@ -31,19 +31,22 @@ public class HttpClient {
     private HttpClientConfig config;
     private OkHttpClient okHttpClient;
 
+    public HttpClient() {
+        this(new HttpClientConfig());
+    }
+
     public HttpClient(HttpClientConfig config) {
         this.config = config;
+        init();
     }
 
     /**
      * 初始化
-     *
-     * @return 如果成功返回true，否则返回false
      */
-    public boolean init() {
+    public void init() {
         try {
             logger.info("http client is init ...");
-            if (!config.check()) return false;
+            if (!config.check()) throw new RuntimeException("http client config is invalid");
             UnsafeTrustManager unsafeTrustManager = new UnsafeTrustManager();
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{unsafeTrustManager}, new SecureRandom());
@@ -57,11 +60,10 @@ public class HttpClient {
                     connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS).
                     readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS).build();
             logger.info("http client init success");
-            return true;
         } catch (Exception e) {
             logger.info("http client init failed");
             logger.error(e.getMessage(), e);
-            return false;
+            throw new RuntimeException(e);
         }
     }
 

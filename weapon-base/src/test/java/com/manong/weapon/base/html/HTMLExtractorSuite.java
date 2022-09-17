@@ -19,7 +19,6 @@ public class HTMLExtractorSuite {
     public void setUp() {
         HttpClientConfig config = new HttpClientConfig();
         httpClient = new HttpClient(config);
-        Assert.assertTrue(httpClient.init());
     }
 
     @Test
