@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -80,17 +82,44 @@ public class HttpClient {
     }
 
     /**
+     * 编码GET请求URL
+     *
+     * @param httpRequest HTTP请求
+     * @return 编码URL
+     * @throws UnsupportedEncodingException
+     */
+    private String encodeGetURL(HttpRequest httpRequest) throws UnsupportedEncodingException {
+        String requestURL = httpRequest.requestURL;
+        if (httpRequest.params == null || httpRequest.params.isEmpty()) return requestURL;
+        StringBuffer buffer = new StringBuffer();
+        for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
+            if (buffer.length() > 0) buffer.append("&");
+            buffer.append(entry.getKey()).append("=").append(
+                    URLEncoder.encode(entry.getValue().toString(), "UTF-8"));
+        }
+        int pos = requestURL.indexOf("?");
+        return pos == -1 ? String.format("%s?%s", requestURL, buffer) : (requestURL.endsWith("&") ?
+               String.format("%s%s", requestURL, buffer) : String.format("%s&%s", requestURL, buffer));
+    }
+
+    /**
      * 执行GET请求
      *
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
     private Response doGet(HttpRequest httpRequest) {
-        Request.Builder requestBuilder = new Request.Builder();
-        requestBuilder.url(httpRequest.requestURL);
-        handleRequestHeaders(requestBuilder, httpRequest);
-        Request request = requestBuilder.build();
-        return executeRequest(request);
+        try {
+            Request.Builder requestBuilder = new Request.Builder();
+            String requestURL = encodeGetURL(httpRequest);
+            requestBuilder.url(requestURL);
+            handleRequestHeaders(requestBuilder, httpRequest);
+            Request request = requestBuilder.build();
+            return executeRequest(request);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     /**
