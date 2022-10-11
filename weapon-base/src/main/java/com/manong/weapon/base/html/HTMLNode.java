@@ -35,10 +35,22 @@ public class HTMLNode {
     public List<Integer> segmentTextCounts;
     /* 子节点列表 */
     public List<HTMLNode> childNodes;
+    /* 父节点 */
+    public HTMLNode parentNode;
 
     public HTMLNode(Node node) {
         this.node = node;
         this.segmentTextCounts = new ArrayList<>();
         this.childNodes = new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return node.hashCode();
     }
 }

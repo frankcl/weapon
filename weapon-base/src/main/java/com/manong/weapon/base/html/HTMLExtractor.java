@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * HTML正文抽取器
@@ -189,11 +190,12 @@ public class HTMLExtractor {
             for (Node childNode : element.childNodes()) {
                 if (childNode instanceof Comment) continue;
                 HTMLNode childHTMLNode = new HTMLNode(childNode);
+                childHTMLNode.parentNode = htmlNode;
                 computeScore(childHTMLNode);
                 accumulateChildNode(htmlNode, childHTMLNode);
             }
             htmlNode.nodeCount++;
-            if (tagName.equals("p")) htmlNode.paragraphNodeCount++;
+            if (tagName.equals("p") || tagName.equals("section")) htmlNode.paragraphNodeCount++;
             else if (tagName.equals("a")) {
                 htmlNode.anchorNodeCount++;
                 htmlNode.anchorTextCount = htmlNode.textCount;
@@ -260,13 +262,58 @@ public class HTMLExtractor {
      */
     private static Element selectMainElement(HTMLNode bodyNode) {
         List<HTMLNode> htmlNodes = new LinkedList<>();
+        int heapSize = 3;
+        PriorityQueue<HTMLNode> nodeQueue = new PriorityQueue<>(heapSize,
+                (node1, node2) -> node1.score > node2.score ? 1 : (node1.score < node2.score ? -1 : 0));
         htmlNodes.add(bodyNode);
-        HTMLNode mainNode = bodyNode;
         while (!htmlNodes.isEmpty()) {
             HTMLNode htmlNode = htmlNodes.remove(0);
-            if (htmlNode.score > mainNode.score) mainNode = htmlNode;
+            if (Double.isNaN(htmlNode.score)) continue;
+            if (nodeQueue.size() < heapSize) nodeQueue.offer(htmlNode);
+            else if (nodeQueue.peek().score < htmlNode.score) {
+                nodeQueue.poll();
+                nodeQueue.offer(htmlNode);
+            }
             if (htmlNode.childNodes != null) htmlNodes.addAll(htmlNode.childNodes);
         }
-        return (Element) mainNode.node;
+        htmlNodes = new ArrayList<>();
+        htmlNodes.addAll(nodeQueue);
+        htmlNodes.sort((node1, node2) -> node1.score > node2.score ? -1 : (node1.score < node2.score ? 1 : 0));
+        HTMLNode topHTMLNode = selectTopHTMLNode(htmlNodes);
+        if (topHTMLNode == null) topHTMLNode = htmlNodes.get(0);
+        return (Element) topHTMLNode.node;
+    }
+
+    /**
+     * 选择合并更大范围的主体节点
+     *
+     * @param htmlNodes 节点列表
+     * @return 如果存在返回节点，否则返回null
+     */
+    private static HTMLNode selectTopHTMLNode(List<HTMLNode> htmlNodes) {
+        Map<HTMLNode, NodeStat> topNodeMap = new HashMap<>();
+        int maxTextCount = htmlNodes.get(0).textCount;
+        for (HTMLNode htmlNode : htmlNodes) {
+            if (htmlNode.parentNode == null) continue;
+            if (htmlNode.textCount < 500 && htmlNode.textCount * 1.0 / maxTextCount < 0.5d) continue;
+            if (!topNodeMap.containsKey(htmlNode.parentNode)) topNodeMap.put(htmlNode.parentNode, new NodeStat());
+            topNodeMap.get(htmlNode.parentNode).nodeCount += 1;
+            topNodeMap.get(htmlNode.parentNode).textCount += htmlNode.textCount;
+        }
+        Map.Entry<HTMLNode, NodeStat> topEntry = null;
+        for (Map.Entry<HTMLNode, NodeStat> entry : topNodeMap.entrySet()) {
+            NodeStat nodeStat = entry.getValue();
+            if (nodeStat.nodeCount <= 1) continue;
+            if (topEntry == null || topEntry.getValue().textCount < nodeStat.textCount) topEntry = entry;
+        }
+        return topEntry == null ? null : topEntry.getKey();
+    }
+
+    /**
+     * 节点统计信息
+     */
+    private static class NodeStat {
+        public int nodeCount;
+        public int textCount;
     }
 }
