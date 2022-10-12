@@ -290,18 +290,43 @@ public class HTMLExtractor {
      */
     private static HTMLNode selectMainHTMLNode(List<HTMLNode> htmlNodes) {
         HTMLNode mainHTMLNode = htmlNodes.get(0);
+        HTMLNode mainParentNode = findParentHTMLNode(mainHTMLNode);
+        if (mainParentNode == null) return mainHTMLNode;
         NodeStat nodeStat = new NodeStat();
         nodeStat.nodeCount = 1;
         nodeStat.textCount = mainHTMLNode.textCount;
         for (int i = 1; i < htmlNodes.size(); i++) {
             HTMLNode htmlNode = htmlNodes.get(i);
-            if (htmlNode.parentNode == null || htmlNode.parentNode != mainHTMLNode.parentNode) continue;
+            if (htmlNode == mainParentNode) {
+                nodeStat.nodeCount += 1;
+                nodeStat.textCount = mainParentNode.textCount;
+                break;
+            }
+            HTMLNode parentNode = findParentHTMLNode(htmlNode);
+            if (parentNode == null || parentNode != mainParentNode) continue;
             if (htmlNode.textCount < 300 && htmlNode.textCount * 1.0 / mainHTMLNode.textCount < 0.4d) continue;
             nodeStat.nodeCount += 1;
             nodeStat.textCount += htmlNode.textCount;
         }
         return nodeStat.nodeCount > 1 && nodeStat.textCount * 1.0 /
-                mainHTMLNode.parentNode.textCount >= 0.8 ? mainHTMLNode.parentNode : mainHTMLNode;
+                mainParentNode.textCount >= 0.8 ? mainParentNode : mainHTMLNode;
+    }
+
+    /**
+     * 获取非独生子女父亲节点
+     *
+     * @param htmlNode 节点
+     * @return 非独生子女父亲节点，如果没有返回null
+     */
+    private static HTMLNode findParentHTMLNode(HTMLNode htmlNode) {
+        if (htmlNode == null) return null;
+        HTMLNode parentHTMLNode = htmlNode.parentNode;
+        while (parentHTMLNode != null) {
+            if (parentHTMLNode.node.childNodeSize() != 1) return parentHTMLNode;
+            if (parentHTMLNode.parentNode == null) return parentHTMLNode;
+            parentHTMLNode = parentHTMLNode.parentNode;
+        }
+        return null;
     }
 
     /**
