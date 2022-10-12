@@ -38,7 +38,7 @@ public class HTMLExtractorSuite {
     @Test
     public void testBuildMainHTML() throws Exception {
         HttpRequest request = new HttpRequest();
-        request.requestURL = "https://blog.csdn.net/zhangppmm/article/details/51119658";
+        request.requestURL = "https://mp.weixin.qq.com/s?__biz=MjM5MzI5NTU3MQ==&mid=2652091313&idx=6&sn=034e6d431d2ffb1a94422a26841e8816";
         request.method = RequestMethod.GET;
         Response response = httpClient.execute(request);
         Assert.assertEquals(200, response.code());
