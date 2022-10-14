@@ -49,4 +49,19 @@ public class HTMLExtractorSuite {
         String content = HTMLExtractor.buildMainHTML(element);
         Assert.assertTrue(content != null && content.length() > 0);
     }
+
+    @Test
+    public void testExtractPublishTime() throws Exception {
+        HttpRequest request = new HttpRequest();
+        request.requestURL = "http://politics.people.com.cn/n1/2022/1014/c1001-32544932.html";
+        request.method = RequestMethod.GET;
+        Response response = httpClient.execute(request);
+        Assert.assertEquals(200, response.code());
+        String html = response.body().string();
+        response.close();
+        Element element = HTMLExtractor.extractMainElement(html, request.requestURL);
+        Assert.assertTrue(element != null);
+        Long publishTime = HTMLExtractor.extractPublishTime(element);
+        Assert.assertTrue(publishTime != null);
+    }
 }

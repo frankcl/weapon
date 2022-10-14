@@ -1,12 +1,16 @@
 package com.manong.weapon.base.html;
 
+import com.manong.weapon.base.util.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.html.HTML;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * HTML正文抽取器
@@ -17,6 +21,11 @@ import java.util.*;
 public class HTMLExtractor {
 
     private final static Logger logger = LoggerFactory.getLogger(HTMLExtractor.class);
+
+    private final static Pattern DATE_TIME_PATTERN1 = Pattern.compile(
+            "([1-2][0-9]{3})[^0-9]{1,5}?([0-1]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-2]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-9]{1,2})");
+    private final static Pattern DATE_TIME_PATTERN2 = Pattern.compile(
+            "([1-2][0-9]{3})[^0-9]{1,5}?([0-1]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-2]?[0-9])[^0-9]{1,5}?([0-9]{1,2})");
 
     private final static Set<String> EXCLUDE_NODES = new HashSet<String>() {{
         add("script");
@@ -51,6 +60,38 @@ public class HTMLExtractor {
         HTMLNode bodyNode = new HTMLNode(body);
         computeScore(bodyNode);
         return selectMainElement(bodyNode);
+    }
+
+    /**
+     * 从正文主体中抽取发布时间
+     * 如果无法抽取返回null
+     *
+     * @param mainElement 主体元素
+     * @return 成功返回毫秒时间戳，否则返回null
+     */
+    public static Long extractPublishTime(Element mainElement) {
+        Element element = mainElement;
+        for (int i = 0; i < 6; i++) {
+            if (element == null) return null;
+            String html = element.outerHtml();
+            Matcher matcher = DATE_TIME_PATTERN1.matcher(html);
+            if (matcher.find()) {
+                return CommonUtil.stringToTime(String.format("%s-%s-%s %s:%s:%s",
+                        matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4),
+                        matcher.group(5), matcher.group(6)), null);
+            } else {
+                matcher = DATE_TIME_PATTERN2.matcher(html);
+                if (matcher.find()) return CommonUtil.stringToTime(String.format("%s-%s-%s %s:%s",
+                        matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4),
+                        matcher.group(5)), "yyyy-MM-dd HH:mm");
+            }
+            while (true) {
+                if (element.tag().equals(HTML.Tag.BODY)) return null;
+                element = element.parent();
+                if (element == null || element.childNodeSize() != 1) break;
+            }
+        }
+        return null;
     }
 
     /**
