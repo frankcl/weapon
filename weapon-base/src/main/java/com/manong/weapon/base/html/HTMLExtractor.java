@@ -257,7 +257,8 @@ public class HTMLExtractor {
      */
     private static boolean isVisible(Element element) {
         String style = element.attr("style");
-        return style != null && (style.replaceAll("\\s", "").indexOf("display:none") == -1);
+        style = style == null ? "" : style.replaceAll("\\s", "");
+        return style.indexOf("display:none") == -1;
     }
 
     /**
