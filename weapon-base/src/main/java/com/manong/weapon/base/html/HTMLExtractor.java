@@ -309,7 +309,7 @@ public class HTMLExtractor {
         htmlNodes.add(bodyNode);
         while (!htmlNodes.isEmpty()) {
             HTMLNode htmlNode = htmlNodes.remove(0);
-            if (Double.isNaN(htmlNode.score)) continue;
+            if (Double.isNaN(htmlNode.score) || !(htmlNode.node instanceof Element)) continue;
             if (nodeQueue.size() < heapSize) nodeQueue.offer(htmlNode);
             else if (nodeQueue.peek().score < htmlNode.score) {
                 nodeQueue.poll();
@@ -320,6 +320,7 @@ public class HTMLExtractor {
         htmlNodes = new ArrayList<>();
         htmlNodes.addAll(nodeQueue);
         htmlNodes.sort((node1, node2) -> node1.score > node2.score ? -1 : (node1.score < node2.score ? 1 : 0));
+        if (htmlNodes.isEmpty()) return (Element) bodyNode.node;
         HTMLNode mainHTMLNode = selectMainHTMLNode(htmlNodes);
         return (Element) mainHTMLNode.node;
     }
