@@ -45,7 +45,7 @@ public class MemoryMonitor {
      *
      * @return 内存信息
      */
-    public Memory getCurrentMemory() {
+    public static Memory getCurrentMemory() {
         Runtime runtime = Runtime.getRuntime();
         Memory memory = new Memory();
         memory.freeMemory = runtime.freeMemory();
