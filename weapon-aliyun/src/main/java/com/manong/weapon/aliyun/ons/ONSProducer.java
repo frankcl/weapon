@@ -1,6 +1,8 @@
 package com.manong.weapon.aliyun.ons;
 
 import com.aliyun.openservices.ons.api.*;
+import com.manong.weapon.aliyun.common.Rebuildable;
+import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +14,7 @@ import java.util.Properties;
  * @author frankcl
  * @create 2019-06-11 19:05
  */
-public class ONSProducer {
+public class ONSProducer implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSProducer.class);
 
@@ -22,14 +24,29 @@ public class ONSProducer {
     public ONSProducer(ONSProducerConfig config) {
         this.config = config;
     }
+
+    @Override
+    public void rebuild() {
+        logger.info("ONS producer is rebuilding ...");
+        if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
+            DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
+            logger.warn("secret is not changed, ignore ONS producer rebuilding");
+            return;
+        }
+        config.aliyunSecret.accessKey = DynamicSecret.accessKey;
+        config.aliyunSecret.secretKey = DynamicSecret.secretKey;
+        Producer prevProducer = producer;
+        if (!build()) throw new RuntimeException("rebuild ONS producer failed");
+        if (prevProducer != null) prevProducer.shutdown();
+        logger.info("ONS producer rebuild success");
+    }
+
     /**
-     * 初始化ONS producer
+     * 构建ONS producer
      *
      * @return 成功返回true，否则返回false
      */
-    public boolean init() {
-        logger.info("ONS producer is init ...");
-        if (!config.check()) return false;
+    private boolean build() {
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.AccessKey, config.aliyunSecret.accessKey);
         properties.put(PropertyKeyConst.SecretKey, config.aliyunSecret.secretKey);
@@ -39,9 +56,22 @@ public class ONSProducer {
             producer = ONSFactory.createProducer(properties);
             producer.start();
         } catch (Exception e) {
-            logger.error("create ONS producer failed");
+            logger.error("build ONS producer failed");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * 初始化ONS producer
+     *
+     * @return 成功返回true，否则返回false
+     */
+    public boolean init() {
+        logger.info("ONS producer is init ...");
+        if (!config.check()) return false;
+        if (!build()) return false;
+        DynamicSecret.register(this);
         logger.info("ONS producer has finished init");
         return true;
     }
@@ -51,6 +81,7 @@ public class ONSProducer {
      */
     public void destroy() {
         logger.info("ONS producer is destroying ...");
+        DynamicSecret.unregister(this);
         if (producer != null) producer.shutdown();
         logger.info("ONS producer has been destroyed");
     }

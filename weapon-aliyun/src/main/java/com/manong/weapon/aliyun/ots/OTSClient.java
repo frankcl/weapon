@@ -4,6 +4,9 @@ import com.alicloud.openservices.tablestore.ClientConfiguration;
 import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.TableStoreException;
 import com.alicloud.openservices.tablestore.model.*;
+import com.aliyun.oss.OSS;
+import com.manong.weapon.aliyun.common.Rebuildable;
+import com.manong.weapon.aliyun.secret.DynamicSecret;
 import com.manong.weapon.base.record.KVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,7 +20,7 @@ import java.util.*;
  * @author frankcl
  * @create 2019-05-28 20:29
  */
-public class OTSClient {
+public class OTSClient implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSClient.class);
 
@@ -28,12 +31,8 @@ public class OTSClient {
 
     public OTSClient(OTSClientConfig config) {
         this.config = config;
-        ClientConfiguration clientConf = new ClientConfiguration();
-        clientConf.setConnectionTimeoutInMillisecond(config.connectionTimeoutMs);
-        clientConf.setSocketTimeoutInMillisecond(config.socketTimeoutMs);
-        clientConf.setConnectionRequestTimeoutInMillisecond(config.connectionRequestTimeoutMs);
-        syncClient = new SyncClient(config.endpoint, config.aliyunSecret.accessKey,
-                config.aliyunSecret.secretKey, config.instance, clientConf);
+        build();
+        DynamicSecret.register(this);
     }
 
     /**
@@ -41,8 +40,37 @@ public class OTSClient {
      */
     public void close() {
         logger.info("OTS client is closing ...");
+        DynamicSecret.unregister(this);
         if (syncClient != null) syncClient.shutdown();
         logger.info("OTS client has been closed");
+    }
+
+    @Override
+    public void rebuild() {
+        logger.info("OTS client is rebuilding ...");
+        if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
+                DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
+            logger.warn("secret is not changed, ignore OTS client rebuilding");
+            return;
+        }
+        config.aliyunSecret.accessKey = DynamicSecret.accessKey;
+        config.aliyunSecret.secretKey = DynamicSecret.secretKey;
+        SyncClient prevClient = syncClient;
+        build();
+        if (prevClient != null) prevClient.shutdown();
+        logger.info("OTS client rebuild success");
+    }
+
+    /**
+     * 构建实例
+     */
+    private void build() {
+        ClientConfiguration clientConf = new ClientConfiguration();
+        clientConf.setConnectionTimeoutInMillisecond(config.connectionTimeoutMs);
+        clientConf.setSocketTimeoutInMillisecond(config.socketTimeoutMs);
+        clientConf.setConnectionRequestTimeoutInMillisecond(config.connectionRequestTimeoutMs);
+        syncClient = new SyncClient(config.endpoint, config.aliyunSecret.accessKey,
+                config.aliyunSecret.secretKey, config.instance, clientConf);
     }
 
     /**

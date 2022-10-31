@@ -4,6 +4,8 @@ import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
+import com.manong.weapon.aliyun.common.Rebuildable;
+import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ import java.util.List;
  * @author frankcl
  * @create 2019-08-26 16:10:36
  */
-public class OSSClient {
+public class OSSClient implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OSSClient.class);
 
@@ -34,17 +36,44 @@ public class OSSClient {
 
     public OSSClient(OSSClientConfig config) {
         this.config = config;
-        ClientBuilderConfiguration configuration = new ClientBuilderConfiguration();
-        configuration.setConnectionTimeout(config.connectionTimeoutMs);
-        configuration.setSocketTimeout(config.socketTimeoutMs);
-        instance = new OSSClientBuilder().build(config.endpoint, config.aliyunSecret.accessKey, config.aliyunSecret.secretKey);
+        build();
+        DynamicSecret.register(this);
     }
 
     /**
      * 关闭客户端实例
      */
     public void close() {
+        logger.info("OSS client is closing ...");
+        DynamicSecret.unregister(this);
         if (instance != null) instance.shutdown();
+        logger.info("OSS client has been closed");
+    }
+
+    @Override
+    public void rebuild() {
+        logger.info("OSS client is rebuilding ...");
+        if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
+                DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
+            logger.warn("secret is not changed, ignore OSS client rebuilding");
+            return;
+        }
+        config.aliyunSecret.accessKey = DynamicSecret.accessKey;
+        config.aliyunSecret.secretKey = DynamicSecret.secretKey;
+        OSS prevInstance = instance;
+        build();
+        if (prevInstance != null) prevInstance.shutdown();
+        logger.info("OSS client rebuild success");
+    }
+
+    /**
+     * 构建实例
+     */
+    private void build() {
+        ClientBuilderConfiguration configuration = new ClientBuilderConfiguration();
+        configuration.setConnectionTimeout(config.connectionTimeoutMs);
+        configuration.setSocketTimeout(config.socketTimeoutMs);
+        instance = new OSSClientBuilder().build(config.endpoint, config.aliyunSecret.accessKey, config.aliyunSecret.secretKey);
     }
 
     /**
