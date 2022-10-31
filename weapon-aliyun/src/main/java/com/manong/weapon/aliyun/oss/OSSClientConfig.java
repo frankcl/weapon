@@ -38,7 +38,7 @@ public class OSSClientConfig {
             return false;
         }
         if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("invalid key secrets");
+            logger.error("invalid aliyun secret");
             return false;
         }
         return true;

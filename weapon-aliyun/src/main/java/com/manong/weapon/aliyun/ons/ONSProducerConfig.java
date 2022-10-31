@@ -36,7 +36,7 @@ public class ONSProducerConfig {
             return false;
         }
         if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("key secret is invalid");
+            logger.error("aliyun secret is invalid");
             return false;
         }
         return true;

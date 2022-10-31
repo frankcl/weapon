@@ -45,7 +45,7 @@ public class OTSClientConfig {
             return false;
         }
         if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("key secret is invalid");
+            logger.error("aliyun secret is invalid");
             return false;
         }
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;
