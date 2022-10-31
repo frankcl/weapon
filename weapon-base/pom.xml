@@ -39,14 +39,17 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.sejda.imageio</groupId>
