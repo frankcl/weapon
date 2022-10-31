@@ -4,7 +4,7 @@ import com.alicloud.openservices.tablestore.ClientConfiguration;
 import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.TableStoreException;
 import com.alicloud.openservices.tablestore.model.*;
-import com.aliyun.oss.OSS;
+import com.manong.weapon.aliyun.common.RebuildManager;
 import com.manong.weapon.aliyun.common.Rebuildable;
 import com.manong.weapon.aliyun.secret.DynamicSecret;
 import com.manong.weapon.base.record.KVRecord;
@@ -32,7 +32,7 @@ public class OTSClient implements Rebuildable {
     public OTSClient(OTSClientConfig config) {
         this.config = config;
         build();
-        DynamicSecret.register(this);
+        RebuildManager.register(this);
     }
 
     /**
@@ -40,7 +40,7 @@ public class OTSClient implements Rebuildable {
      */
     public void close() {
         logger.info("OTS client is closing ...");
-        DynamicSecret.unregister(this);
+        RebuildManager.unregister(this);
         if (syncClient != null) syncClient.shutdown();
         logger.info("OTS client has been closed");
     }

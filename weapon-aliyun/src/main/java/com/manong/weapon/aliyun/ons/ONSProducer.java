@@ -1,6 +1,7 @@
 package com.manong.weapon.aliyun.ons;
 
 import com.aliyun.openservices.ons.api.*;
+import com.manong.weapon.aliyun.common.RebuildManager;
 import com.manong.weapon.aliyun.common.Rebuildable;
 import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class ONSProducer implements Rebuildable {
         logger.info("ONS producer is init ...");
         if (!config.check()) return false;
         if (!build()) return false;
-        DynamicSecret.register(this);
+        RebuildManager.register(this);
         logger.info("ONS producer has finished init");
         return true;
     }
@@ -81,7 +82,7 @@ public class ONSProducer implements Rebuildable {
      */
     public void destroy() {
         logger.info("ONS producer is destroying ...");
-        DynamicSecret.unregister(this);
+        RebuildManager.unregister(this);
         if (producer != null) producer.shutdown();
         logger.info("ONS producer has been destroyed");
     }

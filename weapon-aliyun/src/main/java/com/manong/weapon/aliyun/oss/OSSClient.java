@@ -4,6 +4,7 @@ import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
+import com.manong.weapon.aliyun.common.RebuildManager;
 import com.manong.weapon.aliyun.common.Rebuildable;
 import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,7 @@ public class OSSClient implements Rebuildable {
     public OSSClient(OSSClientConfig config) {
         this.config = config;
         build();
-        DynamicSecret.register(this);
+        RebuildManager.register(this);
     }
 
     /**
@@ -45,7 +46,7 @@ public class OSSClient implements Rebuildable {
      */
     public void close() {
         logger.info("OSS client is closing ...");
-        DynamicSecret.unregister(this);
+        RebuildManager.unregister(this);
         if (instance != null) instance.shutdown();
         logger.info("OSS client has been closed");
     }
