@@ -67,6 +67,7 @@ public class ONSConsumerConfig {
             logger.error("missing subscribe list");
             return false;
         }
+        for (Subscribe subscribe : subscribes) if (!subscribe.check()) return false;
         if (consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
         if (maxCachedMessageNum <= 0) maxCachedMessageNum = DEFAULT_MAX_CACHED_MESSAGE_NUM;
         return true;
