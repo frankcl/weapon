@@ -89,7 +89,11 @@ public class ONSConsumer implements Rebuildable {
      */
     public boolean start() {
         logger.info("ONS consumer is starting ...");
-        if (config == null || !config.check()) return false;
+        if (config == null) {
+            logger.error("ONS consumer config is null");
+            return false;
+        }
+        if (!config.check()) return false;
         if (listener == null) {
             logger.error("message listener is null");
             return false;
