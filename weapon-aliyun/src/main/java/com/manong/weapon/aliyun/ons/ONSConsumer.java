@@ -74,11 +74,11 @@ public class ONSConsumer implements Rebuildable {
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Consumer prevConsumer = consumer;
-        if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         if (prevConsumer != null) prevConsumer.shutdown();
         for (RebuildListener rebuildListener : rebuildListeners) {
             rebuildListener.notifyRebuildEvent(this);
         }
+        if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         logger.info("ONS consumer rebuild success");
     }
 
