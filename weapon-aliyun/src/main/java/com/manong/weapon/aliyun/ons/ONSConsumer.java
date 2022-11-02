@@ -1,12 +1,15 @@
 package com.manong.weapon.aliyun.ons;
 
 import com.aliyun.openservices.ons.api.*;
+import com.manong.weapon.aliyun.common.RebuildListener;
 import com.manong.weapon.aliyun.common.RebuildManager;
 import com.manong.weapon.aliyun.common.Rebuildable;
 import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -21,12 +24,14 @@ public class ONSConsumer implements Rebuildable {
 
     private ONSConsumerConfig config;
     private MessageListener listener;
+    private List<RebuildListener> rebuildListeners;
     private Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config,
                        MessageListener listener) {
         this.config = config;
         this.listener = listener;
+        this.rebuildListeners = new ArrayList<>();
     }
 
     /**
@@ -71,9 +76,17 @@ public class ONSConsumer implements Rebuildable {
         Consumer prevConsumer = consumer;
         if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         if (prevConsumer != null) prevConsumer.shutdown();
+        for (RebuildListener rebuildListener : rebuildListeners) {
+            rebuildListener.notifyRebuildEvent(this);
+        }
         logger.info("ONS consumer rebuild success");
     }
 
+    /**
+     * 启动消息消费器
+     *
+     * @return 启动成功返回true，否则返回false
+     */
     public boolean start() {
         logger.info("ONS consumer is starting ...");
         if (config == null || !config.check()) return false;
@@ -87,10 +100,23 @@ public class ONSConsumer implements Rebuildable {
         return true;
     }
 
+    /**
+     * 停止消息消费器
+     */
     public void stop() {
         logger.info("ONS consumer is stopping ...");
         RebuildManager.unregister(this);
         if (consumer != null) consumer.shutdown();
         logger.info("ONS consumer has been stopped");
+    }
+
+    /**
+     * 添加重建监听器
+     *
+     * @param listener 重建监听器
+     */
+    public void addRebuildListener(RebuildListener listener) {
+        if (listener == null) return;
+        rebuildListeners.add(listener);
     }
 }
