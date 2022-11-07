@@ -4,18 +4,11 @@ import com.alicloud.openservices.tablestore.TunnelClient;
 import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelRequest;
 import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelResponse;
 import com.alicloud.openservices.tablestore.model.tunnel.TunnelInfo;
-import com.alicloud.openservices.tablestore.tunnel.worker.IChannelProcessor;
 import com.alicloud.openservices.tablestore.tunnel.worker.TunnelWorker;
 import com.alicloud.openservices.tablestore.tunnel.worker.TunnelWorkerConfig;
-import com.manong.weapon.aliyun.common.RebuildListener;
-import com.manong.weapon.aliyun.common.RebuildManager;
-import com.manong.weapon.aliyun.common.Rebuildable;
-import com.manong.weapon.aliyun.secret.DynamicSecret;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,37 +21,47 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author frankcl
  * @date 2022-08-03 19:11:02
  */
-public class OTSTunnelWorker implements Rebuildable {
+public class OTSTunnelWorker {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelWorker.class);
 
-    private OTSTunnelConfig config;
-    private OTSTunnelMonitor monitor;
+    private OTSTunnelWorkerConfig config;
+    private TunnelWorkerConfig workerConfig;
     private TunnelClient tunnelClient;
     private TunnelWorker worker;
-    private IChannelProcessor channelProcessor;
-    private List<RebuildListener> rebuildListeners;
 
-    public OTSTunnelWorker(OTSTunnelConfig config,
-                           IChannelProcessor channelProcessor) {
+    public OTSTunnelWorker(OTSTunnelWorkerConfig config,
+                           TunnelClient tunnelClient) {
         this.config = config;
-        this.channelProcessor = channelProcessor;
-        this.rebuildListeners = new ArrayList<>();
+        this.tunnelClient = tunnelClient;
+        if (!check()) throw new RuntimeException("invalid OTS tunnel worker config");
     }
 
     /**
-     * 构建OTS通道
+     * 检测配置信息
      *
-     * @return 构建成功返回true，否则返回false
+     * @return 合法返回true，否则返回false
      */
-    private boolean build() {
-        tunnelClient = new TunnelClient(config.endpoint, config.aliyunSecret.accessKey,
-                config.aliyunSecret.secretKey, config.instance);
+    private boolean check() {
+        if (config == null) {
+            logger.error("OTS tunnel worker config is null");
+            return false;
+        }
+        return config.check();
+    }
+
+    /**
+     * 启动OTS通道worker
+     *
+     * @return 启动成功返回true，否则返回false
+     */
+    public boolean start() {
+        logger.info("OTS tunnel worker[{}/{}] is starting ...", config.table, config.tunnel);
         DescribeTunnelRequest request = new DescribeTunnelRequest(config.table, config.tunnel);
         try {
             DescribeTunnelResponse response = tunnelClient.describeTunnel(request);
             TunnelInfo tunnelInfo = response.getTunnelInfo();
-            TunnelWorkerConfig workerConfig = new TunnelWorkerConfig(channelProcessor);
+            workerConfig = new TunnelWorkerConfig(config.channelProcessor);
             workerConfig.setMaxRetryIntervalInMillis(config.maxRetryIntervalMs);
             workerConfig.setHeartbeatIntervalInSec(config.heartBeatIntervalSec);
             if (config.maxChannelParallel > 0) workerConfig.setMaxChannelParallel(config.maxChannelParallel);
@@ -67,82 +70,23 @@ public class OTSTunnelWorker implements Rebuildable {
             workerConfig.setProcessRecordsExecutor(createThreadPoolExecutor("tunnel_processor", threadNum));
             worker = new TunnelWorker(tunnelInfo.getTunnelId(), tunnelClient, workerConfig);
             worker.connectAndWorking();
-            monitor = new OTSTunnelMonitor(config, tunnelClient);
-            monitor.start();
-            logger.info("build OTSTunnel worker success");
-            return true;
         } catch (Exception e) {
-            logger.error("build OTSTunnel worker failed");
+            logger.error("start OTS tunnel worker[{}/{}] failed", config.table, config.tunnel);
             logger.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    @Override
-    public void rebuild() {
-        logger.info("OTSTunnel worker is rebuilding ...");
-        if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
-                DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore OTSTunnel worker rebuilding");
-            return;
-        }
-        config.aliyunSecret.accessKey = DynamicSecret.accessKey;
-        config.aliyunSecret.secretKey = DynamicSecret.secretKey;
-        OTSTunnelMonitor prevMonitor = monitor;
-        TunnelWorker prevWorker = worker;
-        TunnelClient prevClient = tunnelClient;
-        if (prevMonitor != null) prevMonitor.stop();
-        if (prevWorker != null) prevWorker.shutdown();
-        if (prevClient != null) prevClient.shutdown();
-        for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.notifyRebuildEvent(this);
-        }
-        if (!build()) throw new RuntimeException("rebuild OTSTunnel worker failed");
-        logger.info("OTSTunnel worker rebuild success");
-    }
-
-    /**
-     * 启动OTS通道
-     *
-     * @return 启动成功返回true，否则返回false
-     */
-    public boolean start() {
-        logger.info("OTSTunnel worker is starting ...");
-        if (config == null) {
-            logger.error("OTSTunnel worker config is null");
-            return false;
-        }
-        if (!config.check()) return false;
-        if (channelProcessor == null) {
-            logger.error("channel processor is null");
-            return false;
-        }
-        if (!build()) return false;
-        RebuildManager.register(this);
-        logger.info("OTSTunnel worker has been started");
+        logger.info("OTS tunnel worker[{}/{}] has been started", config.table, config.tunnel);
         return true;
     }
 
     /**
-     * 停止OTS通道
+     * 停止OTS通道worker
      */
     public void stop() {
-        logger.info("OTSTunnel worker is stopping ...");
-        RebuildManager.unregister(this);
-        if (monitor != null) monitor.stop();
+        logger.info("OTS tunnel worker[{}/{}] is stopping ...", config.table, config.tunnel);
         if (worker != null) worker.shutdown();
-        if (tunnelClient != null) tunnelClient.shutdown();
-        logger.info("OTSTunnel worker has been stopped");
-    }
-
-    /**
-     * 添加重建监听器
-     *
-     * @param listener 重建监听器
-     */
-    public void addRebuildListener(RebuildListener listener) {
-        if (listener == null) return;
-        rebuildListeners.add(listener);
+        if (workerConfig != null) workerConfig.shutdown();
+        logger.info("OTS tunnel worker[{}/{}] has been stopped", config.table, config.tunnel);
     }
 
     /**

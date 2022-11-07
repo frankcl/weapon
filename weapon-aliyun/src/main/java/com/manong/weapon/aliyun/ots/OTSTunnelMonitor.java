@@ -61,29 +61,38 @@ public class OTSTunnelMonitor implements Runnable {
     @Override
     public void run() {
         while (running) {
-            DescribeTunnelRequest request = new DescribeTunnelRequest(tunnelConfig.table, tunnelConfig.tunnel);
-            DescribeTunnelResponse response = tunnelClient.describeTunnel(request);
-            List<ChannelInfo> channels = response.getChannelInfos();
-            int delayChannelNum = 0;
-            long currentTimestamp = System.currentTimeMillis();
-            for (ChannelInfo channel : channels) {
-                long consumeTimestamp = channel.getChannelConsumePoint().getTime();
-                if (consumeTimestamp <= 0) continue;
-                long timeInterval = currentTimestamp - consumeTimestamp;
-                if (timeInterval < tunnelConfig.maxConsumeDelayMs) continue;
-                logger.warn("consume delay[{}] for channel[{}] in tunnel[{}] of table[{}]", timeInterval,
-                        channel.getChannelId(), tunnelConfig.tunnel, tunnelConfig.table, timeInterval);
-                delayChannelNum++;
-            }
-            if (delayChannelNum > 0) {
-                //TODO 添加延迟报警逻辑
-            }
+            for (OTSTunnelWorkerConfig workerConfig : tunnelConfig.workerConfigs) check(workerConfig);
             logger.info("tunnel monitor is running, sleep {} ms", checkTimeIntervalMs);
             try {
                 Thread.sleep(checkTimeIntervalMs);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * 检测数据通道是否存在消费延迟
+     *
+     * @param workerConfig 通道worker配置
+     */
+    private void check(OTSTunnelWorkerConfig workerConfig) {
+        DescribeTunnelRequest request = new DescribeTunnelRequest(workerConfig.table, workerConfig.tunnel);
+        DescribeTunnelResponse response = tunnelClient.describeTunnel(request);
+        List<ChannelInfo> channels = response.getChannelInfos();
+        int delayChannelNum = 0;
+        long currentTimestamp = System.currentTimeMillis();
+        for (ChannelInfo channel : channels) {
+            long consumeTimestamp = channel.getChannelConsumePoint().getTime();
+            if (consumeTimestamp <= 0) continue;
+            long timeInterval = currentTimestamp - consumeTimestamp;
+            if (timeInterval < workerConfig.maxConsumeDelayMs) continue;
+            logger.warn("consume delay[{}] for channel[{}] in tunnel[{}] of table[{}]", timeInterval,
+                    channel.getChannelId(), workerConfig.tunnel, workerConfig.table, timeInterval);
+            delayChannelNum++;
+        }
+        if (delayChannelNum > 0) {
+            //TODO 添加延迟报警逻辑
         }
     }
 }
