@@ -27,7 +27,7 @@ public class WM {
     private Map<String, Integer> shiftTable;
     private Map<String, Integer> auxShiftTable;
     private Map<String, Map<String, List<Integer>>> hashTable;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     public WM(List<String> patterns) {
         B = 2;
@@ -61,8 +61,8 @@ public class WM {
             logger.error("match patterns are empty");
             throw new RuntimeException("匹配模式为空");
         }
-        readWriteLock.writeLock().lock();
         try {
+            readWriteLock.writeLock().lock();
             this.patterns = tempPatterns;
             for (String pattern : this.patterns) m = Math.min(m, pattern.length());
             if (m == 0 || m == Integer.MAX_VALUE) {
@@ -127,8 +127,8 @@ public class WM {
             logger.warn("search text is empty");
             return matchResults;
         }
-        readWriteLock.readLock().lock();
         try {
+            readWriteLock.readLock().lock();
             for (int i = m - B; i < text.length(); ) {
                 if (i + B > text.length()) break;
                 String block = text.substring(i, i + B);
