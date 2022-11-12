@@ -110,4 +110,30 @@ public class CommonUtil {
         BigDecimal bigDecimal = new BigDecimal(v);
         return bigDecimal.setScale(n, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
+
+    /**
+     * 判断一个整数是否为质数
+     *
+     * @param n 整数
+     * @return 质数返回true，否则返回false
+     */
+    public static boolean isPrime(int n) {
+        if (n <= 1) return false;
+        int m = (int) Math.ceil(Math.sqrt(n));
+        for (int i = 2; i <= m; i++) {
+            if (n % i == 0 && n != 2) return false;
+        }
+        return true;
+    }
+
+    /**
+     * 找到比n大的第一个质数
+     *
+     * @param n
+     * @return 比n大的第一个质数
+     */
+    public static int findNextPrime(int n) {
+        if (n <= 1) return 2;
+        while (true) if (isPrime(++n)) return n;
+    }
 }

@@ -1,5 +1,6 @@
 package com.manong.weapon.base.algorithm;
 
+import com.manong.weapon.base.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class WM {
 
     private final static Logger logger = LoggerFactory.getLogger(WM.class);
+
+    private final static int MAX_TABLE_SIZE = 100003;
 
     /* 块长度 */
     private int B;
@@ -74,9 +77,12 @@ public class WM {
                 B = m;
             }
             if (p > m) p = m;
-            shiftTable = new HashMap<>();
-            auxShiftTable = new HashMap<>();
-            hashTable = new HashMap<>();
+            int tableSize = (m - B + 1) * this.patterns.size() * 10;
+            tableSize = CommonUtil.findNextPrime(tableSize);
+            if (tableSize > MAX_TABLE_SIZE) tableSize = MAX_TABLE_SIZE;
+            shiftTable = new HashMap<>(tableSize);
+            auxShiftTable = new HashMap<>(tableSize);
+            hashTable = new HashMap<>(tableSize);
             for (int i = 0; i < patterns.size(); i++) {
                 String pattern = patterns.get(i);
                 String prefix = pattern.substring(0, p);

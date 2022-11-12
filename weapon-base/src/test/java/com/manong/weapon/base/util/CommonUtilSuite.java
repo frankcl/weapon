@@ -67,4 +67,25 @@ public class CommonUtilSuite {
     public void testRoundInvalidN() {
         CommonUtil.round(2.1d, -1);
     }
+
+    @Test
+    public void testIsPrime() {
+        Assert.assertFalse(CommonUtil.isPrime(-1));
+        Assert.assertFalse(CommonUtil.isPrime(0));
+        Assert.assertFalse(CommonUtil.isPrime(1));
+        Assert.assertFalse(CommonUtil.isPrime(55));
+        Assert.assertTrue(CommonUtil.isPrime(2));
+        Assert.assertTrue(CommonUtil.isPrime(3));
+        Assert.assertTrue(CommonUtil.isPrime(101));
+        Assert.assertTrue(CommonUtil.isPrime(19));
+    }
+
+    @Test
+    public void testFindNextPrime() {
+        Assert.assertEquals(2, CommonUtil.findNextPrime(-1));
+        Assert.assertEquals(2, CommonUtil.findNextPrime(1));
+        Assert.assertEquals(3, CommonUtil.findNextPrime(2));
+        Assert.assertEquals(103, CommonUtil.findNextPrime(102));
+        Assert.assertEquals(100003, CommonUtil.findNextPrime(99999));
+    }
 }
