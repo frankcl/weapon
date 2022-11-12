@@ -26,6 +26,17 @@ public class WMSuite {
     }
 
     @Test
+    public void testSearchSpecial() {
+        List<String> patterns = new ArrayList<>();
+        patterns.add("哈");
+        patterns.add("哈哈");
+        patterns.add("哈哈嘿");
+        WM wm = new WM(patterns);
+        List<MatchResult> matchResults = wm.search("哈哈哈哈哈哈哈哈哈");
+        Assert.assertTrue(matchResults.size() == 17);
+    }
+
+    @Test
     public void testSearchNotMatch() {
         List<String> patterns = new ArrayList<>();
         patterns.add("英文名");

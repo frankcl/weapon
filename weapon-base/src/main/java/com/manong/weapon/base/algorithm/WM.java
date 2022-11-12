@@ -92,7 +92,7 @@ public class WM {
                         if (!prefixTable.containsKey(prefix)) prefixTable.put(prefix, new ArrayList<>());
                         prefixTable.get(prefix).add(i);
                         auxShiftTable.put(block, auxShiftTable.containsKey(block) ?
-                                Math.min(shiftLen, auxShiftTable.get(block)) : auxShiftLen);
+                                Math.min(auxShiftLen, auxShiftTable.get(block)) : auxShiftLen);
                     }
                 }
             }
@@ -169,7 +169,8 @@ public class WM {
     private MatchResult match(String pattern, String text, int pos) {
         int from = pos - m + B;
         for (int i = p, j = 0; i < pattern.length(); i++, j++) {
-            if (pattern.charAt(i) != text.charAt(from + p + j)) return null;
+            int k = from + p + j;
+            if (k >= text.length() || pattern.charAt(i) != text.charAt(k)) return null;
         }
         return new MatchResult(from, pattern);
     }
