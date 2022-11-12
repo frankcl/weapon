@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 多模匹配：WuManber算法实现
@@ -26,6 +27,7 @@ public class WM {
     private Map<String, Integer> shiftTable;
     private Map<String, Integer> auxShiftTable;
     private Map<String, Map<String, List<Integer>>> hashTable;
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     public WM(List<String> patterns) {
         B = 2;
@@ -48,48 +50,54 @@ public class WM {
      * @param patterns 匹配模式列表
      */
     private void build(List<String> patterns) {
-        this.patterns = new ArrayList<>();
-        if (patterns != null) this.patterns.addAll(patterns);
-        Iterator<String> iterator = this.patterns.iterator();
+        List<String> tempPatterns = new ArrayList<>();
+        if (patterns != null) tempPatterns.addAll(patterns);
+        Iterator<String> iterator = tempPatterns.iterator();
         while (iterator.hasNext()) {
             String pattern = iterator.next();
             if (pattern == null || pattern.equals("")) iterator.remove();
         }
-        if (this.patterns.isEmpty()) {
+        if (tempPatterns.isEmpty()) {
             logger.error("match patterns are empty");
             throw new RuntimeException("匹配模式为空");
         }
-        for (String pattern : this.patterns) m = Math.min(m, pattern.length());
-        if (m == 0 || m == Integer.MAX_VALUE) {
-            logger.error("invalid min pattern size[{}]", m);
-            throw new RuntimeException(String.format("非法最小模式长度[%d]", m));
-        }
-        if (B > m) {
-            logger.warn("block size[{}] is longer than min pattern size[{}]", B, m);
-            B = m;
-        }
-        if (p > m) p = m;
-        shiftTable = new HashMap<>();
-        auxShiftTable = new HashMap<>();
-        hashTable = new HashMap<>();
-        for (int i = 0; i < patterns.size(); i++) {
-            String pattern = patterns.get(i);
-            String prefix = pattern.substring(0, p);
-            for (int k = 0; k < m - B + 1; k++) {
-                String block = pattern.substring(k, k + B);
-                int shiftLen = m - k - B;
-                int auxShiftLen = shiftLen == 0 ? m - B + 1 : shiftLen;
-                if (!shiftTable.containsKey(block)) shiftTable.put(block, shiftLen);
-                else shiftTable.put(block, Math.min(shiftLen, shiftTable.get(block)));
-                if (shiftLen == 0) {
-                    if (!hashTable.containsKey(block)) hashTable.put(block, new HashMap<>());
-                    Map<String, List<Integer>> prefixTable = hashTable.get(block);
-                    if (!prefixTable.containsKey(prefix)) prefixTable.put(prefix, new ArrayList<>());
-                    prefixTable.get(prefix).add(i);
-                    auxShiftTable.put(block, auxShiftTable.containsKey(block) ?
-                            Math.min(shiftLen, auxShiftTable.get(block)) : auxShiftLen);
+        readWriteLock.writeLock().lock();
+        try {
+            this.patterns = tempPatterns;
+            for (String pattern : this.patterns) m = Math.min(m, pattern.length());
+            if (m == 0 || m == Integer.MAX_VALUE) {
+                logger.error("invalid min pattern size[{}]", m);
+                throw new RuntimeException(String.format("非法最小模式长度[%d]", m));
+            }
+            if (B > m) {
+                logger.warn("block size[{}] is longer than min pattern size[{}]", B, m);
+                B = m;
+            }
+            if (p > m) p = m;
+            shiftTable = new HashMap<>();
+            auxShiftTable = new HashMap<>();
+            hashTable = new HashMap<>();
+            for (int i = 0; i < patterns.size(); i++) {
+                String pattern = patterns.get(i);
+                String prefix = pattern.substring(0, p);
+                for (int k = 0; k < m - B + 1; k++) {
+                    String block = pattern.substring(k, k + B);
+                    int shiftLen = m - k - B;
+                    int auxShiftLen = shiftLen == 0 ? m - B + 1 : shiftLen;
+                    if (!shiftTable.containsKey(block)) shiftTable.put(block, shiftLen);
+                    else shiftTable.put(block, Math.min(shiftLen, shiftTable.get(block)));
+                    if (shiftLen == 0) {
+                        if (!hashTable.containsKey(block)) hashTable.put(block, new HashMap<>());
+                        Map<String, List<Integer>> prefixTable = hashTable.get(block);
+                        if (!prefixTable.containsKey(prefix)) prefixTable.put(prefix, new ArrayList<>());
+                        prefixTable.get(prefix).add(i);
+                        auxShiftTable.put(block, auxShiftTable.containsKey(block) ?
+                                Math.min(shiftLen, auxShiftTable.get(block)) : auxShiftLen);
+                    }
                 }
             }
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -104,7 +112,7 @@ public class WM {
             logger.error("rebuild patterns are empty");
             throw new RuntimeException("重建模式不能为空");
         }
-        rebuild(patterns);
+        build(patterns);
     }
 
     /**
@@ -119,30 +127,35 @@ public class WM {
             logger.warn("search text is empty");
             return matchResults;
         }
-        for (int i = m - B; i < text.length(); ) {
-            if (i + B > text.length()) break;
-            String block = text.substring(i, i + B);
-            if (!shiftTable.containsKey(block)) {
-                i += m - B + 1;
-                continue;
-            }
-            int shiftLen = shiftTable.get(block);
-            if (shiftLen != 0) {
-                i += shiftLen;
-                continue;
-            }
-            Map<String, List<Integer>> prefixTable = hashTable.get(block);
-            String prefix = text.substring(i - m + B, i - m + B + p);
-            if (prefixTable.containsKey(prefix)) {
-                for (Integer index : prefixTable.get(prefix)) {
-                    String pattern = patterns.get(index);
-                    MatchResult matchResult = match(pattern, text, i);
-                    if (matchResult != null) matchResults.add(matchResult);
+        readWriteLock.readLock().lock();
+        try {
+            for (int i = m - B; i < text.length(); ) {
+                if (i + B > text.length()) break;
+                String block = text.substring(i, i + B);
+                if (!shiftTable.containsKey(block)) {
+                    i += m - B + 1;
+                    continue;
                 }
+                int shiftLen = shiftTable.get(block);
+                if (shiftLen != 0) {
+                    i += shiftLen;
+                    continue;
+                }
+                Map<String, List<Integer>> prefixTable = hashTable.get(block);
+                String prefix = text.substring(i - m + B, i - m + B + p);
+                if (prefixTable.containsKey(prefix)) {
+                    for (Integer index : prefixTable.get(prefix)) {
+                        String pattern = patterns.get(index);
+                        MatchResult matchResult = match(pattern, text, i);
+                        if (matchResult != null) matchResults.add(matchResult);
+                    }
+                }
+                i += auxShiftTable.get(block);
             }
-            i += auxShiftTable.get(block);
+            return matchResults;
+        } finally {
+            readWriteLock.readLock().unlock();
         }
-        return matchResults;
     }
 
     /**
@@ -154,9 +167,9 @@ public class WM {
      * @return 匹配成功返回结果，否则返回null
      */
     private MatchResult match(String pattern, String text, int pos) {
-        int from = pos - m + B + p;
+        int from = pos - m + B;
         for (int i = p, j = 0; i < pattern.length(); i++, j++) {
-            if (pattern.charAt(i) != text.charAt(from + j)) return null;
+            if (pattern.charAt(i) != text.charAt(from + p + j)) return null;
         }
         return new MatchResult(from, pattern);
     }
