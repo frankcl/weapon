@@ -31,7 +31,7 @@ public class WMSuite {
         patterns.add("哈");
         patterns.add("哈哈");
         patterns.add("哈哈嘿");
-        WM wm = new WM(patterns);
+        WM wm = new WM(patterns, 3);
         List<MatchResult> matchResults = wm.search("哈哈哈哈哈哈哈哈哈");
         Assert.assertTrue(matchResults.size() == 17);
     }

@@ -73,11 +73,15 @@ public class WM {
                 throw new RuntimeException(String.format("非法最小模式长度[%d]", m));
             }
             if (B > m) {
-                logger.warn("block size[{}] is longer than min pattern size[{}]", B, m);
+                logger.warn("block size[{}] is longer than min pattern size[{}], set block size[{}]", B, m, m);
                 B = m;
             }
-            if (p > m) p = m;
-            int tableSize = (m - B + 1) * this.patterns.size() * 10;
+            if (p > m) {
+                logger.warn("prefix[{}] is longer than min pattern size[{}], set prefix[{}]", p, m, m);
+                p = m;
+            }
+            int prefixTableSize = CommonUtil.findNextPrime(patterns.size() * 10);
+            int tableSize = (m - B + 1) * this.patterns.size() * 5;
             tableSize = CommonUtil.findNextPrime(tableSize);
             if (tableSize > MAX_TABLE_SIZE) tableSize = MAX_TABLE_SIZE;
             shiftTable = new HashMap<>(tableSize);
@@ -93,10 +97,7 @@ public class WM {
                     if (!shiftTable.containsKey(block)) shiftTable.put(block, shiftLen);
                     else shiftTable.put(block, Math.min(shiftLen, shiftTable.get(block)));
                     if (shiftLen == 0) {
-                        if (!hashTable.containsKey(block)) hashTable.put(block, new HashMap<>());
-                        Map<String, List<Integer>> prefixTable = hashTable.get(block);
-                        if (!prefixTable.containsKey(prefix)) prefixTable.put(prefix, new ArrayList<>());
-                        prefixTable.get(prefix).add(i);
+                        buildHashTable(block, prefixTableSize, prefix, i);
                         auxShiftTable.put(block, auxShiftTable.containsKey(block) ?
                                 Math.min(auxShiftLen, auxShiftTable.get(block)) : auxShiftLen);
                     }
@@ -105,6 +106,21 @@ public class WM {
         } finally {
             readWriteLock.writeLock().unlock();
         }
+    }
+
+    /**
+     * 构建后缀hash表
+     *
+     * @param block 块
+     * @param prefixTableSize 前缀表大小
+     * @param prefix 前缀
+     * @param patternIndex 模式下标
+     */
+    private void buildHashTable(String block, int prefixTableSize, String prefix, int patternIndex) {
+        if (!hashTable.containsKey(block)) hashTable.put(block, new HashMap<>(prefixTableSize));
+        Map<String, List<Integer>> prefixTable = hashTable.get(block);
+        if (!prefixTable.containsKey(prefix)) prefixTable.put(prefix, new ArrayList<>());
+        prefixTable.get(prefix).add(patternIndex);
     }
 
     /**
