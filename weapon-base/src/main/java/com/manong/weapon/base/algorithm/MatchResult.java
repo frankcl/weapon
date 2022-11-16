@@ -1,5 +1,8 @@
 package com.manong.weapon.base.algorithm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 匹配结果
  *
@@ -8,11 +11,11 @@ package com.manong.weapon.base.algorithm;
  */
 public class MatchResult {
 
-    public int pos = -1;
+    public List<Integer> positions;
     public String pattern;
 
-    public MatchResult(int pos, String pattern) {
-        this.pos = pos;
+    public MatchResult(String pattern) {
+        this.positions = new ArrayList<>();
         this.pattern = pattern;
     }
 }

@@ -144,10 +144,10 @@ public class WM {
      * @return 匹配结果列表
      */
     public List<MatchResult> search(String text) {
-        List<MatchResult> matchResults = new ArrayList<>();
+        Map<Integer, MatchResult> matchMap = new HashMap<>();
         if (text == null || text.equals("")) {
             logger.warn("search text is empty");
-            return matchResults;
+            return new ArrayList<>();
         }
         try {
             readWriteLock.readLock().lock();
@@ -168,13 +168,14 @@ public class WM {
                 if (prefixTable.containsKey(prefix)) {
                     for (Integer index : prefixTable.get(prefix)) {
                         String pattern = patterns.get(index);
-                        MatchResult matchResult = match(pattern, text, i);
-                        if (matchResult != null) matchResults.add(matchResult);
+                        if (!match(pattern, text, i)) continue;
+                        if (!matchMap.containsKey(index)) matchMap.put(index, new MatchResult(pattern));
+                        matchMap.get(index).positions.add(i - m + B);
                     }
                 }
                 i += auxShiftTable.get(block);
             }
-            return matchResults;
+            return new ArrayList<>(matchMap.values());
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -186,14 +187,14 @@ public class WM {
      * @param pattern 模式
      * @param text 匹配文本
      * @param pos 起始位置
-     * @return 匹配成功返回结果，否则返回null
+     * @return 匹配成功返回true，否则返回false
      */
-    private MatchResult match(String pattern, String text, int pos) {
+    private Boolean match(String pattern, String text, int pos) {
         int from = pos - m + B;
         for (int i = p, j = 0; i < pattern.length(); i++, j++) {
             int k = from + p + j;
-            if (k >= text.length() || pattern.charAt(i) != text.charAt(k)) return null;
+            if (k >= text.length() || pattern.charAt(i) != text.charAt(k)) return false;
         }
-        return new MatchResult(from, pattern);
+        return true;
     }
 }

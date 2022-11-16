@@ -20,9 +20,21 @@ public class WMSuite {
         patterns.add("china");
         WM wm = new WM(patterns);
         List<MatchResult> matchResults = wm.search("中国人说中文，爱中国，中国的英文名是china，瓷器的英文名也是china，景德镇产瓷器");
-        Assert.assertTrue(matchResults.size() == 5);
+        Assert.assertTrue(matchResults.size() == 3);
+        Assert.assertEquals("英文名", matchResults.get(0).pattern);
+        Assert.assertTrue(matchResults.get(0).positions.size() == 2);
+        Assert.assertEquals("china", matchResults.get(2).pattern);
+        Assert.assertTrue(matchResults.get(2).positions.size() == 2);
+        Assert.assertEquals("景德镇", matchResults.get(1).pattern);
+        Assert.assertTrue(matchResults.get(1).positions.size() == 1);
         matchResults = wm.search("江西省会不是景德镇，景德镇产瓷器，瓷器英文名是china!!!");
-        Assert.assertTrue(matchResults.size() == 4);
+        Assert.assertTrue(matchResults.size() == 3);
+        Assert.assertEquals("景德镇", matchResults.get(1).pattern);
+        Assert.assertTrue(matchResults.get(1).positions.size() == 2);
+        Assert.assertEquals("英文名", matchResults.get(0).pattern);
+        Assert.assertTrue(matchResults.get(0).positions.size() == 1);
+        Assert.assertEquals("china", matchResults.get(2).pattern);
+        Assert.assertTrue(matchResults.get(2).positions.size() == 1);
     }
 
     @Test
@@ -33,7 +45,11 @@ public class WMSuite {
         patterns.add("哈哈嘿");
         WM wm = new WM(patterns, 3);
         List<MatchResult> matchResults = wm.search("哈哈哈哈哈哈哈哈哈");
-        Assert.assertTrue(matchResults.size() == 17);
+        Assert.assertTrue(matchResults.size() == 2);
+        Assert.assertEquals("哈", matchResults.get(0).pattern);
+        Assert.assertTrue(matchResults.get(0).positions.size() == 9);
+        Assert.assertEquals("哈哈", matchResults.get(1).pattern);
+        Assert.assertTrue(matchResults.get(1).positions.size() == 8);
     }
 
     @Test
@@ -55,7 +71,13 @@ public class WMSuite {
         patterns.add("china");
         WM wm = new WM(patterns);
         List<MatchResult> matchResults = wm.search("江西省会不是景德镇，景德镇产瓷器，瓷器英文名是china!!!");
-        Assert.assertTrue(matchResults.size() == 4);
+        Assert.assertTrue(matchResults.size() == 3);
+        Assert.assertEquals("英文名", matchResults.get(0).pattern);
+        Assert.assertTrue(matchResults.get(0).positions.size() == 1);
+        Assert.assertEquals("china", matchResults.get(2).pattern);
+        Assert.assertTrue(matchResults.get(2).positions.size() == 1);
+        Assert.assertEquals("景德镇", matchResults.get(1).pattern);
+        Assert.assertTrue(matchResults.get(1).positions.size() == 2);
 
         patterns = new ArrayList<>();
         patterns.add("江西");
@@ -64,5 +86,11 @@ public class WMSuite {
         wm.rebuild(patterns);
         matchResults = wm.search("江西省会不是景德镇，景德镇产瓷器，瓷器英文名是china!!!");
         Assert.assertTrue(matchResults.size() == 3);
+        Assert.assertEquals("江西", matchResults.get(0).pattern);
+        Assert.assertTrue(matchResults.get(0).positions.size() == 1);
+        Assert.assertEquals("省会", matchResults.get(1).pattern);
+        Assert.assertTrue(matchResults.get(1).positions.size() == 1);
+        Assert.assertEquals("会不是", matchResults.get(2).pattern);
+        Assert.assertTrue(matchResults.get(2).positions.size() == 1);
     }
 }
