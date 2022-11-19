@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * 多模匹配：WuManber算法实现
+ * 字符串多模匹配算法：WuManber算法实现
  *
  * @author frankcl
  * @date 2022-11-12 14:48:33
