@@ -10,6 +10,7 @@ public interface DynamicSecretListener {
 
     /**
      * 订阅和处理秘钥变更
+     * @param secret 秘钥信息
      */
-    void process();
+    void process(String secret);
 }
