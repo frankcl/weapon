@@ -10,6 +10,7 @@
     <version>0.0.1</version>
     <modules>
         <module>weapon-base</module>
+        <module>weapon-alarm</module>
         <module>weapon-aliyun</module>
         <module>weapon-spring-boot-starter</module>
     </modules>
