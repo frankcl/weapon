@@ -31,15 +31,17 @@ public class SecretListenerManager {
             return false;
         }
         Class listenerClass = listener.getClass();
-        for (DynamicSecretListener registeredListener : listeners) {
-            if (registeredListener == listener || listenerClass == registeredListener.getClass()) {
-                logger.warn("dynamic secret listener[{}] has been registered, ignore it", listenerClass.getName());
-                return false;
+        synchronized (SecretListenerManager.class) {
+            for (DynamicSecretListener registeredListener : listeners) {
+                if (registeredListener == listener || listenerClass == registeredListener.getClass()) {
+                    logger.warn("dynamic secret listener[{}] has been registered, ignore it", listenerClass.getName());
+                    return false;
+                }
             }
+            if (!listeners.isEmpty()) logger.warn("other dynamic secret listener has been registered");
+            listeners.add(listener);
+            logger.info("register dynamic secret listener[{}] success", listenerClass.getName());
+            return true;
         }
-        if (!listeners.isEmpty()) logger.warn("other dynamic secret listener has been registered");
-        listeners.add(listener);
-        logger.info("register dynamic secret listener[{}] success", listenerClass.getName());
-        return true;
     }
 }
