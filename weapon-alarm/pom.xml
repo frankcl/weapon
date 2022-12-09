@@ -21,10 +21,5 @@
             <artifactId>slf4j-log4j12</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>xin.manong</groupId>
-            <artifactId>weapon-base</artifactId>
-            <version>${weapon.version}</version>
-        </dependency>
     </dependencies>
 </project>
