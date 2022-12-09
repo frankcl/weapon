@@ -23,21 +23,23 @@ public class SecretListenerManager {
      * 注册动态秘钥监听器
      *
      * @param listener 动态秘钥监听器
+     * @return 注册成功返回true，否则返回false
      */
-    public static void register(DynamicSecretListener listener) {
+    public static boolean register(DynamicSecretListener listener) {
         if (listener == null) {
             logger.warn("dynamic secret listener is null, ignore registering");
-            return;
+            return false;
         }
         Class listenerClass = listener.getClass();
         for (DynamicSecretListener registeredListener : listeners) {
             if (registeredListener == listener || listenerClass == registeredListener.getClass()) {
                 logger.warn("dynamic secret listener[{}] has been registered, ignore it", listenerClass.getName());
-                return;
+                return false;
             }
         }
         if (!listeners.isEmpty()) logger.warn("other dynamic secret listener has been registered");
         listeners.add(listener);
         logger.info("register dynamic secret listener[{}] success", listenerClass.getName());
+        return true;
     }
 }
