@@ -1,4 +1,4 @@
-package xin.manong.weapon.aliyun.common;
+package xin.manong.weapon.base.rebuild;
 
 /**
  * 重新构建接口定义

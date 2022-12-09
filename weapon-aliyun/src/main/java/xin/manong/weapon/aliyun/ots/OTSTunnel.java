@@ -5,10 +5,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.common.RebuildListener;
-import xin.manong.weapon.aliyun.common.RebuildManager;
-import xin.manong.weapon.aliyun.common.Rebuildable;
-import xin.manong.weapon.aliyun.secret.DynamicSecret;
+import xin.manong.weapon.base.rebuild.RebuildListener;
+import xin.manong.weapon.base.rebuild.RebuildManager;
+import xin.manong.weapon.base.rebuild.Rebuildable;
+import xin.manong.weapon.base.secret.DynamicSecret;
 
 import java.util.ArrayList;
 import java.util.List;

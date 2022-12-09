@@ -1,4 +1,4 @@
-package xin.manong.weapon.aliyun.common;
+package xin.manong.weapon.base.rebuild;
 
 /**
  * 重建监听器

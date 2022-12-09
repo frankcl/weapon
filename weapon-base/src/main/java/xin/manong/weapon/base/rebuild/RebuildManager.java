@@ -1,4 +1,4 @@
-package xin.manong.weapon.aliyun.common;
+package xin.manong.weapon.base.rebuild;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

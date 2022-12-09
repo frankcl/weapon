@@ -1,4 +1,4 @@
-package xin.manong.weapon.aliyun.secret;
+package xin.manong.weapon.base.secret;
 
 /**
  * 动态秘钥监听器
