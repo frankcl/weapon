@@ -118,13 +118,12 @@ public class AlarmMonitor implements Runnable {
         for (Map.Entry<AlarmStatus, Map<String, Integer>> entry : groupAlarmMap.entrySet()) {
             AlarmStatus status = entry.getKey();
             Map<String, Integer> messageCountMap = entry.getValue();
-            for (String message : messageCountMap.keySet()) {
-                Alarm combinedAlarm = new Alarm(status);
-                int messageCount = messageCountMap.get(message);
-                combinedAlarm.content = messageCount > 1 ?
-                        String.format("合并报警数量[%d] %s", messageCount, message) : message;
-                combinedAlarms.add(combinedAlarm);
-            }
+            int messageCount = 0;
+            for (Integer count : messageCountMap.values()) messageCount += count;
+            String message = String.join("\n", messageCountMap.keySet());
+            Alarm combinedAlarm = new Alarm(messageCount > 1 ?
+                    String.format("合并报警数量[%d] %s", messageCount, message) : message, status);
+            combinedAlarms.add(combinedAlarm);
         }
         return combinedAlarms;
     }
