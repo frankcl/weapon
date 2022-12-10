@@ -114,7 +114,7 @@ public abstract class AlarmSender {
      *
      * @return 成功返回true，否则返回false
      */
-    public boolean init() {
+    protected boolean init() {
         return true;
     };
 
@@ -122,7 +122,7 @@ public abstract class AlarmSender {
      * 销毁
      * 子类实现覆盖此方法实现销毁操作
      */
-    public void destroy() {
+    protected void destroy() {
     }
 
     /**
