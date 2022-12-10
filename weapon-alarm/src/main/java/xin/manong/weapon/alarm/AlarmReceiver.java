@@ -15,6 +15,19 @@ public class AlarmReceiver {
     /* 电话号码 */
     public String phone;
 
+    public AlarmReceiver() {
+    }
+
+    public AlarmReceiver(String uid) {
+        this.uid = uid;
+    }
+
+    public AlarmReceiver(String uid, String email, String phone) {
+        this(uid);
+        this.email = email;
+        this.phone = phone;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || !(object instanceof AlarmReceiver)) return false;
