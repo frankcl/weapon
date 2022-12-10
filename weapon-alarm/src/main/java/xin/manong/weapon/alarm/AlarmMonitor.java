@@ -84,18 +84,13 @@ public class AlarmMonitor implements Runnable {
      *
      * @return 报警列表
      */
-    private List<Alarm> batchGetAlarms() {
+    private List<Alarm> batchGetAlarms() throws InterruptedException {
         List<Alarm> alarms = new ArrayList<>();
         while (true) {
-            try {
-                Alarm alarm = alarmQueue.poll(3, TimeUnit.SECONDS);
-                if (alarm == null) break;
-                alarms.add(alarm);
-                if (alarms.size() >= config.minAsyncAlarmNum) break;
-            } catch (InterruptedException e) {
-                logger.warn(e.getMessage(), e);
-                break;
-            }
+            Alarm alarm = alarmQueue.poll(3, TimeUnit.SECONDS);
+            if (alarm == null) break;
+            alarms.add(alarm);
+            if (alarms.size() >= config.minAsyncAlarmNum) break;
         }
         return alarms;
     }
