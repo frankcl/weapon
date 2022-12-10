@@ -25,7 +25,8 @@ public class AlarmConfig {
     public String alarmSenderClass;
     public String dingWebHookURL;
     public String dingWebHookSecret;
-    public Map<String, AlarmReceiver> receiverMap;
+    public Map<String, Object> alarmSenderConfig;
+    public List<AlarmReceiver> alarmReceivers;
     public Map<AlarmChannel, List<String>> channelReceiverMap;
 
     /**
@@ -43,12 +44,17 @@ public class AlarmConfig {
             logger.error("alarm sender class name is empty");
             return false;
         }
-        if (receiverMap == null || receiverMap.isEmpty()) {
+        if (alarmReceivers == null || alarmReceivers.isEmpty()) {
             logger.error("alarm receiver info is empty");
             return false;
         }
         if (channelReceiverMap == null || channelReceiverMap.isEmpty()) {
             logger.error("alarm channel receiver mapping is empty");
+            return false;
+        }
+        for (AlarmReceiver alarmReceiver : alarmReceivers) {
+            if (!StringUtils.isEmpty(alarmReceiver.uid)) continue;
+            logger.error("alarm receiver uid is empty");
             return false;
         }
         for (Map.Entry<AlarmChannel, List<String>> entry : channelReceiverMap.entrySet()) {
@@ -59,7 +65,9 @@ public class AlarmConfig {
                 return false;
             }
             for (String receiverID : receiverIDs) {
-                if (!receiverMap.containsKey(receiverID)) {
+                AlarmReceiver alarmReceiver = new AlarmReceiver();
+                alarmReceiver.uid = receiverID;
+                if (!alarmReceivers.contains(alarmReceiver)) {
                     logger.error("alarm receiver info is not found for uid[{}] and channel[{}]",
                             receiverID, alarmChannel.name());
                     return false;

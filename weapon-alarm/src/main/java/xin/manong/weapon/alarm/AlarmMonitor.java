@@ -107,24 +107,25 @@ public class AlarmMonitor implements Runnable {
      * @return 合并后报警列表
      */
     private List<Alarm> combineAlarms(List<Alarm> alarms) {
-        Map<AlarmStatus, Set<String>> groupAlarmMap = new HashMap<>();
+        Map<AlarmStatus, Map<String, Integer>> groupAlarmMap = new HashMap<>();
         for (Alarm alarm : alarms) {
-            if (!groupAlarmMap.containsKey(alarm.status)) groupAlarmMap.put(alarm.status, new HashSet<>());
-            Set<String> messages = groupAlarmMap.get(alarm.status);
-            messages.add(alarm.content);
+            if (!groupAlarmMap.containsKey(alarm.status)) groupAlarmMap.put(alarm.status, new HashMap<>());
+            Map<String, Integer> messageCountMap = groupAlarmMap.get(alarm.status);
+            if (!messageCountMap.containsKey(alarm.content)) messageCountMap.put(alarm.content, 0);
+            messageCountMap.put(alarm.content, messageCountMap.get(alarm.content) + 1);
         }
-        List<Alarm> processedAlarms = new ArrayList<>();
-        for (Map.Entry<AlarmStatus, Set<String>> entry : groupAlarmMap.entrySet()) {
+        List<Alarm> combinedAlarms = new ArrayList<>();
+        for (Map.Entry<AlarmStatus, Map<String, Integer>> entry : groupAlarmMap.entrySet()) {
             AlarmStatus status = entry.getKey();
-            Set<String> messages = entry.getValue();
-            Alarm combinedAlarm = new Alarm();
-            combinedAlarm.status = status;
-            combinedAlarm.content = String.join("\n", messages);
-            if (messages.size() > 1) {
-                combinedAlarm.content = String.format("合并报警数量[%d] %s", messages.size(), combinedAlarm.content);
+            Map<String, Integer> messageCountMap = entry.getValue();
+            for (String message : messageCountMap.keySet()) {
+                Alarm combinedAlarm = new Alarm(status);
+                int messageCount = messageCountMap.get(message);
+                combinedAlarm.content = messageCount > 1 ?
+                        String.format("合并报警数量[%d] %s", messageCount, message) : message;
+                combinedAlarms.add(combinedAlarm);
             }
-            processedAlarms.add(combinedAlarm);
         }
-        return processedAlarms;
+        return combinedAlarms;
     }
 }

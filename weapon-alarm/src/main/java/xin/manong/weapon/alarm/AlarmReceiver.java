@@ -14,4 +14,17 @@ public class AlarmReceiver {
     public String email;
     /* 电话号码 */
     public String phone;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || !(object instanceof AlarmReceiver)) return false;
+        if (this == object) return true;
+        AlarmReceiver other = (AlarmReceiver) object;
+        return uid == other.uid || (uid != null && other.uid != null && uid.equals(other.uid));
+    }
+
+    @Override
+    public int hashCode() {
+        return uid == null ? 0 : uid.hashCode();
+    }
 }

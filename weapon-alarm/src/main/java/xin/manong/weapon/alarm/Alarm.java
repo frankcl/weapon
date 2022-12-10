@@ -18,4 +18,20 @@ public class Alarm {
     public String appName;
     /* 报警状态 */
     public AlarmStatus status;
+
+    public Alarm(AlarmStatus status) {
+        this.time = System.currentTimeMillis();
+        this.status = status == null ? AlarmStatus.INFO : status;
+    }
+
+    public Alarm(String title, String content, AlarmStatus status) {
+        this(status);
+        this.title = title;
+        this.content = content;
+    }
+
+    public Alarm(String content, AlarmStatus status) {
+        this(status);
+        this.content = content;
+    }
 }

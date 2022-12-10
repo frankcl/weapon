@@ -4,6 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -71,6 +75,32 @@ public abstract class AlarmSender {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 钉钉webhook URL签名
+     *
+     * @return webhook签名URL
+     */
+    protected final String signDingTalkWebHookURL() {
+        if (StringUtils.isEmpty(config.dingWebHookURL)) return null;
+        if (StringUtils.isEmpty(config.dingWebHookSecret)) {
+            logger.warn("ding talk web hook secret is empty");
+            return config.dingWebHookURL;
+        }
+        Long timestamp = System.currentTimeMillis();
+        try {
+            String sha256 = "HmacSHA256", utf8Encoding = "UTF-8";
+            Mac mac = Mac.getInstance(sha256);
+            mac.init(new SecretKeySpec(config.dingWebHookSecret.getBytes(utf8Encoding), sha256));
+            byte[] bytes = mac.doFinal(String.format("%d\n%s", timestamp,
+                    config.dingWebHookSecret).getBytes(utf8Encoding));
+            String sign = URLEncoder.encode(new String(Base64.getEncoder().encode(bytes)), utf8Encoding);
+            return String.format("%s&timestamp=%d&sign=%s", config.dingWebHookURL, timestamp, sign);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return config.dingWebHookURL;
+        }
     }
 
     /**
