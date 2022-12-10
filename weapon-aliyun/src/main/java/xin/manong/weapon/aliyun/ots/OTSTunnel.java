@@ -5,6 +5,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xin.manong.weapon.alarm.AlarmSender;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
@@ -30,6 +31,7 @@ public class OTSTunnel implements Rebuildable {
     private TunnelClient tunnelClient;
     private Map<String, OTSTunnelWorker> workerMap;
     private List<RebuildListener> rebuildListeners;
+    private AlarmSender alarmSender;
 
     public OTSTunnel(OTSTunnelConfig config) {
         this.config = config;
@@ -53,6 +55,7 @@ public class OTSTunnel implements Rebuildable {
             workerMap.put(key, worker);
         }
         monitor = new OTSTunnelMonitor(config, tunnelClient);
+        monitor.setAlarmSender(alarmSender);
         monitor.start();
         return true;
     }
@@ -170,5 +173,14 @@ public class OTSTunnel implements Rebuildable {
         }
         worker.stop();
         config.removeTunnelWorkerConfig(workerConfig);
+    }
+
+    /**
+     * 设置报警发送器
+     *
+     * @param alarmSender 报警发送器
+     */
+    public void setAlarmSender(AlarmSender alarmSender) {
+        this.alarmSender = alarmSender;
     }
 }

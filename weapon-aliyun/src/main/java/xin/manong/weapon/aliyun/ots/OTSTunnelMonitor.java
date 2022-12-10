@@ -6,6 +6,9 @@ import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelRequest;
 import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xin.manong.weapon.alarm.Alarm;
+import xin.manong.weapon.alarm.AlarmSender;
+import xin.manong.weapon.alarm.AlarmStatus;
 
 import java.util.List;
 
@@ -25,6 +28,7 @@ public class OTSTunnelMonitor implements Runnable {
     private long checkTimeIntervalMs = DEFAULT_CHECK_TIME_INTERVAL_MS;
     private OTSTunnelConfig tunnelConfig;
     private TunnelClient tunnelClient;
+    private AlarmSender alarmSender;
     private Thread workThread;
 
     public OTSTunnelMonitor(OTSTunnelConfig tunnelConfig, TunnelClient tunnelClient) {
@@ -92,7 +96,19 @@ public class OTSTunnelMonitor implements Runnable {
             delayChannelNum++;
         }
         if (delayChannelNum > 0) {
-            //TODO 添加延迟报警逻辑
+            Alarm alarm = new Alarm(String.format("OTS通道[%s:%s]数据堆积: 堆积channel数量[%d], 超过最大消费延时[%d]ms",
+                    workerConfig.table, workerConfig.tunnel, delayChannelNum, workerConfig.maxConsumeDelayMs),
+                    AlarmStatus.ERROR);
+            if (alarmSender != null) alarmSender.send(alarm);
         }
+    }
+
+    /**
+     * 设置报警发送器
+     *
+     * @param alarmSender 报警发送器
+     */
+    public void setAlarmSender(AlarmSender alarmSender) {
+        this.alarmSender = alarmSender;
     }
 }
