@@ -45,6 +45,10 @@ public abstract class AlarmSender {
             logger.error("invalid alarm config");
             return false;
         }
+        if (!init()) {
+            logger.error("init alarm sender failed");
+            return false;
+        }
         monitor.start();
         logger.info("alarm sender has been started");
         return true;
@@ -56,6 +60,7 @@ public abstract class AlarmSender {
     public final void stop() {
         logger.info("alarm sender is stopping ...");
         monitor.stop();
+        destroy();
         logger.info("alarm sender has been stopped");
     }
 
@@ -101,6 +106,21 @@ public abstract class AlarmSender {
             logger.error(e.getMessage(), e);
             return config.dingWebHookURL;
         }
+    }
+
+    /**
+     * 初始化
+     *
+     * @return 成功返回true，否则返回false
+     */
+    public boolean init() {
+        return true;
+    };
+
+    /**
+     * 销毁
+     */
+    public void destroy() {
     }
 
     /**
