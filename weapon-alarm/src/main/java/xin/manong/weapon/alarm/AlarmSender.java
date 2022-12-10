@@ -24,7 +24,7 @@ public abstract class AlarmSender {
 
     private final static int ALARM_QUEUE_SIZE = 200;
 
-    AlarmConfig config;
+    protected AlarmConfig config;
     BlockingQueue<Alarm> alarmQueue;
     private AlarmMonitor monitor;
 
