@@ -110,6 +110,7 @@ public abstract class AlarmSender {
 
     /**
      * 初始化
+     * 子类实现覆盖此方法实现初始化操作
      *
      * @return 成功返回true，否则返回false
      */
@@ -119,6 +120,7 @@ public abstract class AlarmSender {
 
     /**
      * 销毁
+     * 子类实现覆盖此方法实现销毁操作
      */
     public void destroy() {
     }
