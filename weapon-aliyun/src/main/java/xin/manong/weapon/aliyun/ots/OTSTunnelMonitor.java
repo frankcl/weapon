@@ -26,6 +26,7 @@ public class OTSTunnelMonitor implements Runnable {
 
     private boolean running = false;
     private long checkTimeIntervalMs = DEFAULT_CHECK_TIME_INTERVAL_MS;
+    private String appName;
     private OTSTunnelConfig tunnelConfig;
     private TunnelClient tunnelClient;
     private AlarmSender alarmSender;
@@ -98,7 +99,7 @@ public class OTSTunnelMonitor implements Runnable {
         if (delayChannelNum > 0) {
             Alarm alarm = new Alarm(String.format("OTS通道[%s:%s]数据堆积: 堆积channel数量[%d], 超过最大消费延时[%d]ms",
                     workerConfig.table, workerConfig.tunnel, delayChannelNum, workerConfig.maxConsumeDelayMs),
-                    AlarmStatus.ERROR);
+                    AlarmStatus.ERROR).setAppName(appName).setTitle("OTS通道数据堆积报警");
             if (alarmSender != null) alarmSender.send(alarm);
         }
     }
@@ -110,5 +111,14 @@ public class OTSTunnelMonitor implements Runnable {
      */
     public void setAlarmSender(AlarmSender alarmSender) {
         this.alarmSender = alarmSender;
+    }
+
+    /**
+     * 设置所属应用名
+     *
+     * @param appName 所属应用名
+     */
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 }

@@ -26,6 +26,8 @@ public class OTSTunnel implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnel.class);
 
+    /* 所属应用名 */
+    private String appName;
     private OTSTunnelConfig config;
     private OTSTunnelMonitor monitor;
     private TunnelClient tunnelClient;
@@ -55,6 +57,7 @@ public class OTSTunnel implements Rebuildable {
             workerMap.put(key, worker);
         }
         monitor = new OTSTunnelMonitor(config, tunnelClient);
+        monitor.setAppName(appName);
         monitor.setAlarmSender(alarmSender);
         monitor.start();
         return true;
@@ -182,5 +185,14 @@ public class OTSTunnel implements Rebuildable {
      */
     public void setAlarmSender(AlarmSender alarmSender) {
         this.alarmSender = alarmSender;
+    }
+
+    /**
+     * 设置所属应用名
+     *
+     * @param appName 所属应用名
+     */
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 }
