@@ -23,6 +23,39 @@ public class HttpRequest {
     public Map<String, String> headers;
 
     /**
+     * 构建HTTP GET请求
+     *
+     * @param requestURL 请求URL
+     * @param params 请求参数
+     * @return HTTP请求
+     */
+    public static HttpRequest buildGetRequest(String requestURL, Map<String, Object> params) {
+        HttpRequest httpRequest = new HttpRequest();
+        httpRequest.requestURL = requestURL;
+        httpRequest.method = RequestMethod.GET;
+        httpRequest.params = params;
+        return httpRequest;
+    }
+
+    /**
+     * 构建HTTP POST请求
+     *
+     * @param requestURL 请求URL
+     * @param format 请求格式
+     * @param params 请求参数
+     * @return HTTP请求
+     */
+    public static HttpRequest buildPostRequest(String requestURL, RequestFormat format,
+                                               Map<String, Object> params) {
+        HttpRequest httpRequest = new HttpRequest();
+        httpRequest.requestURL = requestURL;
+        httpRequest.method = RequestMethod.POST;
+        httpRequest.format = format;
+        httpRequest.params = params;
+        return httpRequest;
+    }
+
+    /**
      * 检测请求合法性
      * 1. 请求URL不为空
      * 2. 请求方式不为空

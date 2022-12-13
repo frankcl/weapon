@@ -3,10 +3,10 @@
     <parent>
         <artifactId>weapon</artifactId>
         <groupId>xin.manong</groupId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </parent>
     <packaging>jar</packaging>
-    <name>xin.manong:weapon-spring-boot-starter</name>
+    <name>weapon-spring-boot-starter</name>
     <description>common components of spring boot starter for developing</description>
     <url>https://github.com/frankcl/weapon</url>
     <modelVersion>4.0.0</modelVersion>

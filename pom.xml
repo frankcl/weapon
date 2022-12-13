@@ -7,8 +7,8 @@
     <groupId>xin.manong</groupId>
     <artifactId>weapon</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.2</version>
-    <name>xin.manong:weapon</name>
+    <version>0.0.3</version>
+    <name>weapon</name>
     <description>parent module of basic tools libraries for developing</description>
     <url>https://github.com/frankcl/weapon</url>
 
@@ -58,7 +58,7 @@
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
         <tablestore.version>5.13.10</tablestore.version>
-        <weapon.version>0.0.2</weapon.version>
+        <weapon.version>0.0.3</weapon.version>
     </properties>
 
     <profiles>

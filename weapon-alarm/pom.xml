@@ -5,10 +5,10 @@
     <parent>
         <artifactId>weapon</artifactId>
         <groupId>xin.manong</groupId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </parent>
     <packaging>jar</packaging>
-    <name>xin.manong:weapon-alarm</name>
+    <name>weapon-alarm</name>
     <description>alarm tools libraries for developing</description>
     <url>https://github.com/frankcl/weapon</url>
     <modelVersion>4.0.0</modelVersion>
