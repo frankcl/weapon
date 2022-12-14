@@ -161,4 +161,25 @@ public class JSONUtilSuite {
         JSONArray select = JSONUtil.select(array, keys);
         Assert.assertEquals(2, select.size());
     }
+
+    @Test
+    public void testParseFields() {
+        Set<String> fields = new HashSet<>();
+        fields.add("k1");
+        fields.add("k3");
+        JSONObject json = new JSONObject();
+        json.put("k1", "[1, 2]");
+        json.put("k2", "{\"name\": 1}");
+        json.put("k3", 123);
+        JSONUtil.parseFields(json, fields);
+        Assert.assertEquals(3, json.size());
+        Assert.assertTrue(json.containsKey("k1"));
+        Assert.assertTrue(json.containsKey("k2"));
+        Assert.assertTrue(json.containsKey("k3"));
+        Assert.assertEquals(2, ((JSONArray) json.get("k1")).size());
+        Assert.assertEquals(1, ((JSONArray) json.get("k1")).get(0));
+        Assert.assertEquals(2, ((JSONArray) json.get("k1")).get(1));
+        Assert.assertEquals("{\"name\": 1}", json.get("k2"));
+        Assert.assertEquals(123, json.getIntValue("k3"));
+    }
 }

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -14,6 +16,8 @@ import java.util.*;
  * @create 2019-06-02 00:12
  */
 public class JSONUtil {
+
+    private final static Logger logger = LoggerFactory.getLogger(JSONUtil.class);
 
     /**
      * 从JSON数组选择指定key内容
@@ -276,5 +280,25 @@ public class JSONUtil {
             }
         }
         return objects.isEmpty() ? null : objects;
+    }
+
+    /**
+     * 对JSON对象的指定字段进行JSON解析
+     * 如果字段值是字符串且符合JSON规则，则解析为JSON，否则不做解析
+     *
+     * @param json JSON对象
+     * @param fields 需要解析的字段集合
+     */
+    public static void parseFields(JSONObject json, Set<String> fields) {
+        for (String key : json.keySet()) {
+            if (fields == null || !fields.contains(key)) continue;
+            Object v = json.get(key);
+            if (!(v instanceof String)) continue;
+            try {
+                json.put(key, JSON.parse((String) v));
+            } catch (Exception e) {
+                logger.warn("parse json failed for value[{}]", v);
+            }
+        }
     }
 }
