@@ -28,7 +28,7 @@ public class OTSClientConfig {
     public int socketTimeoutMs = DEFAULT_SOCKET_TIMEOUT_MS;
     public String endpoint;
     public String instance;
-    public AliyunSecret aliyunSecret;
+    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测合法性

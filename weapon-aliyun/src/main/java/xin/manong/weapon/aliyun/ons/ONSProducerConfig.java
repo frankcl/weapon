@@ -23,7 +23,7 @@ public class ONSProducerConfig {
     public int retryCnt = DEFAULT_RETRY_CNT;
     public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String serverURL;
-    public AliyunSecret aliyunSecret;
+    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测合法性

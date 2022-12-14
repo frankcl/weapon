@@ -26,7 +26,7 @@ public class ONSConsumerConfig {
     public String consumeId;
     public String serverURL;
     public List<Subscribe> subscribes = new ArrayList<>();
-    public AliyunSecret aliyunSecret;
+    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 添加订阅信息

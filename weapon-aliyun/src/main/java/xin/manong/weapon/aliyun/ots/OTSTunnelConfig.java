@@ -20,7 +20,7 @@ public class OTSTunnelConfig {
 
     public String endpoint;
     public String instance;
-    public AliyunSecret aliyunSecret;
+    public AliyunSecret aliyunSecret = new AliyunSecret();
     public List<OTSTunnelWorkerConfig> workerConfigs = new ArrayList<>();
 
     /**

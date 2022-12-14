@@ -25,7 +25,7 @@ public class OSSClientConfig {
     public int connectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
     public int socketTimeoutMs = DEFAULT_SOCKET_TIMEOUT_MS;
     public String endpoint;
-    public AliyunSecret aliyunSecret;
+    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测配置信息
