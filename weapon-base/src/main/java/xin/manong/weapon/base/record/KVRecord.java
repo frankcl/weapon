@@ -155,6 +155,21 @@ public class KVRecord implements Serializable {
     }
 
     /**
+     * 获取key值映射
+     *
+     * @return key值映射
+     */
+    public final Map<String, Object> getKeyMap() {
+        Map<String, Object> keyMap = new HashMap<>();
+        if (keys == null || keys.isEmpty()) return keyMap;
+        for (String key : keys) {
+            if (!fieldMap.containsKey(key)) continue;
+            keyMap.put(key, fieldMap.get(key));
+        }
+        return keyMap;
+    }
+
+    /**
      * 获取数据ID
      *
      * @return 数据ID
