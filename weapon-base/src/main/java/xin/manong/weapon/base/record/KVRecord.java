@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.RandomID;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * KV数据
@@ -42,13 +39,29 @@ public class KVRecord implements Serializable {
     /**
      * 拷贝数据：针对JSON数据进行深拷贝
      *
-     * @return 拷贝数据
+     * @return 数据拷贝
      */
     public KVRecord copy() {
         KVRecord replica = new KVRecord();
         replica.recordType = recordType;
         replica.setKeys(keys);
         replica.setFieldMap(fieldMap);
+        return replica;
+    }
+
+    /**
+     * 拷贝数据，移除removeFields定义字段
+     *
+     * @param removeFields 移除字段集合
+     * @return 数据拷贝
+     */
+    public KVRecord copy(Set<String> removeFields) {
+        KVRecord replica = copy();
+        if (removeFields == null || removeFields.isEmpty()) return replica;
+        for (String removeField : removeFields) {
+            if (!replica.has(removeField)) continue;
+            replica.remove(removeField);
+        }
         return replica;
     }
 
