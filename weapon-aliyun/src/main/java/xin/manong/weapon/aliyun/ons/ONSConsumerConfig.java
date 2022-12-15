@@ -3,7 +3,7 @@ package xin.manong.weapon.aliyun.ons;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author frankcl
  * @create 2019-05-29 18:52
  */
-public class ONSConsumerConfig {
+public class ONSConsumerConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumerConfig.class);
 
@@ -26,7 +26,6 @@ public class ONSConsumerConfig {
     public String consumeId;
     public String serverURL;
     public List<Subscribe> subscribes = new ArrayList<>();
-    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 添加订阅信息
@@ -51,16 +50,13 @@ public class ONSConsumerConfig {
      * @return 合法返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(serverURL)) {
             logger.error("server url is empty");
             return false;
         }
         if (StringUtils.isEmpty(consumeId)) {
             logger.error("consume id is empty");
-            return false;
-        }
-        if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("aliyun secret is invalid");
             return false;
         }
         if (subscribes == null || subscribes.isEmpty()) {

@@ -32,7 +32,7 @@ public class OTSClient implements Rebuildable {
     public OTSClient(OTSClientConfig config) {
         this.config = config;
         build();
-        RebuildManager.register(this);
+        if (this.config.dynamic) RebuildManager.register(this);
     }
 
     /**
@@ -40,7 +40,7 @@ public class OTSClient implements Rebuildable {
      */
     public void close() {
         logger.info("OTS client is closing ...");
-        RebuildManager.unregister(this);
+        if (config.dynamic) RebuildManager.unregister(this);
         if (syncClient != null) syncClient.shutdown();
         logger.info("OTS client has been closed");
     }

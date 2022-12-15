@@ -99,7 +99,7 @@ public class ONSConsumer implements Rebuildable {
             return false;
         }
         if (!build()) return false;
-        RebuildManager.register(this);
+        if (config.dynamic) RebuildManager.register(this);
         logger.info("ONS consumer has been started");
         return true;
     }
@@ -109,7 +109,7 @@ public class ONSConsumer implements Rebuildable {
      */
     public void stop() {
         logger.info("ONS consumer is stopping ...");
-        RebuildManager.unregister(this);
+        if (config.dynamic) RebuildManager.unregister(this);
         if (consumer != null) consumer.shutdown();
         logger.info("ONS consumer has been stopped");
     }

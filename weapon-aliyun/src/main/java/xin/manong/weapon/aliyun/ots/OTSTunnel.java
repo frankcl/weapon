@@ -99,7 +99,7 @@ public class OTSTunnel implements Rebuildable {
         }
         if (!config.check()) return false;
         if (!build()) return false;
-        RebuildManager.register(this);
+        if (config.dynamic) RebuildManager.register(this);
         logger.info("OTS tunnel has been started");
         return true;
     }
@@ -109,7 +109,7 @@ public class OTSTunnel implements Rebuildable {
      */
     public void stop() {
         logger.info("OTS tunnel is stopping ...");
-        RebuildManager.unregister(this);
+        if (config.dynamic) RebuildManager.unregister(this);
         if (monitor != null) monitor.stop();
         for (OTSTunnelWorker worker : workerMap.values()) worker.stop();
         workerMap.clear();

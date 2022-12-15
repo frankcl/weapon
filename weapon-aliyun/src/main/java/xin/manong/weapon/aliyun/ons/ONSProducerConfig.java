@@ -4,7 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 /**
  * ONS消息生产配置
@@ -13,7 +13,7 @@ import xin.manong.weapon.aliyun.secret.AliyunSecret;
  * @create 2019-06-11 19:05
  */
 @Data
-public class ONSProducerConfig {
+public class ONSProducerConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSProducerConfig.class);
 
@@ -23,7 +23,6 @@ public class ONSProducerConfig {
     public int retryCnt = DEFAULT_RETRY_CNT;
     public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String serverURL;
-    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测合法性
@@ -31,12 +30,9 @@ public class ONSProducerConfig {
      * @return 如果合法返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(serverURL)) {
             logger.error("server url is empty");
-            return false;
-        }
-        if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("aliyun secret is invalid");
             return false;
         }
         return true;

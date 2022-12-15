@@ -38,7 +38,7 @@ public class OSSClient implements Rebuildable {
     public OSSClient(OSSClientConfig config) {
         this.config = config;
         build();
-        RebuildManager.register(this);
+        if (this.config.dynamic) RebuildManager.register(this);
     }
 
     /**
@@ -46,7 +46,7 @@ public class OSSClient implements Rebuildable {
      */
     public void close() {
         logger.info("OSS client is closing ...");
-        RebuildManager.unregister(this);
+        if (config.dynamic) RebuildManager.unregister(this);
         if (instance != null) instance.shutdown();
         logger.info("OSS client has been closed");
     }

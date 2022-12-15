@@ -4,7 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 /**
  * OSS客户端配置
@@ -13,7 +13,7 @@ import xin.manong.weapon.aliyun.secret.AliyunSecret;
  * @create 2019-08-26 18:28:12
  */
 @Data
-public class OSSClientConfig {
+public class OSSClientConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OSSClientConfig.class);
 
@@ -25,7 +25,6 @@ public class OSSClientConfig {
     public int connectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
     public int socketTimeoutMs = DEFAULT_SOCKET_TIMEOUT_MS;
     public String endpoint;
-    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测配置信息
@@ -33,12 +32,9 @@ public class OSSClientConfig {
      * @return 如果合法返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(endpoint)) {
             logger.error("endpoint is empty");
-            return false;
-        }
-        if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("invalid aliyun secret");
             return false;
         }
         return true;

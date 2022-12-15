@@ -72,7 +72,7 @@ public class ONSProducer implements Rebuildable {
         logger.info("ONS producer is init ...");
         if (!config.check()) return false;
         if (!build()) return false;
-        RebuildManager.register(this);
+        if (config.dynamic) RebuildManager.register(this);
         logger.info("ONS producer has finished init");
         return true;
     }
@@ -82,7 +82,7 @@ public class ONSProducer implements Rebuildable {
      */
     public void destroy() {
         logger.info("ONS producer is destroying ...");
-        RebuildManager.unregister(this);
+        if (config.dynamic) RebuildManager.unregister(this);
         if (producer != null) producer.shutdown();
         logger.info("ONS producer has been destroyed");
     }

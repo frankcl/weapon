@@ -4,7 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 /**
  * OTS客户端配置
@@ -13,7 +13,7 @@ import xin.manong.weapon.aliyun.secret.AliyunSecret;
  * @create 2019-05-28 20:30
  */
 @Data
-public class OTSClientConfig {
+public class OTSClientConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSClientConfig.class);
 
@@ -28,7 +28,6 @@ public class OTSClientConfig {
     public int socketTimeoutMs = DEFAULT_SOCKET_TIMEOUT_MS;
     public String endpoint;
     public String instance;
-    public AliyunSecret aliyunSecret = new AliyunSecret();
 
     /**
      * 检测合法性
@@ -36,16 +35,13 @@ public class OTSClientConfig {
      * @return 合法返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(endpoint)) {
             logger.error("endpoint is empty");
             return false;
         }
         if (StringUtils.isEmpty(instance)) {
             logger.error("instance is empty");
-            return false;
-        }
-        if (aliyunSecret == null || !aliyunSecret.check()) {
-            logger.error("aliyun secret is invalid");
             return false;
         }
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;

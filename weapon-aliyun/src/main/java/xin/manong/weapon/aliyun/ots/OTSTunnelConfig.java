@@ -3,7 +3,7 @@ package xin.manong.weapon.aliyun.ots;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +14,12 @@ import java.util.List;
  * @author frankcl
  * @date 2022-08-04 23:08:14
  */
-public class OTSTunnelConfig {
+public class OTSTunnelConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelConfig.class);
 
     public String endpoint;
     public String instance;
-    public AliyunSecret aliyunSecret = new AliyunSecret();
     public List<OTSTunnelWorkerConfig> workerConfigs = new ArrayList<>();
 
     /**
@@ -68,7 +67,7 @@ public class OTSTunnelConfig {
      * @return 有效返回true，否则返回false
      */
     public boolean check() {
-        if (aliyunSecret == null || !aliyunSecret.check()) return false;
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(instance)) {
             logger.error("oss instance is empty");
             return false;
