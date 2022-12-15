@@ -37,6 +37,7 @@ public class OSSClient implements Rebuildable {
 
     public OSSClient(OSSClientConfig config) {
         this.config = config;
+        if (!this.config.check()) throw new RuntimeException("oss client config is invalid");
         build();
         if (this.config.dynamic) RebuildManager.register(this);
     }

@@ -31,6 +31,7 @@ public class OTSClient implements Rebuildable {
 
     public OTSClient(OTSClientConfig config) {
         this.config = config;
+        if (!this.config.check()) throw new RuntimeException("ots client config is invalid");
         build();
         if (this.config.dynamic) RebuildManager.register(this);
     }
