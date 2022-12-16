@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.ots;
 
+import com.alibaba.fastjson.JSON;
 import com.alicloud.openservices.tablestore.model.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -72,8 +73,9 @@ public class OTSConverter {
         Map<String, Object> keyMap = new HashMap(), columnMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : kvRecord.getFieldMap().entrySet()) {
             String key = entry.getKey();
-            if (kvRecord.getKeys().contains(key)) keyMap.put(key, entry.getValue());
-            else columnMap.put(key, entry.getValue());
+            Object value = entry.getValue();
+            if (kvRecord.getKeys().contains(key)) keyMap.put(key, value);
+            else columnMap.put(key, value instanceof JSON ? value.toString() : value);
         }
         if (keyMap.size() != kvRecord.getKeys().size()) throw new RuntimeException("missing primary keys");
         return new Row(convertPrimaryKey(keyMap), convertColumns(columnMap));
@@ -157,7 +159,7 @@ public class OTSConverter {
         List<Column> columns = new ArrayList<>();
         for (Map.Entry<String, Object> entry : columnMap.entrySet()) {
             Object value = entry.getValue();
-            checkColumn(value);
+            if (!checkColumn(value)) continue;
             ColumnValue columnValue;
             if (value instanceof Integer) {
                 columnValue = ColumnValue.fromLong(((Integer) value).longValue());
@@ -198,20 +200,20 @@ public class OTSConverter {
 
     /**
      * 检测列值合法性，合法类型：Integer, Long, Float, Double, String, byte数组
-     * 不合法抛出RuntimeException
      *
      * @param columnValue 列值
+     * @return 合法返回true，否则返回false
      */
-    private static void checkColumn(Object columnValue) {
-        if (columnValue instanceof String) return;
-        if (columnValue instanceof Integer) return;
-        if (columnValue instanceof Float) return;
-        if (columnValue instanceof Double) return;
-        if (columnValue instanceof Long) return;
-        if (columnValue instanceof Boolean) return;
-        if (columnValue instanceof byte[]) return;
-        logger.error("unexpected column value type[{}]", columnValue.getClass().getName());
-        throw new RuntimeException(String.format("unexpected column value type[%s]", columnValue.getClass().getName()));
+    private static boolean checkColumn(Object columnValue) {
+        if (columnValue instanceof String) return true;
+        if (columnValue instanceof Integer) return true;
+        if (columnValue instanceof Float) return true;
+        if (columnValue instanceof Double) return true;
+        if (columnValue instanceof Long) return true;
+        if (columnValue instanceof Boolean) return true;
+        if (columnValue instanceof byte[]) return true;
+        logger.warn("unexpected column value type[{}]", columnValue.getClass().getName());
+        return false;
     }
 
     /**
