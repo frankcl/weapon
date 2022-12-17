@@ -19,6 +19,15 @@ import java.util.Enumeration;
  * 不支持秘钥动态更新监听
  * 仅为通过本地资源文件统一配置AK/SK提供支持
  *
+ * 秘钥配置文件格式
+ * {
+ *   "accessKey": "ak",
+ *   "secretKey": "sk"
+ * }
+ *
+ * 默认秘钥配置文件aliyun_secret.json
+ * 也可通过运行参数进行设置-DaliyunSecretFile=resourcePath
+ *
  * @author frankcl
  * @date 2022-12-17 10:15:18
  */
