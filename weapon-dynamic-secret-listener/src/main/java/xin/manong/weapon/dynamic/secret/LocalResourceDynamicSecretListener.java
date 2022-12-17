@@ -36,6 +36,7 @@ public class LocalResourceDynamicSecretListener implements DynamicSecretListener
             Enumeration<URL> enumeration = getSecretResources(classLoader);
             try {
                 parseSecret(enumeration);
+                logger.info("dynamic secret listener[{}] has been started", this.getClass().getName());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
