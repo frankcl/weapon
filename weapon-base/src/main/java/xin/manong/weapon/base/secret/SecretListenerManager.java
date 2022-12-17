@@ -39,7 +39,8 @@ public class SecretListenerManager {
                 }
             }
             if (!listeners.isEmpty()) {
-                logger.error("other dynamic secret listener has been registered");
+                logger.error("other dynamic secret listener has been registered, ignore listener[{}]",
+                        listenerClass.getName());
                 return false;
             }
             listeners.add(listener);
