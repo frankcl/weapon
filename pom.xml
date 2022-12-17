@@ -39,6 +39,7 @@
         <module>weapon-alarm</module>
         <module>weapon-aliyun</module>
         <module>weapon-spring-boot-starter</module>
+        <module>weapon-dynamic-secret-listener</module>
     </modules>
 
     <properties>
