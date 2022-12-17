@@ -9,6 +9,12 @@ package xin.manong.weapon.base.secret;
 public interface DynamicSecretListener {
 
     /**
+     * 启动监听器
+     */
+    default void start() {
+    }
+
+    /**
      * 订阅和处理秘钥变更
      * @param secret 秘钥信息
      */
