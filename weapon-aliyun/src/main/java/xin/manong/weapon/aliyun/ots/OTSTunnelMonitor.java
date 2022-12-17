@@ -41,18 +41,18 @@ public class OTSTunnelMonitor implements Runnable {
      * 启动监控
      */
     public void start() {
-        logger.info("OTSTunnel monitor[{}] is starting ...");
+        logger.info("OTSTunnel monitor is starting ...");
         running = true;
         workThread = new Thread(this, "TunnelMonitor");
         workThread.start();
-        logger.info("tunnel monitor[{}] has been started");
+        logger.info("tunnel monitor has been started");
     }
 
     /**
      * 停止监控
      */
     public void stop() {
-        logger.info("tunnel monitor[{}] is stopping ...");
+        logger.info("tunnel monitor is stopping ...");
         running = false;
         if (workThread.isAlive()) workThread.interrupt();
         try {
@@ -60,7 +60,7 @@ public class OTSTunnelMonitor implements Runnable {
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.info("tunnel monitor[{}] has been stopped");
+        logger.info("tunnel monitor has been stopped");
     }
 
     @Override
