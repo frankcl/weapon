@@ -1,0 +1,42 @@
+package xin.manong.weapon.base.redisson;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+/**
+ * redisson主从模式配置信息
+ *
+ * @author frankcl
+ * @date 2022-12-20 17:35:02
+ */
+public class RedissonMasterSlaveConfig extends RedissonConfig {
+
+    private final static Logger logger = LoggerFactory.getLogger(RedissonMasterSlaveConfig.class);
+
+    public Integer db;
+    public String masterAddress;
+    public List<String> slaveAddresses;
+
+    /**
+     * 检测有效性
+     *
+     * @return 有效返回false，否则返回false
+     */
+    public boolean check() {
+        if (!super.check()) return false;
+        if (StringUtils.isEmpty(masterAddress)) {
+            logger.error("master address is empty for master/slave mode");
+            return false;
+        }
+        if (slaveAddresses == null || slaveAddresses.isEmpty()) {
+            logger.error("slave addresses are empty for master/slave mode");
+            return false;
+        }
+        slaveAddresses = fillAddress(slaveAddresses);
+        if (db == null || db < 0) db = 0;
+        return true;
+    }
+}
