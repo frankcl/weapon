@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.redisson;
+package xin.manong.weapon.base.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * redisson集群模式配置信息
+ * redis集群模式配置信息
  *
  * @author frankcl
  * @date 2022-12-20 17:41:04
  */
-public class RedissonClusterConfig extends RedissonConfig {
+public class RedisClusterConfig extends RedisConfig {
 
-    private final static Logger logger = LoggerFactory.getLogger(RedissonClusterConfig.class);
+    private final static Logger logger = LoggerFactory.getLogger(RedisClusterConfig.class);
 
     public List<String> nodeAddresses;
 

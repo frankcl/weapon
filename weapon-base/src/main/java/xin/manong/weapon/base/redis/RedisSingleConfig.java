@@ -1,18 +1,18 @@
-package xin.manong.weapon.base.redisson;
+package xin.manong.weapon.base.redis;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * redisson单点服务配置信息
+ * redis单点服务配置信息
  *
  * @author frankcl
  * @date 2022-12-20 17:20:08
  */
-public class RedissonSingleConfig extends RedissonConfig {
+public class RedisSingleConfig extends RedisConfig {
 
-    private final static Logger logger = LoggerFactory.getLogger(RedissonSingleConfig.class);
+    private final static Logger logger = LoggerFactory.getLogger(RedisSingleConfig.class);
 
     public Integer db;
     public String address;

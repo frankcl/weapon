@@ -1,6 +1,7 @@
-package xin.manong.weapon.base.redisson;
+package xin.manong.weapon.base.redis;
 
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
@@ -15,23 +16,23 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
- * redisson封装
+ * redis客户端
  *
  * @author frankcl
  * @date 2022-12-20 10:24:05
  */
-public class Redisson {
+public class RedisClient {
 
-    private final static Logger logger = LoggerFactory.getLogger(Redisson.class);
+    private final static Logger logger = LoggerFactory.getLogger(RedisClient.class);
 
     private final static Long DEFAULT_LOCK_EXPIRED_SECONDS = 30L;
 
     private RedissonClient redissonClient;
 
-    private Redisson() {
+    private RedisClient() {
     }
 
-    private Redisson(RedissonClient redissonClient) {
+    private RedisClient(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
@@ -43,12 +44,12 @@ public class Redisson {
     }
 
     /**
-     * 构建单点模式Redisson
+     * 构建单点模式redis客户端
      *
      * @param config 配置信息
-     * @return Redisson实例
+     * @return Redis客户端
      */
-    public static Redisson buildSingleRedisson(RedissonSingleConfig config) {
+    public static RedisClient buildRedisClient(RedisSingleConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for single server mode");
         Config redissonConfig = new Config();
         SingleServerConfig serverConfig = redissonConfig.useSingleServer();
@@ -58,16 +59,16 @@ public class Redisson {
             serverConfig.setConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new Redisson(org.redisson.Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig));
     }
 
     /**
-     * 构建集群模式Redisson
+     * 构建集群模式redis客户端
      *
      * @param config 配置信息
-     * @return Redisson实例
+     * @return redis客户端
      */
-    public static Redisson buildClusterRedisson(RedissonClusterConfig config) {
+    public static RedisClient buildRedisClient(RedisClusterConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for clustering mode");
         Config redissonConfig = new Config();
         ClusterServersConfig serverConfig = redissonConfig.useClusterServers();
@@ -77,16 +78,16 @@ public class Redisson {
             serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new Redisson(org.redisson.Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig));
     }
 
     /**
-     * 构建主从模式Redisson
+     * 构建主从模式redis客户端
      *
      * @param config 配置信息
-     * @return Redisson实例
+     * @return redis客户端
      */
-    public static Redisson buildMasterSlaveRedisson(RedissonMasterSlaveConfig config) {
+    public static RedisClient buildRedisClient(RedisMasterSlaveConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for master/slave mode");
         Config redissonConfig = new Config();
         MasterSlaveServersConfig serverConfig = redissonConfig.useMasterSlaveServers();
@@ -98,7 +99,7 @@ public class Redisson {
             serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new Redisson(org.redisson.Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig));
     }
 
     /**

@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.redisson;
+package xin.manong.weapon.base.redis;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -7,12 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * redisson基础配置信息
+ * redis基础配置信息
  *
  * @author frankcl
  * @date 2022-12-20 17:21:38
  */
-public class RedissonConfig {
+public class RedisConfig {
 
     private static final String REDIS_PROTOCOL = "redis://";
     private static final String REDIS_SECURITY_PROTOCOL = "rediss://";

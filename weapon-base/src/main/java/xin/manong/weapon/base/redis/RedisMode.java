@@ -1,11 +1,11 @@
-package xin.manong.weapon.base.redisson;
+package xin.manong.weapon.base.redis;
 
 /**
- * redisson模式
+ * redis模式
  *
  * @author frankcl
  * @date 2022-12-20 21:06:43
  */
-public enum RedissonMode {
+public enum RedisMode {
     SINGLE, CLUSTER, MASTER_SLAVE
 }
