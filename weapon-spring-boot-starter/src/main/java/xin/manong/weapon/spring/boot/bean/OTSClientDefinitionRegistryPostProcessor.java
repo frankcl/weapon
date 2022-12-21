@@ -38,6 +38,7 @@ public class OTSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
                     String.class, OTSClientConfig.class)).get();
         } catch (Exception e) {
             logger.warn("bind OTS client config failed");
+            logger.warn(e.getMessage(), e);
             return;
         }
         for (Map.Entry<String, OTSClientConfig> entry : configMap.entrySet()) {

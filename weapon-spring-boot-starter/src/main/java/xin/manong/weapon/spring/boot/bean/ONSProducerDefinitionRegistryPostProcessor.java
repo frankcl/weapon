@@ -38,6 +38,7 @@ public class ONSProducerDefinitionRegistryPostProcessor extends AliyunBeanDefini
                     String.class, ONSProducerConfig.class)).get();
         } catch (Exception e) {
             logger.warn("bind ONS producer config failed");
+            logger.warn(e.getMessage(), e);
             return;
         }
         for (Map.Entry<String, ONSProducerConfig> entry : configMap.entrySet()) {

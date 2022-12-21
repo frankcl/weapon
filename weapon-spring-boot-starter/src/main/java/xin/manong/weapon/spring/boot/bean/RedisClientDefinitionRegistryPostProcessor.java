@@ -37,6 +37,7 @@ public class RedisClientDefinitionRegistryPostProcessor extends AliyunBeanDefini
                     String.class, JSONObject.class)).get();
         } catch (Exception e) {
             logger.warn("bind redis client config failed");
+            logger.warn(e.getMessage(), e);
             return;
         }
         for (Map.Entry<String, JSONObject> entry : configMap.entrySet()) {

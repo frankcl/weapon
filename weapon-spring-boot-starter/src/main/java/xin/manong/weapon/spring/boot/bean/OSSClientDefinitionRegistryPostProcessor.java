@@ -38,6 +38,7 @@ public class OSSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
                     String.class, OSSClientConfig.class)).get();
         } catch (Exception e) {
             logger.warn("bind OSS client config failed");
+            logger.warn(e.getMessage(), e);
             return;
         }
         for (Map.Entry<String, OSSClientConfig> entry : configMap.entrySet()) {
