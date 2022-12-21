@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.secret;
 
+import lombok.Data;
 import xin.manong.weapon.base.secret.DynamicSecret;
 
 /**
@@ -9,6 +10,7 @@ import xin.manong.weapon.base.secret.DynamicSecret;
  * @author frankcl
  * @date 2022-12-15 10:24:09
  */
+@Data
 public class DynamicSecretConfig {
 
     public boolean dynamic = true;
