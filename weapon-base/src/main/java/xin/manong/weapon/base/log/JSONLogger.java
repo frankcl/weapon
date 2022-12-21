@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class JSONLogger {
     private final static String MAX_FILE_SIZE = "10MB";
-    private final static String KEY_LOGGER_TIME = "logger_time";
+    private final static String KEY_LOGGER_TIME = "__LOGGER_TIME__";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     private Set<String> KEYS;
