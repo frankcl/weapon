@@ -15,5 +15,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import({OSSClientDefinitionRegistryPostProcessor.class})
-public @interface EnableWeaponOSSClient {
+public @interface EnableOSSClient {
 }
