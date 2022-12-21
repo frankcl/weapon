@@ -55,7 +55,7 @@
         <hanlp.version>portable-1.7.8</hanlp.version>
         <webp-imageio.version>0.1.6</webp-imageio.version>
         <spring-boot.version>2.7.3</spring-boot.version>
-        <fastjson.version>2.0.9</fastjson.version>
+        <fastjson.version>2.0.12</fastjson.version>
         <redisson.version>3.19.0</redisson.version>
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
