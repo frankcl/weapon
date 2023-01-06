@@ -61,13 +61,12 @@ public class OTSTunnelWorker {
         try {
             DescribeTunnelResponse response = tunnelClient.describeTunnel(request);
             TunnelInfo tunnelInfo = response.getTunnelInfo();
-            workerConfig = new TunnelWorkerConfig(config.channelProcessor);
+            int threadNum = config.consumeThreadNum;
+            workerConfig = new TunnelWorkerConfig(createThreadPoolExecutor("tunnel_reader", threadNum),
+                    createThreadPoolExecutor("tunnel_processor", threadNum), config.channelProcessor);
             workerConfig.setMaxRetryIntervalInMillis(config.maxRetryIntervalMs);
             workerConfig.setHeartbeatIntervalInSec(config.heartBeatIntervalSec);
             if (config.maxChannelParallel > 0) workerConfig.setMaxChannelParallel(config.maxChannelParallel);
-            int threadNum = config.consumeThreadNum;
-            workerConfig.setReadRecordsExecutor(createThreadPoolExecutor("tunnel_reader", threadNum));
-            workerConfig.setProcessRecordsExecutor(createThreadPoolExecutor("tunnel_processor", threadNum));
             worker = new TunnelWorker(tunnelInfo.getTunnelId(), tunnelClient, workerConfig);
             worker.connectAndWorking();
         } catch (Exception e) {

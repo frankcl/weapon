@@ -18,7 +18,7 @@ public class OTSTunnelWorkerConfig {
     private final static int DEFAULT_CONSUME_THREAD_NUM = 5;
     private final static int DEFAULT_HEARTBEAT_INTERVAL_SEC = 30;
     private final static int DEFAULT_MAX_CONSUME_DELAY_MS = 60000;
-    private final static int DEFAULT_MAX_RETRY_INTERVAL_MS = 200;
+    private final static int DEFAULT_MAX_RETRY_INTERVAL_MS = 2000;
     private final static int DEFAULT_MAX_CHANNEL_PARALLEL = -1;
     private final static int MAX_CONSUME_THREAD_NUM = 32;
 
