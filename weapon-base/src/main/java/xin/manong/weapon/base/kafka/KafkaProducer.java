@@ -46,6 +46,11 @@ public class KafkaProducer {
                 "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.ByteArraySerializer");
+        if (config.authConfig != null) {
+            properties.put(KafkaAuthConfig.SECURITY_PROTOCOL, config.authConfig.securityProtocol);
+            properties.put(KafkaAuthConfig.SASL_MECHANISM, config.authConfig.saslMechanism);
+            properties.put(KafkaAuthConfig.SASL_JAAS_CONFIG, config.authConfig.saslJaasConfig);
+        }
         producer = new org.apache.kafka.clients.producer.KafkaProducer<>(properties);
         logger.info("kafka producer init success");
         return true;

@@ -54,6 +54,11 @@ public class KafkaConsumer implements Runnable {
         if (config.maxFetchWaitTimeMs != null && config.maxFetchWaitTimeMs > 0) {
             properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, String.valueOf(config.maxFetchWaitTimeMs));
         }
+        if (config.authConfig != null) {
+            properties.put(KafkaAuthConfig.SECURITY_PROTOCOL, config.authConfig.securityProtocol);
+            properties.put(KafkaAuthConfig.SASL_MECHANISM, config.authConfig.saslMechanism);
+            properties.put(KafkaAuthConfig.SASL_JAAS_CONFIG, config.authConfig.saslJaasConfig);
+        }
         consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(properties);
         running = true;
         consumeThread = new Thread(this, name);

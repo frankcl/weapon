@@ -20,6 +20,7 @@ public class KafkaProduceConfig {
     public int retryCnt = DEFAULT_RETRY_CNT;
     public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String servers;
+    public KafkaAuthConfig authConfig;
 
     /**
      * 检测配置有效性
@@ -31,6 +32,7 @@ public class KafkaProduceConfig {
             logger.error("kafka servers are empty");
             return false;
         }
+        if (authConfig != null && !authConfig.check()) return false;
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;
         if (requestTimeoutMs <= 0) requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
         return true;

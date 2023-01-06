@@ -26,6 +26,7 @@ public class KafkaConsumeConfig {
     public String servers;
     public String groupId;
     public List<String> topics;
+    public KafkaAuthConfig authConfig;
 
     /**
      * 检测配置有效性
@@ -45,6 +46,7 @@ public class KafkaConsumeConfig {
             logger.error("subscribe group id is empty");
             return false;
         }
+        if (authConfig != null && !authConfig.check()) return false;
         if (StringUtils.isEmpty(name)) name = "unknown_consumer";
         if (consumeThreadNum == null || consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
         topics = new ArrayList<>(new HashSet<>(topics));
