@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.kafka;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.util.Set;
  * @author frankcl
  * @date 2023-01-06 10:38:52
  */
+@Data
 public class KafkaAuthConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaAuthConfig.class);

@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.ons;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author frankcl
  * @create 2019-05-29 18:52
  */
+@Data
 public class ONSConsumerConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumerConfig.class);

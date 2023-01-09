@@ -1,6 +1,7 @@
 package xin.manong.weapon.aliyun.ots;
 
 import com.alicloud.openservices.tablestore.tunnel.worker.IChannelProcessor;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
  * @author frankcl
  * @date 2022-08-04 23:08:14
  */
+@Data
 public class OTSTunnelWorkerConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelWorkerConfig.class);

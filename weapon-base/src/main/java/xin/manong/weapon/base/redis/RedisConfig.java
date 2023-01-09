@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.redis;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
  * @author frankcl
  * @date 2022-12-20 17:21:38
  */
+@Data
 public class RedisConfig {
 
     private static final String REDIS_PROTOCOL = "redis://";

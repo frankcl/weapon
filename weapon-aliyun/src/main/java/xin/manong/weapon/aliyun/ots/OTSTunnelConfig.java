@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.ots;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author frankcl
  * @date 2022-08-04 23:08:14
  */
+@Data
 public class OTSTunnelConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelConfig.class);

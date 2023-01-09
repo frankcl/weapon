@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.redis;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author frankcl
  * @date 2022-12-20 17:20:08
  */
+@Data
 public class RedisSingleConfig extends RedisConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(RedisSingleConfig.class);
