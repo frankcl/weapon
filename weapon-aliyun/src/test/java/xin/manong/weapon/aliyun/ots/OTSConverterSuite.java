@@ -16,6 +16,51 @@ import java.util.stream.Collectors;
 public class OTSConverterSuite {
 
     @Test
+    public void testConvertJavaObjectToKeyMap() {
+        OTSRecord record = new OTSRecord();
+        record.setKey("key");
+        record.setC1(123L);
+        record.setC2(25.0d);
+        Map<String, Object> keyMap = OTSConverter.convertJavaObjectToKeyMap(record);
+        Assert.assertTrue(keyMap != null && keyMap.size() == 1);
+        Assert.assertTrue(keyMap.containsKey("key") && keyMap.get("key").equals("key"));
+    }
+
+    @Test
+    public void testConvertJavaObjectToKVRecord() {
+        OTSRecord record = new OTSRecord();
+        record.setKey("key");
+        record.setC1(123L);
+        record.setC2(25.0d);
+        KVRecord kvRecord = OTSConverter.convertJavaObjectToKVRecord(record);
+        Assert.assertTrue(!kvRecord.getKeys().isEmpty() && kvRecord.getKeys().size() == 1);
+        Assert.assertTrue(kvRecord.getKeys().contains("key"));
+        Assert.assertEquals(3, kvRecord.getFieldCount());
+        Assert.assertTrue(kvRecord.has("key"));
+        Assert.assertTrue(kvRecord.has("c_1"));
+        Assert.assertTrue(kvRecord.has("c2"));
+        Assert.assertEquals("key", kvRecord.get("key"));
+        Assert.assertEquals(123L, (long) kvRecord.get("c_1"));
+        Assert.assertEquals(25.0d, (double) kvRecord.get("c2"), 0.0d);
+    }
+
+    @Test
+    public void testConvertKVRecordToJavaObject() {
+        KVRecord kvRecord = new KVRecord();
+        kvRecord.put("key", "k");
+        kvRecord.put("c_1", 111L);
+        kvRecord.put("c2", 2.0d);
+        kvRecord.put("c3", 30);
+        kvRecord.setKeys(new HashSet<String>() {{ add("key"); }});
+        OTSRecord record = OTSConverter.convertKVRecordToJavaObject(kvRecord, OTSRecord.class);
+        Assert.assertTrue(record != null);
+        Assert.assertTrue(record.getKey() != null && record.getKey().equals("k"));
+        Assert.assertTrue(record.getC1() != null && record.getC1().longValue() == 111L);
+        Assert.assertTrue(record.getC2() != null && record.getC2().doubleValue() == 2.0d);
+        Assert.assertTrue(record.getC3() == null);
+    }
+
+    @Test
     public void testConvertPrimaryKeys() {
         Map<String, Object> keyMap = new HashMap<>();
         keyMap.put("k1", "abc");
@@ -192,10 +237,11 @@ public class OTSConverterSuite {
         OTSConverter.convertPrimaryKey(keyMap);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testConvertColumnsException() {
         Map<String, Object> columnMap = new HashMap<>();
         columnMap.put("k1", new HashMap<>());
-        OTSConverter.convertColumns(columnMap);
+        List<Column> columns = OTSConverter.convertColumns(columnMap);
+        Assert.assertTrue(columns.isEmpty());
     }
 }

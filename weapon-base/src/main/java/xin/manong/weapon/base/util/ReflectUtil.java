@@ -3,6 +3,7 @@ package xin.manong.weapon.base.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -19,6 +20,47 @@ public class ReflectUtil {
     private final static Logger logger = LoggerFactory.getLogger(ReflectUtil.class);
 
     private static Map<Class, ReflectClass> reflectClassMap = new HashMap<>();
+
+    /**
+     * 获取字段注解
+     *
+     * @param field 字段
+     * @param annotationClass 注解类型
+     * @return 成功返回注解实例，否则返回null或抛出异常
+     * @param <T> 注解类型
+     */
+    public static <T extends Annotation> T getFieldAnnotation(Field field, Class<T> annotationClass) {
+        try {
+            if (!field.isAnnotationPresent(annotationClass)) {
+                logger.error("annotation[{}] is not found for field[{}]", annotationClass.getName(), field.getName());
+                return null;
+            }
+            Annotation annotation = field.getAnnotation(annotationClass);
+            return annotationClass.cast(annotation);
+        } catch (Exception e) {
+            logger.error("get annotation[{}] failed of field[{}]", annotationClass.getName(), field.getName());
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 获取有指定注解的字段列表
+     *
+     * @param object 对象
+     * @param annotationClass 注解class
+     * @return 字段列表
+     */
+    public static List<Field> getAnnotatedFields(Object object, Class<? extends Annotation> annotationClass) {
+        List<Field> annotatedFields = new ArrayList<>();
+        ReflectClass reflectClass = getReflectClass(object.getClass());
+        Field[] fields = reflectClass.getFields();
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(annotationClass)) continue;
+            annotatedFields.add(field);
+        }
+        return annotatedFields;
+    }
 
     /**
      * 获取目标对象指定字段值

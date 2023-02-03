@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 反射类包装
@@ -29,6 +28,23 @@ class ReflectClass {
         constructorMap = new HashMap<>();
         fieldMap = new HashMap<>();
         methodMap = new HashMap<>();
+    }
+
+    /**
+     * 获取所有字段列表
+     * 1. private, public, protected ...
+     * 2. 获取所有父类字段
+     *
+     * @return 字段列表
+     */
+    public Field[] getFields() {
+        List<Field> fields = new ArrayList<>();
+        Class c = clazz;
+        while (c != null) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+            c = c.getSuperclass();
+        }
+        return fields.toArray(new Field[0]);
     }
 
     /**

@@ -3,11 +3,14 @@ package xin.manong.weapon.aliyun.ots;
 import com.alibaba.fastjson.JSON;
 import com.alicloud.openservices.tablestore.model.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.record.RecordType;
+import xin.manong.weapon.base.util.ReflectUtil;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -37,6 +40,111 @@ public class OTSConverter {
         Map<String, Object> fieldMap = convertRecordColumns(streamRecord.getColumns());
         kvRecord.getFieldMap().putAll(fieldMap);
         return kvRecord;
+    }
+
+    /**
+     * 转换KVRecord为java对象
+     *
+     * @param kvRecord kvRecord数据
+     * @param javaClass java class
+     * @return 成功返回java对象，否则抛出异常
+     * @param <T> java对象类型
+     */
+    public static <T> T convertKVRecordToJavaObject(KVRecord kvRecord, Class<T> javaClass) {
+        if (kvRecord == null || javaClass == null) throw new RuntimeException("convert record or java class is null");
+        Map<String, Object> keyMap = kvRecord.getKeyMap();
+        if (keyMap.isEmpty()) throw new RuntimeException("missing keys");
+        Map<String, Object> fieldMap = kvRecord.getFieldMap();
+        T javaObject = (T) ReflectUtil.newInstance(javaClass, null);
+        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(javaObject,
+                xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+        for (Field primaryKeyField : primaryKeyFields) {
+            xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
+                    primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+            String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
+            if (!keyMap.containsKey(keyName)) {
+                logger.error("primary key[{}] is not found from record", keyName);
+                throw new RuntimeException(String.format("primary key[%s] is not found from record", keyName));
+            }
+            ReflectUtil.setFieldValue(javaObject, primaryKeyField.getName(), keyMap.get(keyName));
+        }
+        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaObject,
+                xin.manong.weapon.aliyun.ots.annotation.Column.class);
+        for (Field columnField : columnFields) {
+            xin.manong.weapon.aliyun.ots.annotation.Column column = ReflectUtil.getFieldAnnotation(
+                    columnField, xin.manong.weapon.aliyun.ots.annotation.Column.class);
+            String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
+            if (!fieldMap.containsKey(columnName)) continue;
+            ReflectUtil.setFieldValue(javaObject, columnField.getName(), fieldMap.get(columnName));
+        }
+        return javaObject;
+    }
+
+    /**
+     * 转换java对象为KVRecord
+     *
+     * @param javaObject java对象
+     * @return 成功返回KVRecord，否则抛出异常
+     */
+    public static KVRecord convertJavaObjectToKVRecord(Object javaObject) {
+        if (javaObject == null) throw new RuntimeException("convert java object is null");
+        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(
+                javaObject, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+        if (primaryKeyFields.isEmpty()) {
+            logger.error("primary keys are not annotated for java object[{}]", javaObject.getClass().getName());
+            throw new RuntimeException(String.format("primary keys are not annotated for java object[%s]",
+                    javaObject.getClass().getName()));
+        }
+        Set<String> keys = new HashSet<>();
+        KVRecord kvRecord = new KVRecord();
+        for (Field primaryKeyField : primaryKeyFields) {
+            xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
+                    primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+            String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
+            Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
+            if (value == null) throw new RuntimeException(String.format("primary key[{}] is null", primaryKeyField.getName()));
+            kvRecord.put(keyName, value);
+            keys.add(keyName);
+        }
+        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaObject,
+                xin.manong.weapon.aliyun.ots.annotation.Column.class);
+        for (Field columnField : columnFields) {
+            xin.manong.weapon.aliyun.ots.annotation.Column column = ReflectUtil.getFieldAnnotation(
+                    columnField, xin.manong.weapon.aliyun.ots.annotation.Column.class);
+            String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
+            Object value = ReflectUtil.getFieldValue(javaObject, columnField.getName());
+            if (value == null) continue;
+            kvRecord.put(columnName, value);
+        }
+        kvRecord.setKeys(keys);
+        return kvRecord;
+    }
+
+    /**
+     * 转换java对象为keyMap
+     *
+     * @param javaObject java对象
+     * @return 成功返回keyMap，否则抛出异常
+     */
+    public static Map<String, Object> convertJavaObjectToKeyMap(Object javaObject) {
+        if (javaObject == null) throw new RuntimeException("convert java object is null");
+        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(
+                javaObject, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+        if (primaryKeyFields.isEmpty()) {
+            logger.error("primary keys are not annotated for java object[{}]", javaObject.getClass().getName());
+            throw new RuntimeException(String.format("primary keys are not annotated for java object[%s]",
+                    javaObject.getClass().getName()));
+        }
+        Map<String, Object> keyMap = new HashMap<>();
+        for (Field primaryKeyField : primaryKeyFields) {
+            xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
+                    primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+            String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
+            Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
+            if (value == null) throw new RuntimeException(String.format("primary key[{}] is null", primaryKeyField.getName()));
+            keyMap.put(keyName, value);
+        }
+        return keyMap;
     }
 
     /**
