@@ -31,7 +31,6 @@ public class ONSProducerDefinitionRegistryPostProcessor extends AliyunBeanDefini
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)
             throws BeansException {
         AliyunSecret secret = bindAliyunSecret();
-        if (secret == null) return;
         Map<String, ONSProducerConfig> configMap;
         try {
             configMap = Binder.get(environment).bind(BINDING_KEY, Bindable.mapOf(
@@ -44,7 +43,9 @@ public class ONSProducerDefinitionRegistryPostProcessor extends AliyunBeanDefini
         for (Map.Entry<String, ONSProducerConfig> entry : configMap.entrySet()) {
             String name = String.format("%sONSProducer", entry.getKey());
             ONSProducerConfig config = entry.getValue();
-            config.aliyunSecret = secret;
+            boolean check = secret != null && secret.check();
+            if (check) config.aliyunSecret = secret;
+            if (!config.dynamic && !check) logger.error("aliyun secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(ONSProducer.class, () -> new ONSProducer(config));
             beanDefinition.setInitMethodName("init");
             beanDefinition.setEnforceInitMethod(true);

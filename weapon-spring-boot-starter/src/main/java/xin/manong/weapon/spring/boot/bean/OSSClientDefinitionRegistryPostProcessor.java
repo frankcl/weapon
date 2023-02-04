@@ -31,7 +31,6 @@ public class OSSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)
             throws BeansException {
         AliyunSecret secret = bindAliyunSecret();
-        if (secret == null) return;
         Map<String, OSSClientConfig> configMap;
         try {
             configMap = Binder.get(environment).bind(BINDING_KEY, Bindable.mapOf(
@@ -44,7 +43,9 @@ public class OSSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
         for (Map.Entry<String, OSSClientConfig> entry : configMap.entrySet()) {
             String name = String.format("%sOSSClient", entry.getKey());
             OSSClientConfig config = entry.getValue();
-            config.aliyunSecret = secret;
+            boolean check = secret != null && secret.check();
+            if (check) config.aliyunSecret = secret;
+            if (!config.dynamic && !check) logger.error("aliyun secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(OSSClient.class, () -> new OSSClient(config));
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
