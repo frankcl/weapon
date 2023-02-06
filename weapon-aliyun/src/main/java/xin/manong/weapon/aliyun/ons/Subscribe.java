@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.ons;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author frankcl
  * @date 2022-11-01 19:21:44
  */
+@Data
 public class Subscribe {
 
     private final static Logger logger = LoggerFactory.getLogger(Subscribe.class);
