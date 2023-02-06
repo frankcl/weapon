@@ -54,7 +54,7 @@ public class OTSTunnelDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
                     new OTSTunnel(config));
             beanDefinition.setInitMethodName("start");
             beanDefinition.setEnforceInitMethod(true);
-            beanDefinition.setLazyInit(true);
+            beanDefinition.setLazyInit(false);
             beanDefinition.setDestroyMethodName("stop");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);

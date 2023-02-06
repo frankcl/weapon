@@ -27,8 +27,6 @@ public class ONSConsumerConfig extends DynamicSecretConfig {
     public int maxCachedMessageNum = DEFAULT_MAX_CACHED_MESSAGE_NUM;
     public String consumeId;
     public String serverURL;
-    /* 消息监听器bean名称，支持spring boot */
-    public String listener;
     public List<Subscribe> subscribes = new ArrayList<>();
 
     /**

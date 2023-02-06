@@ -23,14 +23,11 @@ public class ONSConsumer implements Rebuildable {
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
     private ONSConsumerConfig config;
-    private MessageListener listener;
     private List<RebuildListener> rebuildListeners;
     private Consumer consumer;
 
-    public ONSConsumer(ONSConsumerConfig config,
-                       MessageListener listener) {
+    public ONSConsumer(ONSConsumerConfig config) {
         this.config = config;
-        this.listener = listener;
         this.rebuildListeners = new ArrayList<>();
     }
 
@@ -51,7 +48,7 @@ public class ONSConsumer implements Rebuildable {
         try {
             consumer = ONSFactory.createConsumer(properties);
             for (Subscribe subscribe : config.subscribes) {
-                consumer.subscribe(subscribe.topic, subscribe.tags, listener);
+                consumer.subscribe(subscribe.topic, subscribe.tags, subscribe.listener);
             }
             consumer.start();
             logger.info("build ONS consumer success");
@@ -94,10 +91,6 @@ public class ONSConsumer implements Rebuildable {
             return false;
         }
         if (!config.check()) return false;
-        if (listener == null) {
-            logger.error("message listener is null");
-            return false;
-        }
         if (!build()) return false;
         if (config.dynamic) RebuildManager.register(this);
         logger.info("ONS consumer has been started");

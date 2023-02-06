@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.ons;
 
+import com.aliyun.openservices.ons.api.MessageListener;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ public class Subscribe {
 
     public String topic;
     public String tags;
+    /* 消息监听器bean名称，支持spring boot */
+    public String listenerName;
+    public MessageListener listener;
 
     public Subscribe() {
     }
@@ -41,6 +45,10 @@ public class Subscribe {
     public boolean check() {
         if (StringUtils.isEmpty(topic)) {
             logger.error("consume topic is empty");
+            return false;
+        }
+        if (listener == null) {
+            logger.error("message listener is not config");
             return false;
         }
         if (StringUtils.isEmpty(tags)) tags = DEFAULT_TAGS;
