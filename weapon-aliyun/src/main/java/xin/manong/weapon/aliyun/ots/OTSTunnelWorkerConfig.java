@@ -31,6 +31,8 @@ public class OTSTunnelWorkerConfig {
     public long maxConsumeDelayMs = DEFAULT_MAX_CONSUME_DELAY_MS;
     public String table;
     public String tunnel;
+    /* 数据处理器bean名称，支持spring boot */
+    public String processor;
     public IChannelProcessor channelProcessor;
 
     /**
