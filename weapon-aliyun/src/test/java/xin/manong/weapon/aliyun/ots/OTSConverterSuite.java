@@ -32,16 +32,24 @@ public class OTSConverterSuite {
         record.setKey("key");
         record.setC1(123L);
         record.setC2(25.0d);
+        record.setUser(new OTSRecord.User("xxx"));
+        record.setList(new ArrayList<OTSRecord.User>() {{ add(new OTSRecord.User("zzz")); }});
+        record.setMap(new HashMap<String, OTSRecord.User>() {{ put("abc", new OTSRecord.User("abc")); }});
         KVRecord kvRecord = OTSConverter.convertJavaObjectToKVRecord(record);
         Assert.assertTrue(!kvRecord.getKeys().isEmpty() && kvRecord.getKeys().size() == 1);
         Assert.assertTrue(kvRecord.getKeys().contains("key"));
-        Assert.assertEquals(3, kvRecord.getFieldCount());
+        Assert.assertEquals(6, kvRecord.getFieldCount());
         Assert.assertTrue(kvRecord.has("key"));
         Assert.assertTrue(kvRecord.has("c_1"));
         Assert.assertTrue(kvRecord.has("c2"));
+        Assert.assertTrue(kvRecord.has("user"));
+        Assert.assertTrue(kvRecord.has("list"));
         Assert.assertEquals("key", kvRecord.get("key"));
         Assert.assertEquals(123L, (long) kvRecord.get("c_1"));
         Assert.assertEquals(25.0d, (double) kvRecord.get("c2"), 0.0d);
+        Assert.assertEquals("{\"name\":\"xxx\"}", kvRecord.get("user"));
+        Assert.assertEquals("[{\"name\":\"zzz\"}]", kvRecord.get("list"));
+        Assert.assertEquals("{\"abc\":{\"name\":\"abc\"}}", kvRecord.get("map"));
     }
 
     @Test
@@ -51,6 +59,9 @@ public class OTSConverterSuite {
         kvRecord.put("c_1", 111L);
         kvRecord.put("c2", 2.0d);
         kvRecord.put("c3", 30);
+        kvRecord.put("user", "{\"name\":\"xxx\"}");
+        kvRecord.put("list", "[{\"name\":\"zzz\"}]");
+        kvRecord.put("map", "{\"abc\":{\"name\":\"abc\"}}");
         kvRecord.setKeys(new HashSet<String>() {{ add("key"); }});
         OTSRecord record = OTSConverter.convertKVRecordToJavaObject(kvRecord, OTSRecord.class);
         Assert.assertTrue(record != null);
@@ -58,6 +69,11 @@ public class OTSConverterSuite {
         Assert.assertTrue(record.getC1() != null && record.getC1().longValue() == 111L);
         Assert.assertTrue(record.getC2() != null && record.getC2().doubleValue() == 2.0d);
         Assert.assertTrue(record.getC3() == null);
+        Assert.assertTrue(record.getUser() != null && record.getUser().name.equals("xxx"));
+        Assert.assertTrue(record.getList() != null && record.getList().size() == 1);
+        Assert.assertTrue(record.getList().get(0).name.equals("zzz"));
+        Assert.assertTrue(record.getMap() != null && record.getMap().size() == 1);
+        Assert.assertTrue(record.getMap().containsKey("abc") && record.getMap().get("abc").name.equals("abc"));
     }
 
     @Test

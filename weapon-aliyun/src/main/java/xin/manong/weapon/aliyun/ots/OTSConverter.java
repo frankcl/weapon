@@ -1,6 +1,7 @@
 package xin.manong.weapon.aliyun.ots;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.alicloud.openservices.tablestore.model.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +11,7 @@ import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.record.RecordType;
 import xin.manong.weapon.base.util.ReflectUtil;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -75,7 +76,9 @@ public class OTSConverter {
                     columnField, xin.manong.weapon.aliyun.ots.annotation.Column.class);
             String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
             if (!fieldMap.containsKey(columnName)) continue;
-            ReflectUtil.setFieldValue(javaObject, columnField.getName(), fieldMap.get(columnName));
+            Object javaField = convertColumnValueToJavaField(fieldMap.get(columnName), columnField);
+            if (javaField == null) continue;
+            ReflectUtil.setFieldValue(javaObject, columnField.getName(), javaField);
         }
         return javaObject;
     }
@@ -102,7 +105,9 @@ public class OTSConverter {
                     primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
-            if (value == null) throw new RuntimeException(String.format("primary key[{}] is null", primaryKeyField.getName()));
+            if (!checkColumn(value)) {
+                throw new RuntimeException(String.format("primary key[{}] is invalid", primaryKeyField.getName()));
+            }
             kvRecord.put(keyName, value);
             keys.add(keyName);
         }
@@ -114,7 +119,7 @@ public class OTSConverter {
             String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
             Object value = ReflectUtil.getFieldValue(javaObject, columnField.getName());
             if (value == null) continue;
-            kvRecord.put(columnName, value);
+            kvRecord.put(columnName, convertJavaFieldToColumnValue(value));
         }
         kvRecord.setKeys(keys);
         return kvRecord;
@@ -141,7 +146,9 @@ public class OTSConverter {
                     primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
-            if (value == null) throw new RuntimeException(String.format("primary key[{}] is null", primaryKeyField.getName()));
+            if (!checkColumn(value)) {
+                throw new RuntimeException(String.format("primary key[{}] is invalid", primaryKeyField.getName()));
+            }
             keyMap.put(keyName, value);
         }
         return keyMap;
@@ -290,6 +297,76 @@ public class OTSConverter {
     }
 
     /**
+     * 转换Java字段为OTS列值
+     * 复杂对象转化为JSON字符串
+     *
+     * @param javaObject java字段值
+     * @return OTS列值
+     */
+    private static Object convertJavaFieldToColumnValue(Object javaObject) {
+        if (javaObject == null) return null;
+        if (checkColumn(javaObject)) return javaObject;
+        return JSON.toJSONString(javaObject);
+    }
+
+    /**
+     * 转换OTS列值为Java对象字段
+     *
+     * @param columnValue OTS列值
+     * @param field java对象字段描述
+     * @return  java对象字段值
+     */
+    private static Object convertColumnValueToJavaField(Object columnValue, Field field) {
+        if (columnValue == null || field == null) return null;
+        if (checkColumn(field.getType())) return columnValue;
+        if (!(columnValue instanceof String)) {
+            logger.warn("expected value type[{}] for column[{}], actual value type[{}]",
+                    String.class.getName(), field.getName(), columnValue.getClass().getName());
+            return null;
+        }
+        Class fieldClass = field.getType();
+        if (List.class.isAssignableFrom(fieldClass)) {
+            Type fieldType = field.getGenericType();
+            if (!(fieldType instanceof ParameterizedType)) return JSON.parseArray((String) columnValue, ArrayList.class);
+            Type[] paramTypes = ((ParameterizedType) fieldType).getActualTypeArguments();
+            if (paramTypes.length != 1) return JSON.parseObject((String) columnValue, ArrayList.class);
+            return JSON.parseObject((String) columnValue, buildListTypeReference((Class) paramTypes[0]));
+        } else if (Map.class.isAssignableFrom(fieldClass)) {
+            Type fieldType = field.getGenericType();
+            if (!(fieldType instanceof ParameterizedType)) return JSON.parseArray((String) columnValue, HashMap.class);
+            Type[] paramTypes = ((ParameterizedType) fieldType).getActualTypeArguments();
+            if (paramTypes.length != 2) return JSON.parseObject((String) columnValue, HashMap.class);
+            return JSON.parseObject((String) columnValue, buildMapTypeReference(
+                    (Class) paramTypes[0], (Class) paramTypes[1]));
+        }
+        return JSON.parseObject((String) columnValue, fieldClass);
+    }
+
+    /**
+     * 构建List类型TypeReference
+     *
+     * @param valueClass list值类型
+     * @return List类型TypeReference
+     * @param <T>
+     */
+    private static <T> TypeReference buildListTypeReference(Class<T> valueClass) {
+        return new TypeReference<ArrayList<T>>(valueClass) {};
+    }
+
+    /**
+     * 构建Map类型TypeReference
+     *
+     * @param keyClass map key类型
+     * @param valueClass map value类型
+     * @return Map类型TypeReference
+     * @param <K>
+     * @param <V>
+     */
+    private static <K, V> TypeReference buildMapTypeReference(Class<K> keyClass, Class<V> valueClass) {
+        return new TypeReference<HashMap<K, V>>(keyClass, valueClass) {};
+    }
+
+    /**
      * 检测主键值合法性，合法类型：Integer, Long, String, byte数组
      * 不合法抛出RuntimeException
      *
@@ -321,6 +398,23 @@ public class OTSConverter {
         if (columnValue instanceof Boolean) return true;
         if (columnValue instanceof byte[]) return true;
         logger.warn("unexpected column value type[{}]", columnValue.getClass().getName());
+        return false;
+    }
+
+    /**
+     * 检测列类型合法性，合法类型：Integer, Long, Float, Double, String, byte数组
+     *
+     * @param columnClass 列类型
+     * @return 合法返回true，否则返回false
+     */
+    private static boolean checkColumn(Class columnClass) {
+        if (columnClass == String.class) return true;
+        if (columnClass == Integer.class) return true;
+        if (columnClass == Float.class) return true;
+        if (columnClass == Double.class) return true;
+        if (columnClass == Long.class) return true;
+        if (columnClass == Boolean.class) return true;
+        if (columnClass.isArray() && columnClass.getName().equals("[B")) return true;
         return false;
     }
 
