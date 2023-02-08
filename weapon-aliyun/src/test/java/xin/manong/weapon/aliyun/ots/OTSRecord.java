@@ -22,6 +22,10 @@ public class OTSRecord {
         }
     }
 
+    public static enum MediaType {
+        TEXT, VIDEO
+    }
+
     @PrimaryKey(name = "key")
     private String key;
     @Column(name = "c_1")
@@ -31,6 +35,8 @@ public class OTSRecord {
     public Integer c3;
     @Column(name = "user")
     public User user;
+    @Column(name = "media_type")
+    public MediaType mediaType;
     @Column
     public List<User> list;
     @Column
