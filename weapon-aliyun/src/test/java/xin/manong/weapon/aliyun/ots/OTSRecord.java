@@ -22,7 +22,7 @@ public class OTSRecord {
         }
     }
 
-    public static enum MediaType {
+    public enum MediaType {
         TEXT, VIDEO
     }
 

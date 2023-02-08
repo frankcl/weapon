@@ -78,6 +78,9 @@ public class OTSConverter {
             if (!fieldMap.containsKey(columnName)) continue;
             Object javaField = convertColumnValueToJavaField(fieldMap.get(columnName), columnField);
             if (javaField == null) continue;
+            if (javaField instanceof Long && columnField.getType() == Integer.class) {
+                javaField = ((Long) javaField).intValue();
+            }
             ReflectUtil.setFieldValue(javaObject, columnField.getName(), javaField);
         }
         return javaObject;
