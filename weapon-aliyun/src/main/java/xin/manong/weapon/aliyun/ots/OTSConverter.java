@@ -122,7 +122,7 @@ public class OTSConverter {
             String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
             Object value = ReflectUtil.getFieldValue(javaObject, columnField.getName());
             if (value == null) continue;
-            if (value.getClass().isEnum()) value = value.toString();
+            if (value.getClass().isEnum()) value = ((Enum) value).name();
             kvRecord.put(columnName, convertJavaFieldToColumnValue(value));
         }
         kvRecord.setKeys(keys);
