@@ -10,7 +10,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Map;
@@ -55,6 +54,7 @@ public class HttpClient {
                     config.keepAliveMinutes, TimeUnit.MINUTES);
             this.okHttpClient = new OkHttpClient.Builder().retryOnConnectionFailure(true).
                     connectionPool(connectionPool).followRedirects(true).followSslRedirects(true).
+                    addNetworkInterceptor(new RequestInterceptor()).
                     sslSocketFactory(sslSocketFactory, unsafeTrustManager).
                     hostnameVerifier(new UnsafeHostnameVerifier()).
                     connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS).
@@ -159,14 +159,14 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      */
     private void handleRequestHeaders(Request.Builder builder, HttpRequest httpRequest) {
-        builder.addHeader("User-Agent", BROWSER_USER_AGENT);
-        builder.addHeader("Connection", "keep-alive");
-        builder.addHeader("Accept", "*/*");
-        try {
-            URL url = new URL(httpRequest.requestURL);
-            String host = url.getHost();
-            if (!StringUtils.isEmpty(host)) builder.addHeader("Host", host);
-        } catch (Exception e) {
+        if (httpRequest.headers != null && !httpRequest.headers.containsKey("User-Agent")) {
+            builder.addHeader("User-Agent", BROWSER_USER_AGENT);
+        }
+        if (httpRequest.headers != null && !httpRequest.headers.containsKey("Connection")) {
+            builder.addHeader("Connection", "keep-alive");
+        }
+        if (httpRequest.headers != null && !httpRequest.headers.containsKey("Accept")) {
+            builder.addHeader("Accept", "*/*");
         }
         if (httpRequest.headers == null || httpRequest.headers.isEmpty()) return;
         for (Map.Entry<String, String> entry : httpRequest.headers.entrySet()) {
