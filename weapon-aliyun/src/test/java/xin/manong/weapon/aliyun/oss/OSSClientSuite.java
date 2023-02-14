@@ -26,6 +26,7 @@ public class OSSClientSuite {
         String content = FileUtil.read(secretFile, Charset.forName("UTF-8"));
         AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);
         OSSClientConfig config = new OSSClientConfig();
+        config.dynamic = false;
         config.aliyunSecret = aliyunSecret;
         config.endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
         Assert.assertTrue(config.check());
@@ -86,5 +87,23 @@ public class OSSClientSuite {
         Assert.assertTrue(content != null && content.length > 0);
         ossClient.deleteObject(bucket, key);
         Assert.assertTrue(ossClient.putObject(bucket, key, content));
+    }
+
+    @Test
+    public void testParseURL() {
+        String ossURL = "https://xhzy-data-video.oss-cn-hangzhou.aliyuncs.com/1605603493782-26246b82-671c-4839-860d-328fbb7d3353.mp4?Expires=1676364724&OSSAccessKeyId=TMP.3Kd8p57KQqZMvKhNq35qHY37AGmDcb5c9kXa15XjoHmeTALpYLBx3zXUPWdBTMV8rocZVZcWYpjo243RKMDjQQt5Fdab2V&Signature=ClDtjQxHrn5sqNDWxlHia2dAWiw%3D";
+        OSSMeta ossMeta = OSSClient.parseURL(ossURL);
+        Assert.assertTrue(ossMeta != null && ossMeta.check());
+        Assert.assertEquals("xhzy-data-video", ossMeta.bucket);
+        Assert.assertEquals("cn-hangzhou", ossMeta.region);
+        Assert.assertEquals("1605603493782-26246b82-671c-4839-860d-328fbb7d3353.mp4", ossMeta.key);
+    }
+
+    @Test
+    public void testBuildURL() {
+        OSSMeta ossMeta = new OSSMeta("cn-hangzhou", "xhzy-data-video", "1605603493782-26246b82-671c-4839-860d-328fbb7d3353.mp4");
+        String ossURL = OSSClient.buildURL(ossMeta);
+        Assert.assertTrue(ossURL != null);
+        Assert.assertEquals("http://xhzy-data-video.oss-cn-hangzhou.aliyuncs.com/1605603493782-26246b82-671c-4839-860d-328fbb7d3353.mp4", ossURL);
     }
 }

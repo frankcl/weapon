@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.base.util.CommonUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +30,10 @@ import java.util.List;
 public class OSSClient implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OSSClient.class);
+
+    private final static String PREFIX_HTTP = "http://";
+    private final static String PREFIX_HTTPS = "https://";
+    private final static String ALIYUN_OSS_DOMAIN = "aliyuncs.com";
 
     private final static int BUFFER_SIZE = 4096;
     private final static long EXPIRED_TIME_1H = 60 * 60 * 1000L;
@@ -274,5 +280,83 @@ public class OSSClient implements Rebuildable {
      */
     public boolean exist(String bucket, String key) {
         return instance.doesObjectExist(bucket, key);
+    }
+
+    /**
+     * 解析OSS URL，返回元信息
+     *
+     * @param ossURL OSS URL
+     * @return 解析成功返回元信息，否则返回null
+     */
+    public static OSSMeta parseURL(String ossURL) {
+        String host = CommonUtil.getHost(ossURL);
+        if (StringUtils.isEmpty(host)) {
+            logger.error("parse host failed for url[{}]", ossURL);
+            return null;
+        }
+        int from = host.indexOf(".");
+        if (from == -1) {
+            logger.error("parse bucket failed for url[{}]", ossURL);
+            return null;
+        }
+        OSSMeta ossMeta = new OSSMeta();
+        ossMeta.bucket = host.substring(0, from);
+        int to = host.indexOf(".", from + 1);
+        if (to == -1) {
+            logger.error("parse region failed for url[{}]", ossURL);
+            return null;
+        }
+        ossMeta.region = host.substring(from + 1, to);
+        if (ossMeta.region.startsWith("oss-")) ossMeta.region = ossMeta.region.substring("oss-".length());
+        String key = parseKey(ossURL);
+        if (StringUtils.isEmpty(key)) {
+            logger.error("parse key failed for url[{}]", ossURL);
+            return null;
+        }
+        ossMeta.key = key;
+        return ossMeta;
+    }
+
+    /**
+     * 根据OSS元信息构建OSS URL
+     *
+     * @param ossMeta OSS元信息
+     * @return 构建失败返回null，否则返回URL
+     */
+    public static String buildURL(OSSMeta ossMeta) {
+        if (ossMeta == null || !ossMeta.check()) {
+            logger.error("oss meta is null or invalid");
+            return null;
+        }
+        return String.format(ossMeta.region.startsWith("oss-") ? "http://%s.%s.%s/%s" : "http://%s.oss-%s.%s/%s",
+                ossMeta.bucket, ossMeta.region, ALIYUN_OSS_DOMAIN, ossMeta.key);
+    }
+
+    /**
+     * 根据OSS URL解析OSS key
+     *
+     * @param ossURL OSS URL
+     * @return 如果成功返回OSS key，否则返回null或空字符串
+     */
+    private static String parseKey(String ossURL) {
+        int from = -1;
+        if (ossURL.startsWith(PREFIX_HTTP)) {
+            from = PREFIX_HTTP.length();
+        } else if (ossURL.startsWith(PREFIX_HTTPS)) {
+            from = PREFIX_HTTPS.length();
+        }
+        if (from == -1) {
+            logger.error("invalid protocol for url[{}]", ossURL);
+            return null;
+        }
+        int index = ossURL.indexOf("/", from);
+        String key = index == -1 ? "" : ossURL.substring(index + 1);
+        if (key.indexOf("?") != -1) key = key.substring(0, key.indexOf("?"));
+        try {
+            key = URLDecoder.decode(key, "UTF-8");
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return key;
     }
 }
