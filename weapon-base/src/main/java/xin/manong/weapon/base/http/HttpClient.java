@@ -159,13 +159,13 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      */
     private void handleRequestHeaders(Request.Builder builder, HttpRequest httpRequest) {
-        if (httpRequest.headers != null && !httpRequest.headers.containsKey("User-Agent")) {
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey("User-Agent")) {
             builder.addHeader("User-Agent", BROWSER_USER_AGENT);
         }
-        if (httpRequest.headers != null && !httpRequest.headers.containsKey("Connection")) {
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey("Connection")) {
             builder.addHeader("Connection", "keep-alive");
         }
-        if (httpRequest.headers != null && !httpRequest.headers.containsKey("Accept")) {
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey("Accept")) {
             builder.addHeader("Accept", "*/*");
         }
         if (httpRequest.headers == null || httpRequest.headers.isEmpty()) return;
