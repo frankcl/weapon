@@ -5,9 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
@@ -16,7 +16,6 @@ import xin.manong.weapon.base.secret.DynamicSecret;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ONS消息消费器
@@ -24,17 +23,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author frankcl
  * @date 2022-08-03 19:09:57
  */
-public class ONSConsumer implements Rebuildable, BeanPostProcessor, ApplicationListener<ContextRefreshedEvent> {
+public class ONSConsumer implements Rebuildable, InitializingBean, ApplicationContextAware {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
-    private AtomicBoolean refresh;
+    private ApplicationContext applicationContext;
     private ONSConsumerConfig config;
     private List<RebuildListener> rebuildListeners;
     private Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config) {
-        this.refresh = new AtomicBoolean(false);
         this.config = config;
         this.rebuildListeners = new ArrayList<>();
     }
@@ -126,19 +124,27 @@ public class ONSConsumer implements Rebuildable, BeanPostProcessor, ApplicationL
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (!(bean instanceof MessageListener)) return bean;
-        List<Subscribe> subscribes = config.subscribes;
-        for (Subscribe subscribe : subscribes) {
-            if (StringUtils.isEmpty(subscribe.listenerName)) continue;
-            if (subscribe.listenerName.equals(beanName)) subscribe.listener = (MessageListener) bean;
-        }
-        return bean;
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (!refresh.compareAndSet(false, true)) return;
-        if (!start()) throw new RuntimeException("start ONS consumer failed");
+    public void afterPropertiesSet() throws Exception {
+        List<Subscribe> subscribes = config.subscribes;
+        for (Subscribe subscribe : subscribes) {
+            if (StringUtils.isEmpty(subscribe.listenerName)) {
+                logger.warn("message listener config is not found for subscribe[{}/{}]",
+                        subscribe.topic, subscribe.tags);
+                continue;
+            }
+            Object bean = applicationContext.getBean(subscribe.listenerName);
+            if (bean == null || !(bean instanceof MessageListener)) {
+                logger.error("bean is not MessageListener, its type[{}]",
+                        bean == null ? "null" : bean.getClass().getName());
+                throw new Exception(String.format("unexpected bean[%s]",
+                        bean == null ? "null" : bean.getClass().getName()));
+            }
+            subscribe.listener = (MessageListener) bean;
+        }
     }
 }

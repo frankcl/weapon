@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import xin.manong.weapon.alarm.AlarmSender;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * OTS数据通道
@@ -28,13 +27,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author frankcl
  * @date 2022-08-03 19:11:02
  */
-public class OTSTunnel implements Rebuildable, BeanPostProcessor, ApplicationListener<ContextRefreshedEvent> {
+public class OTSTunnel implements Rebuildable, InitializingBean, ApplicationContextAware {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnel.class);
 
     /* 所属应用名 */
     private String appName;
-    private AtomicBoolean refresh;
+    private ApplicationContext applicationContext;
     private OTSTunnelConfig config;
     private OTSTunnelMonitor monitor;
     private TunnelClient tunnelClient;
@@ -43,7 +42,6 @@ public class OTSTunnel implements Rebuildable, BeanPostProcessor, ApplicationLis
     private AlarmSender alarmSender;
 
     public OTSTunnel(OTSTunnelConfig config) {
-        this.refresh = new AtomicBoolean(false);
         this.config = config;
         this.workerMap = new ConcurrentHashMap<>();
         this.rebuildListeners = new ArrayList<>();
@@ -205,19 +203,26 @@ public class OTSTunnel implements Rebuildable, BeanPostProcessor, ApplicationLis
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (!(bean instanceof IChannelProcessor)) return bean;
+    public void afterPropertiesSet() throws Exception {
         List<OTSTunnelWorkerConfig> workerConfigs = config.workerConfigs;
         for (OTSTunnelWorkerConfig workerConfig : workerConfigs) {
-            if (StringUtils.isEmpty(workerConfig.processor)) continue;
-            if (workerConfig.processor.equals(beanName)) workerConfig.channelProcessor = (IChannelProcessor) bean;
+            if (StringUtils.isEmpty(workerConfig.processor)) {
+                logger.warn("processor config is not found for tunnel[{}]", workerConfig.tunnel);
+                continue;
+            }
+            Object bean = applicationContext.getBean(workerConfig.processor);
+            if (bean == null || !(bean instanceof IChannelProcessor)) {
+                logger.error("bean is not IChannelProcessor, its type[{}]",
+                        bean == null ? "null" : bean.getClass().getName());
+                throw new Exception(String.format("unexpected bean[%s]",
+                        bean == null ? "null" : bean.getClass().getName()));
+            }
+            workerConfig.channelProcessor = (IChannelProcessor) bean;
         }
-        return bean;
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (!refresh.compareAndSet(false, true)) return;
-        if (!start()) throw new RuntimeException("start OTS tunnel failed");
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

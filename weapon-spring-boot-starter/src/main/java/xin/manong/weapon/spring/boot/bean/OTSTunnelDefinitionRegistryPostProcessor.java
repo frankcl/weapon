@@ -48,6 +48,9 @@ public class OTSTunnelDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
             if (!config.dynamic && !check) logger.error("aliyun secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(OTSTunnel.class, () ->
                     new OTSTunnel(config));
+            beanDefinition.setInitMethodName("start");
+            beanDefinition.setEnforceInitMethod(true);
+            beanDefinition.setLazyInit(false);
             beanDefinition.setDestroyMethodName("stop");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
