@@ -1,7 +1,7 @@
 package xin.manong.weapon.spring.boot.annotation;
 
 import org.springframework.context.annotation.Import;
-import xin.manong.weapon.spring.boot.bean.OSSClientDefinitionRegistryPostProcessor;
+import xin.manong.weapon.spring.boot.registry.OSSClientDefinitionRegistryPostProcessor;
 
 import java.lang.annotation.*;
 

@@ -1,4 +1,4 @@
-package xin.manong.weapon.spring.boot.bean;
+package xin.manong.weapon.spring.boot.registry;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

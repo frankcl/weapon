@@ -83,7 +83,13 @@ public class ONSProducer implements Rebuildable {
     public void destroy() {
         logger.info("ONS producer is destroying ...");
         if (config.dynamic) RebuildManager.unregister(this);
-        if (producer != null) producer.shutdown();
+        if (producer != null) {
+            try {
+                producer.shutdown();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
         logger.info("ONS producer has been destroyed");
     }
 

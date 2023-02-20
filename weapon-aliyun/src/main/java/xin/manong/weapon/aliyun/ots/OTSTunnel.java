@@ -1,15 +1,10 @@
 package xin.manong.weapon.aliyun.ots;
 
 import com.alicloud.openservices.tablestore.TunnelClient;
-import com.alicloud.openservices.tablestore.tunnel.worker.IChannelProcessor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import xin.manong.weapon.alarm.AlarmSender;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
@@ -27,19 +22,18 @@ import java.util.concurrent.*;
  * @author frankcl
  * @date 2022-08-03 19:11:02
  */
-public class OTSTunnel implements Rebuildable, InitializingBean, ApplicationContextAware {
+public class OTSTunnel implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnel.class);
 
     /* 所属应用名 */
-    private String appName;
-    private ApplicationContext applicationContext;
-    private OTSTunnelConfig config;
-    private OTSTunnelMonitor monitor;
-    private TunnelClient tunnelClient;
-    private Map<String, OTSTunnelWorker> workerMap;
-    private List<RebuildListener> rebuildListeners;
-    private AlarmSender alarmSender;
+    protected String appName;
+    protected OTSTunnelConfig config;
+    protected OTSTunnelMonitor monitor;
+    protected TunnelClient tunnelClient;
+    protected Map<String, OTSTunnelWorker> workerMap;
+    protected List<RebuildListener> rebuildListeners;
+    protected AlarmSender alarmSender;
 
     public OTSTunnel(OTSTunnelConfig config) {
         this.config = config;
@@ -200,29 +194,5 @@ public class OTSTunnel implements Rebuildable, InitializingBean, ApplicationCont
      */
     public void setAppName(String appName) {
         this.appName = appName;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        List<OTSTunnelWorkerConfig> workerConfigs = config.workerConfigs;
-        for (OTSTunnelWorkerConfig workerConfig : workerConfigs) {
-            if (StringUtils.isEmpty(workerConfig.processor)) {
-                logger.warn("processor config is not found for tunnel[{}]", workerConfig.tunnel);
-                continue;
-            }
-            Object bean = applicationContext.getBean(workerConfig.processor);
-            if (bean == null || !(bean instanceof IChannelProcessor)) {
-                logger.error("bean is not IChannelProcessor, its type[{}]",
-                        bean == null ? "null" : bean.getClass().getName());
-                throw new Exception(String.format("unexpected bean[%s]",
-                        bean == null ? "null" : bean.getClass().getName()));
-            }
-            workerConfig.channelProcessor = (IChannelProcessor) bean;
-        }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

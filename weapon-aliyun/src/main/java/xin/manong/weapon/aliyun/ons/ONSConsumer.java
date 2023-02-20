@@ -1,13 +1,8 @@
 package xin.manong.weapon.aliyun.ons;
 
 import com.aliyun.openservices.ons.api.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
@@ -23,14 +18,13 @@ import java.util.Properties;
  * @author frankcl
  * @date 2022-08-03 19:09:57
  */
-public class ONSConsumer implements Rebuildable, InitializingBean, ApplicationContextAware {
+public class ONSConsumer implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
-    private ApplicationContext applicationContext;
-    private ONSConsumerConfig config;
-    private List<RebuildListener> rebuildListeners;
-    private Consumer consumer;
+    protected ONSConsumerConfig config;
+    protected List<RebuildListener> rebuildListeners;
+    protected Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config) {
         this.config = config;
@@ -109,7 +103,13 @@ public class ONSConsumer implements Rebuildable, InitializingBean, ApplicationCo
     public void stop() {
         logger.info("ONS consumer is stopping ...");
         if (config.dynamic) RebuildManager.unregister(this);
-        if (consumer != null) consumer.shutdown();
+        if (consumer != null) {
+            try {
+                consumer.shutdown();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
         logger.info("ONS consumer has been stopped");
     }
 
@@ -121,30 +121,5 @@ public class ONSConsumer implements Rebuildable, InitializingBean, ApplicationCo
     public void addRebuildListener(RebuildListener listener) {
         if (listener == null) return;
         rebuildListeners.add(listener);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        List<Subscribe> subscribes = config.subscribes;
-        for (Subscribe subscribe : subscribes) {
-            if (StringUtils.isEmpty(subscribe.listenerName)) {
-                logger.warn("message listener config is not found for subscribe[{}/{}]",
-                        subscribe.topic, subscribe.tags);
-                continue;
-            }
-            Object bean = applicationContext.getBean(subscribe.listenerName);
-            if (bean == null || !(bean instanceof MessageListener)) {
-                logger.error("bean is not MessageListener, its type[{}]",
-                        bean == null ? "null" : bean.getClass().getName());
-                throw new Exception(String.format("unexpected bean[%s]",
-                        bean == null ? "null" : bean.getClass().getName()));
-            }
-            subscribe.listener = (MessageListener) bean;
-        }
     }
 }

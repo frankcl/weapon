@@ -1,4 +1,4 @@
-package xin.manong.weapon.spring.boot.bean;
+package xin.manong.weapon.spring.boot.registry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

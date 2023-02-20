@@ -1,7 +1,7 @@
 package xin.manong.weapon.spring.boot.annotation;
 
 import org.springframework.context.annotation.Import;
-import xin.manong.weapon.spring.boot.bean.RedisClientDefinitionRegistryPostProcessor;
+import xin.manong.weapon.spring.boot.registry.RedisClientDefinitionRegistryPostProcessor;
 
 import java.lang.annotation.*;
 
