@@ -63,6 +63,7 @@ public class HttpClientSuite {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.requestURL = "http://www.sina.com.cn";
         httpRequest.method = RequestMethod.GET;
+        httpRequest.headers.put("Host", "www.sina.com.cn");
         Response response = httpClient.execute(httpRequest);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertTrue(response.code() == 200);

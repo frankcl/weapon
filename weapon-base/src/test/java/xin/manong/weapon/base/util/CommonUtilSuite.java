@@ -88,4 +88,13 @@ public class CommonUtilSuite {
         Assert.assertEquals(103, CommonUtil.findNextPrime(102));
         Assert.assertEquals(100003, CommonUtil.findNextPrime(99999));
     }
+
+    @Test
+    public void testIsIP() {
+        Assert.assertFalse(CommonUtil.isIP(null));
+        Assert.assertFalse(CommonUtil.isIP(""));
+        Assert.assertFalse(CommonUtil.isIP("123.345"));
+        Assert.assertFalse(CommonUtil.isIP("www.sina.com.cn"));
+        Assert.assertTrue(CommonUtil.isIP("123.345.56.12"));
+    }
 }

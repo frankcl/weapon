@@ -5,8 +5,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import xin.manong.weapon.base.util.CommonUtil;
 
 import java.io.IOException;
 
@@ -19,15 +18,13 @@ import java.io.IOException;
  */
 public class RequestInterceptor implements Interceptor {
 
-    private final static Logger logger = LoggerFactory.getLogger(RequestInterceptor.class);
-
     @NotNull
     @Override
     public Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
         String requestHost = request.url().url().getHost();
         String host = request.header("Host");
-        if (StringUtils.isNotEmpty(host) && !host.equals(requestHost)) {
+        if (StringUtils.isNotEmpty(host) && !host.equals(requestHost) && !CommonUtil.isIP(requestHost)) {
             request = request.newBuilder().header("Host", requestHost).build();
         }
         return chain.proceed(request);

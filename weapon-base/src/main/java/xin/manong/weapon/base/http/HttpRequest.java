@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,8 +20,8 @@ public class HttpRequest {
     public String requestURL;
     public RequestMethod method;
     public RequestFormat format;
-    public Map<String, Object> params;
-    public Map<String, String> headers;
+    public Map<String, Object> params = new HashMap<>();
+    public Map<String, String> headers = new HashMap<>();
 
     /**
      * 构建HTTP GET请求

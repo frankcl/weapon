@@ -1,8 +1,13 @@
 package xin.manong.weapon.aliyun.ons;
 
 import com.aliyun.openservices.ons.api.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
@@ -11,6 +16,7 @@ import xin.manong.weapon.base.secret.DynamicSecret;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ONS消息消费器
@@ -18,15 +24,17 @@ import java.util.Properties;
  * @author frankcl
  * @date 2022-08-03 19:09:57
  */
-public class ONSConsumer implements Rebuildable {
+public class ONSConsumer implements Rebuildable, BeanPostProcessor, ApplicationListener<ContextRefreshedEvent> {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
+    private AtomicBoolean refresh;
     private ONSConsumerConfig config;
     private List<RebuildListener> rebuildListeners;
     private Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config) {
+        this.refresh = new AtomicBoolean(false);
         this.config = config;
         this.rebuildListeners = new ArrayList<>();
     }
@@ -115,5 +123,22 @@ public class ONSConsumer implements Rebuildable {
     public void addRebuildListener(RebuildListener listener) {
         if (listener == null) return;
         rebuildListeners.add(listener);
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (!(bean instanceof MessageListener)) return bean;
+        List<Subscribe> subscribes = config.subscribes;
+        for (Subscribe subscribe : subscribes) {
+            if (StringUtils.isEmpty(subscribe.listenerName)) continue;
+            if (subscribe.listenerName.equals(beanName)) subscribe.listener = (MessageListener) bean;
+        }
+        return bean;
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (!refresh.compareAndSet(false, true)) return;
+        if (!start()) throw new RuntimeException("start ONS consumer failed");
     }
 }

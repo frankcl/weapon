@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * 通用工具
@@ -20,6 +21,7 @@ public class CommonUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
+    private final static Pattern IP_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");
     private final static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
@@ -96,6 +98,17 @@ public class CommonUtil {
      */
     public static boolean isSpace(char c) {
         return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+    }
+
+    /**
+     * 判断是否为IP
+     *
+     * @param str 字符串
+     * @return 符合IP规范返回true，否则返回false
+     */
+    public static boolean isIP(String str) {
+        if (StringUtils.isEmpty(str)) return false;
+        return IP_PATTERN.matcher(str).matches();
     }
 
     /**
