@@ -24,6 +24,86 @@ public class HttpRequest {
     public Map<String, String> headers = new HashMap<>();
 
     /**
+     * 请求构建器
+     */
+    public static class Builder {
+        private HttpRequest httpRequest;
+
+        public Builder() {
+            httpRequest = new HttpRequest();
+        }
+
+        /**
+         * 设置请求URL
+         *
+         * @param requestURL 请求URL
+         * @return Builder
+         */
+        public Builder requestURL(String requestURL) {
+            httpRequest.requestURL = requestURL;
+            return this;
+        }
+
+        /**
+         * 设置请求方式
+         *
+         * @param method 请求方式
+         * @return Builder
+         */
+        public Builder method(RequestMethod method) {
+            httpRequest.method = method;
+            return this;
+        }
+
+        /**
+         * 设置请求数据格式
+         *
+         * @param format 请求数据格式
+         * @return Builder
+         */
+        public Builder format(RequestFormat format) {
+            httpRequest.format = format;
+            return this;
+        }
+
+        /**
+         * 设置请求参数
+         *
+         * @param params 请求参数
+         * @return Builder
+         */
+        public Builder params(Map<String, Object> params) {
+            httpRequest.params = params;
+            return this;
+        }
+
+        /**
+         * 设置请求头信息
+         *
+         * @param headers 请求头信息
+         * @return Builder
+         */
+        public Builder headers(Map<String, String> headers) {
+            httpRequest.headers = headers;
+            return this;
+        }
+
+        /**
+         * 构建HTTP请求对象
+         *
+         * @return HTTP请求对象
+         */
+        public HttpRequest build() {
+            HttpRequest replica = new HttpRequest();
+            replica.requestURL = httpRequest.requestURL;
+            replica.method = httpRequest.method;
+            replica.format = httpRequest.format;
+            replica.headers = httpRequest.headers;
+            replica.params = httpRequest.params;
+            return replica;
+        }
+    }
+    /**
      * 构建HTTP GET请求
      *
      * @param requestURL 请求URL
@@ -31,11 +111,8 @@ public class HttpRequest {
      * @return HTTP请求
      */
     public static HttpRequest buildGetRequest(String requestURL, Map<String, Object> params) {
-        HttpRequest httpRequest = new HttpRequest();
-        httpRequest.requestURL = requestURL;
-        httpRequest.method = RequestMethod.GET;
-        httpRequest.params = params;
-        return httpRequest;
+        return new HttpRequest.Builder().requestURL(requestURL).
+                method(RequestMethod.GET).params(params).build();
     }
 
     /**
@@ -43,17 +120,13 @@ public class HttpRequest {
      *
      * @param requestURL 请求URL
      * @param format 请求格式
-     * @param params 请求参数
+     * @param body 请求体
      * @return HTTP请求
      */
     public static HttpRequest buildPostRequest(String requestURL, RequestFormat format,
-                                               Map<String, Object> params) {
-        HttpRequest httpRequest = new HttpRequest();
-        httpRequest.requestURL = requestURL;
-        httpRequest.method = RequestMethod.POST;
-        httpRequest.format = format;
-        httpRequest.params = params;
-        return httpRequest;
+                                               Map<String, Object> body) {
+        return new HttpRequest.Builder().requestURL(requestURL).method(RequestMethod.POST).
+                format(format).params(body).build();
     }
 
     /**

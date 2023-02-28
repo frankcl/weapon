@@ -42,10 +42,9 @@ public class HttpClientSuite {
 
     @Test
     public void testDoPostByJson() throws Exception {
-        HttpRequest httpRequest = new HttpRequest();
-        httpRequest.requestURL = "http://query.process.xinhuazhiyun.com/api/query/analyze";
-        httpRequest.method = RequestMethod.POST;
-        httpRequest.format = RequestFormat.JSON;
+        HttpRequest httpRequest = new HttpRequest.Builder().
+                requestURL("http://query.process.xinhuazhiyun.com/api/query/analyze").
+                method(RequestMethod.POST).format(RequestFormat.JSON).build();
         httpRequest.params = new HashMap<>();
         httpRequest.params.put("appId", "test");
         httpRequest.params.put("scope", Arrays.asList("KEYWORDS", "RECALL"));
@@ -75,9 +74,8 @@ public class HttpClientSuite {
 
     @Test
     public void testDoGetHttps() throws Exception {
-        HttpRequest httpRequest = new HttpRequest();
-        httpRequest.requestURL = "https://mail.shuwen.com/";
-        httpRequest.method = RequestMethod.GET;
+        HttpRequest httpRequest = new HttpRequest.Builder().
+                requestURL("https://mail.shuwen.com/").method(RequestMethod.GET).build();
         Response response = httpClient.execute(httpRequest);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertTrue(response.code() == 200);
