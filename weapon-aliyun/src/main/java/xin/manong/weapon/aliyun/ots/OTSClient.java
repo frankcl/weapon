@@ -4,11 +4,15 @@ import com.alicloud.openservices.tablestore.ClientConfiguration;
 import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.TableStoreException;
 import com.alicloud.openservices.tablestore.model.*;
+import com.alicloud.openservices.tablestore.model.search.SearchQuery;
+import com.alicloud.openservices.tablestore.model.search.SearchRequest;
+import com.alicloud.openservices.tablestore.model.search.SearchResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
+import xin.manong.weapon.base.record.KVRecords;
 import xin.manong.weapon.base.secret.DynamicSecret;
 import xin.manong.weapon.base.record.KVRecord;
 
@@ -254,5 +258,46 @@ public class OTSClient implements Rebuildable {
             }
         }
         return OTSStatus.FAIL;
+    }
+
+    /**
+     * 数据搜索
+     *
+     * @param request 搜素请求
+     * @return 搜索响应
+     */
+    public OTSSearchResponse search(OTSSearchRequest request) {
+        if (request == null || !request.check()) {
+            logger.error("invalid OTS search request");
+            return OTSSearchResponse.buildError("非法搜索请求");
+        }
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setQuery(request.query);
+        searchQuery.setOffset(request.offset);
+        searchQuery.setLimit(request.limit);
+        searchQuery.setGetTotalCount(true);
+        SearchRequest searchRequest = new SearchRequest(request.tableName, request.indexName, searchQuery);
+        searchRequest.setTimeoutInMillisecond(request.searchTimeoutMs);
+        SearchRequest.ColumnsToGet columnsToGet = new SearchRequest.ColumnsToGet();
+        if (request.returnColumns == null || request.returnColumns.isEmpty()) columnsToGet.setReturnAll(true);
+        else columnsToGet.setColumns(request.returnColumns);
+        searchRequest.setColumnsToGet(columnsToGet);
+
+        try {
+            SearchResponse searchResponse = syncClient.search(searchRequest);
+            if (!searchResponse.isAllSuccess()) return OTSSearchResponse.buildError("搜索失败");
+            List<Row> rows = searchResponse.getRows();
+            KVRecords kvRecords = new KVRecords();
+            if (rows == null) return OTSSearchResponse.buildOK(kvRecords, searchResponse.getTotalCount());
+            for (Row row : rows) {
+                if (row == null) continue;
+                kvRecords.addRecord(OTSConverter.convertRecord(row));
+            }
+            return OTSSearchResponse.buildOK(kvRecords, searchResponse.getTotalCount());
+        } catch (Exception e) {
+            logger.error("search failed for table[{}] and index[{}]", request.tableName, request.indexName);
+            logger.error(e.getMessage(), e);
+            return OTSSearchResponse.buildError(String.format("搜索异常[%s]", e.getMessage()));
+        }
     }
 }

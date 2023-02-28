@@ -1,8 +1,12 @@
 package xin.manong.weapon.aliyun.ots;
 
 import com.alibaba.fastjson2.JSON;
+import com.alicloud.openservices.tablestore.model.ColumnValue;
 import com.alicloud.openservices.tablestore.model.Condition;
 import com.alicloud.openservices.tablestore.model.RowExistenceExpectation;
+import com.alicloud.openservices.tablestore.model.search.query.BoolQuery;
+import com.alicloud.openservices.tablestore.model.search.query.Query;
+import com.alicloud.openservices.tablestore.model.search.query.TermQuery;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,9 +16,7 @@ import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.util.FileUtil;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author frankcl
@@ -30,9 +32,10 @@ public class OTSClientSuite {
         String content = FileUtil.read(secretFile, Charset.forName("UTF-8"));
         AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);
         OTSClientConfig config = new OTSClientConfig();
+        config.dynamic = false;
         config.aliyunSecret = aliyunSecret;
-        config.endpoint = "http://newsDataTest-news-data-test.cn-hangzhou.vpc.ots.aliyuncs.com";
-        config.instance = "news-data-test";
+        config.endpoint = "https://ai-media.cn-hangzhou.ots.aliyuncs.com";
+        config.instance = "ai-media";
         Assert.assertTrue(config.check());
         otsClient = new OTSClient(config);
     }
@@ -142,5 +145,29 @@ public class OTSClientSuite {
             KVRecord kvRecord = otsClient.get(tableName, keyMap);
             Assert.assertTrue(kvRecord == null);
         }
+    }
+
+    @Test
+    public void testSearch() {
+        String tableName = "live_stream_data";
+        String indexName = "live_stream_data_search_index";
+        List<String> returnColumns = new ArrayList<>();
+        returnColumns.add("programme");
+        returnColumns.add("television");
+        returnColumns.add("title");
+        returnColumns.add("publish_timestamp");
+        BoolQuery boolQuery = new BoolQuery();
+        TermQuery channelTermQuery = new TermQuery();
+        channelTermQuery.setFieldName("programme");
+        channelTermQuery.setTerm(ColumnValue.fromString("晚间新闻"));
+
+        TermQuery televisionTermQuery = new TermQuery();
+        televisionTermQuery.setFieldName("television");
+        televisionTermQuery.setTerm(ColumnValue.fromString("中央电视台"));
+        boolQuery.setMustQueries(new ArrayList<Query>() {{ add(channelTermQuery); add(televisionTermQuery); }});
+        OTSSearchRequest request = new OTSSearchRequest.Builder().tableName(tableName).
+                limit(10).indexName(indexName).query(boolQuery).returnColumns(returnColumns).build();
+        OTSSearchResponse response = otsClient.search(request);
+        Assert.assertTrue(response.status);
     }
 }

@@ -172,7 +172,7 @@ public class OTSConverter {
             kvRecord.put(primaryKeyColumn.getName(), convertPrimaryKeyValue(primaryKeyColumn.getValue()));
         }
         kvRecord.setKeys(primaryKey.getPrimaryKeyColumnsMap().keySet());
-        for (String name : row.getColumnsMap().keySet()) {
+        for (String name : getColumnNames(row)) {
             Column column = row.getLatestColumn(name);
             if (column == null) continue;
             kvRecord.put(name, convertColumnValue(column.getValue()));
@@ -373,6 +373,20 @@ public class OTSConverter {
      */
     private static <K, V> TypeReference buildMapTypeReference(Class<K> keyClass, Class<V> valueClass) {
         return new TypeReference<HashMap<K, V>>(keyClass, valueClass) {};
+    }
+
+    /**
+     * 获取列名集合
+     *
+     * @param row 数据行
+     * @return 列名集合
+     */
+    private static Set<String> getColumnNames(Row row) {
+        Set<String> columnNames = new HashSet<>();
+        if (row == null) return columnNames;
+        Column[] columns = row.getColumns();
+        for (Column column : columns) columnNames.add(column.getName());
+        return columnNames;
     }
 
     /**
