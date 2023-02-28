@@ -182,16 +182,22 @@ public class OTSConverterSuite {
         kvRecord.put("key", "xyz");
         kvRecord.put("name", "abc");
         kvRecord.put("age", 18L);
+        kvRecord.put("list", new ArrayList<String>() {{ add("123"); }});
+        kvRecord.put("map", new HashMap<String, Long>() {{ put("abc", 123L); }});
         kvRecord.setKeys(keys);
         Row row = OTSConverter.convertRecord(kvRecord);
         Assert.assertEquals(1, row.getPrimaryKey().size());
         Assert.assertEquals("xyz", row.getPrimaryKey().getPrimaryKeyColumn("key").getValue().asString());
         Column[] columns = row.getColumns();
-        Assert.assertEquals(2, columns.length);
-        Assert.assertEquals("name", columns[1].getName());
-        Assert.assertEquals("abc", columns[1].getValue().asString());
+        Assert.assertEquals(4, columns.length);
+        Assert.assertEquals("name", columns[3].getName());
+        Assert.assertEquals("abc", columns[3].getValue().asString());
         Assert.assertEquals("age", columns[0].getName());
         Assert.assertEquals(18L, columns[0].getValue().asLong());
+        Assert.assertEquals("list", columns[1].getName());
+        Assert.assertEquals("[\"123\"]", columns[1].getValue().asString());
+        Assert.assertEquals("map", columns[2].getName());
+        Assert.assertEquals("{\"abc\":123}", columns[2].getValue().asString());
     }
 
     @Test

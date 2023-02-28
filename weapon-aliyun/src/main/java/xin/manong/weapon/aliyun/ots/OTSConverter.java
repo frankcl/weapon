@@ -194,7 +194,12 @@ public class OTSConverter {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (kvRecord.getKeys().contains(key)) keyMap.put(key, value);
-            else columnMap.put(key, value instanceof JSON ? value.toString() : value);
+            else {
+                if (value instanceof JSON) columnMap.put(key, value.toString());
+                else if (value instanceof List) columnMap.put(key, JSON.toJSONString(value));
+                else if (value instanceof Map) columnMap.put(key, JSON.toJSONString(value));
+                else columnMap.put(key, value);
+            }
         }
         if (keyMap.size() != kvRecord.getKeys().size()) throw new RuntimeException("missing primary keys");
         return new Row(convertPrimaryKey(keyMap), convertColumns(columnMap));
