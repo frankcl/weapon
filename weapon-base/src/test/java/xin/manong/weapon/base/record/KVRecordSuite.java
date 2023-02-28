@@ -60,4 +60,13 @@ public class KVRecordSuite {
         Assert.assertEquals(1, kvRecord.getKeys().size());
         Assert.assertTrue(kvRecord.getKeys().contains("k1"));
     }
+
+    @Test
+    public void testGet() {
+        KVRecord kvRecord = new KVRecord();
+        kvRecord.put("k1", "abc");
+        kvRecord.put("k2", 1L);
+        Assert.assertEquals("abc", kvRecord.get("k1", String.class));
+        Assert.assertEquals(1L, kvRecord.get("k2", Long.class).longValue());
+    }
 }

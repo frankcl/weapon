@@ -118,6 +118,21 @@ public class KVRecord implements Serializable {
     }
 
     /**
+     * 根据key获取值并强制转换为指定类型
+     *
+     * @param key key
+     * @param clazz 数据类型
+     * @return 如果key存在返回值，不存在返回null，与指定类型不一致抛出异常ClassCastException
+     * @param <T>
+     */
+    public <T> T get(String key, Class<T> clazz) {
+        if (clazz == null) throw new RuntimeException("convert class is null");
+        Object object = get(key);
+        if (object == null) return null;
+        return clazz.cast(object);
+    }
+
+    /**
      * 删除指定key数据
      *
      * @param key key
