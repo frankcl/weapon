@@ -3,6 +3,7 @@ package xin.manong.weapon.base.html;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
+import org.jsoup.parser.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.CommonUtil;
@@ -193,10 +194,29 @@ public class HTMLExtractor {
     private static Element buildVideoElement(Element videoElement) {
         Element htmlElement = new Element("video");
         String sourceURL = videoElement.attr("abs:src");
-        if (StringUtils.isEmpty(sourceURL)) return null;
+        if (StringUtils.isEmpty(sourceURL)) {
+            Element sourceElement = findFirstChildElement(videoElement, "source");
+            sourceURL = sourceElement.attr("abs:src");
+            if (StringUtils.isEmpty(sourceURL)) return null;
+        }
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
         htmlElement.attr("src", sourceURL);
         return htmlElement;
+    }
+
+    /**
+     * 根据标签名找到第一个子元素
+     *
+     * @param element 元素
+     * @param tagName 标签名
+     * @return 返回指定标签名的第一个元素，不存在返回null
+     */
+    private static Element findFirstChildElement(Element element, String tagName) {
+        if (element == null) return null;
+        for (Element child : element.children()) {
+            if (child.tagName().equalsIgnoreCase(tagName)) return child;
+        }
+        return null;
     }
 
     /**
