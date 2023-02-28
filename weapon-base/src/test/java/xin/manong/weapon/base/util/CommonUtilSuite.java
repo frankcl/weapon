@@ -3,6 +3,8 @@ package xin.manong.weapon.base.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+
 /**
  * @author frankcl
  * @create 2020-01-08 15:45:29
@@ -96,5 +98,19 @@ public class CommonUtilSuite {
         Assert.assertFalse(CommonUtil.isIP("123.345"));
         Assert.assertFalse(CommonUtil.isIP("www.sina.com.cn"));
         Assert.assertTrue(CommonUtil.isIP("123.345.56.12"));
+    }
+
+    @Test
+    public void testIsPrimitiveType() {
+        Assert.assertTrue(CommonUtil.isPrimitiveType(123));
+        Assert.assertTrue(CommonUtil.isPrimitiveType(123L));
+        Assert.assertTrue(CommonUtil.isPrimitiveType(new Short((short) 1)));
+        Assert.assertTrue(CommonUtil.isPrimitiveType(1.0));
+        Assert.assertTrue(CommonUtil.isPrimitiveType(1.0d));
+        Assert.assertTrue(CommonUtil.isPrimitiveType(false));
+        Assert.assertTrue(CommonUtil.isPrimitiveType("abc"));
+        Assert.assertFalse(CommonUtil.isPrimitiveType(new Object()));
+        Assert.assertFalse(CommonUtil.isPrimitiveType(new HashMap<>()));
+        Assert.assertFalse(CommonUtil.isPrimitiveType(null));
     }
 }

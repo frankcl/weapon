@@ -149,4 +149,22 @@ public class CommonUtil {
         if (n <= 1) return 2;
         while (true) if (isPrime(++n)) return n;
     }
+
+    /**
+     * 判断对象是否为Java原型
+     *
+     * @param object 对象
+     * @return 是原型返回true，否则返回false
+     */
+    public static boolean isPrimitiveType(Object object) {
+        if (object == null) return false;
+        if (object instanceof Integer) return true;
+        if (object instanceof Short) return true;
+        if (object instanceof Long) return true;
+        if (object instanceof Float) return true;
+        if (object instanceof Double) return true;
+        if (object instanceof String) return true;
+        if (object instanceof Boolean) return true;
+        return false;
+    }
 }
