@@ -182,6 +182,10 @@ public class HTMLExtractor {
         if (StringUtils.isEmpty(sourceURL)) return null;
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
         htmlElement.attr("src", sourceURL);
+        String width = imageElement.attr("width");
+        if (!StringUtils.isEmpty(width)) htmlElement.attr("width", width);
+        String height = imageElement.attr("height");
+        if (!StringUtils.isEmpty(height)) htmlElement.attr("height", height);
         return htmlElement;
     }
 
@@ -201,6 +205,10 @@ public class HTMLExtractor {
         }
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
         htmlElement.attr("src", sourceURL);
+        String width = videoElement.attr("width");
+        if (!StringUtils.isEmpty(width)) htmlElement.attr("width", width);
+        String height = videoElement.attr("height");
+        if (!StringUtils.isEmpty(height)) htmlElement.attr("height", height);
         return htmlElement;
     }
 

@@ -27,7 +27,7 @@ public class HTMLExtractorSuite {
     @Test
     public void testExtractMainElement() throws Exception {
         HttpRequest request = new HttpRequest();
-        request.requestURL = "http://mp.weixin.qq.com/s?__biz=MzUzODk3NzAxNw==&mid=2247502782&idx=1&sn=f6834efc68398d43b17047ca1c851e27";
+        request.requestURL = "http://www.gov.cn/xinwen/2023-02/26/content_5743376.htm";
         request.method = RequestMethod.GET;
         Response response = httpClient.execute(request);
         Assert.assertEquals(200, response.code());
@@ -35,7 +35,8 @@ public class HTMLExtractorSuite {
         response.close();
         Element element = HTMLExtractor.extractMainElement(html, request.requestURL);
         Assert.assertTrue(element != null);
-        HTMLExtractor.buildMainHTML(element);
+        String content = HTMLExtractor.buildMainHTML(element);
+        Assert.assertTrue(content != null && content.length() > 0);
     }
 
     @Test
