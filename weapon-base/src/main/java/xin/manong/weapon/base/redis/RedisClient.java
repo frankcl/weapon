@@ -3,6 +3,7 @@ package xin.manong.weapon.base.redis;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
+import org.redisson.api.RRateLimiter;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.ClusterServersConfig;
@@ -190,5 +191,16 @@ public class RedisClient {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         readWriteLock.writeLock().unlock();
+    }
+
+    /**
+     * 获取限速器
+     *
+     * @param key 限速器key
+     * @return 限速器实例
+     */
+    public RRateLimiter getRateLimiter(String key) {
+        if (StringUtils.isEmpty(key)) throw new RuntimeException("rate limiter key is not allowed to be empty");
+        return redissonClient.getRateLimiter(key);
     }
 }
