@@ -55,7 +55,7 @@ public class WebLogAspect {
     @Resource
     protected JSONLogger webAspectLogger;
 
-    @Pointcut("@annotation(xin.manong.weapon.spring.boot.aspect.EnableWebLogAspect) && execution(public * *(..))")
+    @Pointcut("@annotation(xin.manong.weapon.spring.web.ws.aspect.EnableWebLogAspect) && execution(public * *(..))")
     public void intercept() {
     }
 
