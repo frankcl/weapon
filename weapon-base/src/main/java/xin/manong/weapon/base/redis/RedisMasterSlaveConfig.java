@@ -33,6 +33,7 @@ public class RedisMasterSlaveConfig extends RedisConfig {
             logger.error("master address is empty for master/slave mode");
             return false;
         }
+        masterAddress = fillAddress(masterAddress);
         if (slaveAddresses == null || slaveAddresses.isEmpty()) {
             logger.error("slave addresses are empty for master/slave mode");
             return false;

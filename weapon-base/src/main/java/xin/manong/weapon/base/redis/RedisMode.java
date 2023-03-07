@@ -7,5 +7,5 @@ package xin.manong.weapon.base.redis;
  * @date 2022-12-20 21:06:43
  */
 public enum RedisMode {
-    SINGLE, CLUSTER, MASTER_SLAVE
+    SINGLE, CLUSTER, MASTER_SLAVE, SENTINEL
 }

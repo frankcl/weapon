@@ -2,6 +2,11 @@ package xin.manong.weapon.base.redis;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.client.codec.Codec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xin.manong.weapon.base.util.ReflectParams;
+import xin.manong.weapon.base.util.ReflectUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,11 +21,16 @@ import java.util.List;
 @Data
 public class RedisConfig {
 
+    private final static Logger logger = LoggerFactory.getLogger(RedisConfig.class);
+
     private static final String REDIS_PROTOCOL = "redis://";
     private static final String REDIS_SECURITY_PROTOCOL = "rediss://";
 
     public Integer connectionPoolSize;
+    public Integer timeout;
     public String password;
+    public String codecClassName;
+    public Codec codec;
 
     /**
      * 检测有效性
@@ -29,6 +39,15 @@ public class RedisConfig {
      */
     public boolean check() {
         if (connectionPoolSize != null && connectionPoolSize <= 0) connectionPoolSize = null;
+        if (!StringUtils.isEmpty(codecClassName)) {
+            try {
+                codec = (Codec) ReflectUtil.newInstance(codecClassName, new ReflectParams());
+            } catch (Exception e) {
+                logger.error("redisson codec[{}] is not found", codecClassName);
+                logger.error(e.getMessage(), e);
+                return false;
+            }
+        }
         return true;
     }
 

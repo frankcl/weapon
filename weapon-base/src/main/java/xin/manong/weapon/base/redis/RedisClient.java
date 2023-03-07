@@ -2,14 +2,8 @@ package xin.manong.weapon.base.redis;
 
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
-import org.redisson.api.RLock;
-import org.redisson.api.RRateLimiter;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.ClusterServersConfig;
-import org.redisson.config.Config;
-import org.redisson.config.MasterSlaveServersConfig;
-import org.redisson.config.SingleServerConfig;
+import org.redisson.api.*;
+import org.redisson.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +47,9 @@ public class RedisClient {
     public static RedisClient buildRedisClient(RedisSingleConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for single server mode");
         Config redissonConfig = new Config();
+        if (config.codec != null) redissonConfig.setCodec(config.codec);
         SingleServerConfig serverConfig = redissonConfig.useSingleServer();
+        if (config.timeout != null && config.timeout > 0) serverConfig.setTimeout(config.timeout);
         serverConfig.setAddress(config.address);
         serverConfig.setDatabase(config.db);
         if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
@@ -72,7 +68,9 @@ public class RedisClient {
     public static RedisClient buildRedisClient(RedisClusterConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for clustering mode");
         Config redissonConfig = new Config();
+        if (config.codec != null) redissonConfig.setCodec(config.codec);
         ClusterServersConfig serverConfig = redissonConfig.useClusterServers();
+        if (config.timeout != null && config.timeout > 0) serverConfig.setTimeout(config.timeout);
         serverConfig.setNodeAddresses(config.nodeAddresses);
         if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
             serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
@@ -91,9 +89,34 @@ public class RedisClient {
     public static RedisClient buildRedisClient(RedisMasterSlaveConfig config) {
         if (config == null || !config.check()) throw new RuntimeException("config is invalid for master/slave mode");
         Config redissonConfig = new Config();
+        if (config.codec != null) redissonConfig.setCodec(config.codec);
         MasterSlaveServersConfig serverConfig = redissonConfig.useMasterSlaveServers();
+        if (config.timeout != null && config.timeout > 0) serverConfig.setTimeout(config.timeout);
         serverConfig.setMasterAddress(config.masterAddress);
         serverConfig.setSlaveAddresses(new HashSet<>(config.slaveAddresses));
+        serverConfig.setDatabase(config.db);
+        if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
+            serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
+            serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
+        }
+        if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
+        return new RedisClient(Redisson.create(redissonConfig));
+    }
+
+    /**
+     * 构建哨兵模式RedisClient
+     *
+     * @param config 配置信息
+     * @return redis客户端
+     */
+    public static RedisClient buildRedisClient(RedisSentinelConfig config) {
+        if (config == null || !config.check()) throw new RuntimeException("config is invalid for sentinel mode");
+        Config redissonConfig = new Config();
+        if (config.codec != null) redissonConfig.setCodec(config.codec);
+        SentinelServersConfig serverConfig = redissonConfig.useSentinelServers();
+        if (config.timeout != null && config.timeout > 0) serverConfig.setTimeout(config.timeout);
+        serverConfig.setMasterName(config.masterName);
+        serverConfig.setSentinelAddresses(config.sentinelAddresses);
         serverConfig.setDatabase(config.db);
         if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
             serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
@@ -194,6 +217,29 @@ public class RedisClient {
     }
 
     /**
+     * 构建事务
+     *
+     * @return 事务
+     */
+    public RTransaction buildTransaction() {
+        return redissonClient.createTransaction(TransactionOptions.defaults());
+    }
+
+    /**
+     * 构建事务
+     *
+     * @param options 事务选项
+     * @return 事务
+     */
+    public RTransaction buildTransaction(TransactionOptions options) {
+        if (options == null) {
+            logger.warn("transaction options are null, using default");
+            return buildTransaction();
+        }
+        return redissonClient.createTransaction(options);
+    }
+
+    /**
      * 获取限速器
      *
      * @param key 限速器key
@@ -202,5 +248,14 @@ public class RedisClient {
     public RRateLimiter getRateLimiter(String key) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("rate limiter key is not allowed to be empty");
         return redissonClient.getRateLimiter(key);
+    }
+
+    /**
+     * 获取RedissonClient
+     *
+     * @return RedissonClient实例
+     */
+    public RedissonClient getRedissonClient() {
+        return redissonClient;
     }
 }

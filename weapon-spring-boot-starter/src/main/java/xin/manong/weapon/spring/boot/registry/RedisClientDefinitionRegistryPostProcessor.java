@@ -62,6 +62,11 @@ public class RedisClientDefinitionRegistryPostProcessor extends AliyunBeanDefini
                     beanDefinition = new RootBeanDefinition(RedisClient.class,
                             () -> RedisClient.buildRedisClient(redisClusterConfig));
                     break;
+                case SENTINEL:
+                    RedisSentinelConfig redisSentinelConfig = JSON.toJavaObject(json, RedisSentinelConfig.class);
+                    beanDefinition = new RootBeanDefinition(RedisClient.class,
+                            () -> RedisClient.buildRedisClient(redisSentinelConfig));
+                    break;
             }
             String name = String.format("%sRedisClient", entry.getKey());
             beanDefinition.setDestroyMethodName("close");
