@@ -122,14 +122,20 @@ public class KVRecord implements Serializable {
      *
      * @param key key
      * @param clazz 数据类型
-     * @return 如果key存在返回值，不存在返回null，与指定类型不一致抛出异常ClassCastException
+     * @return 如果key存在返回值，不存在返回null，与指定类型不一致返回null
      * @param <T>
      */
     public <T> T get(String key, Class<T> clazz) {
         if (clazz == null) throw new RuntimeException("convert class is null");
         Object object = get(key);
         if (object == null) return null;
-        return clazz.cast(object);
+        try {
+            return clazz.cast(object);
+        } catch (ClassCastException e) {
+            logger.error("field[{}] is not an instance of class[{}]", key, clazz.getName());
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     /**

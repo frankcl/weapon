@@ -68,5 +68,6 @@ public class KVRecordSuite {
         kvRecord.put("k2", 1L);
         Assert.assertEquals("abc", kvRecord.get("k1", String.class));
         Assert.assertEquals(1L, kvRecord.get("k2", Long.class).longValue());
+        Assert.assertTrue(kvRecord.get("k2", String.class) == null);
     }
 }
