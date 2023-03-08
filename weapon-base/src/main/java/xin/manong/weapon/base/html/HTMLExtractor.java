@@ -200,6 +200,7 @@ public class HTMLExtractor {
         String sourceURL = videoElement.attr("abs:src");
         if (StringUtils.isEmpty(sourceURL)) {
             Element sourceElement = findFirstChildElement(videoElement, "source");
+            if (sourceElement == null) return null;
             sourceURL = sourceElement.attr("abs:src");
             if (StringUtils.isEmpty(sourceURL)) return null;
         }
