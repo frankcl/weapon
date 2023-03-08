@@ -3,14 +3,28 @@ package xin.manong.weapon.base.redis;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Map;
+
 /**
  * @author frankcl
  * @date 2022-12-20 17:02:39
  */
 public class RedisClientSuite {
 
-    private String nodeAddress = "r-bp172bf1e294b244.redis.rds.aliyuncs.com:6379";
+    private String nodeAddress = "r-bp1fac3adaa6aa14.redis.rds.aliyuncs.com:6379";
     private String password = "";
+
+    @Test
+    public void testGetMemoryInfo() {
+        RedisSingleConfig config = new RedisSingleConfig();
+        config.address = nodeAddress;
+        config.db = 2;
+        config.password = password;
+        RedisClient redisClient = RedisClient.buildRedisClient(config);
+        RedisMemory redisMemory = redisClient.getMemoryInfo();
+        Assert.assertTrue(redisMemory != null);
+        redisClient.close();
+    }
 
     @Test
     public void testCommonLock() {

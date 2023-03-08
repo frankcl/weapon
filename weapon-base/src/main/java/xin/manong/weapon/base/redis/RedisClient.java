@@ -1,13 +1,20 @@
 package xin.manong.weapon.base.redis;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.*;
+import org.redisson.client.RedisConnection;
+import org.redisson.client.codec.StringCodec;
+import org.redisson.client.protocol.RedisCommands;
 import org.redisson.config.*;
+import org.redisson.connection.ConnectionManager;
+import org.redisson.misc.RedisURI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,23 +25,86 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedisClient {
 
+    /**
+     * redis客户端及连接缓存
+     */
+    class CachedClientConnection {
+        private RedisMode redisMode;
+        private RedisConnection connection;
+        private RedissonClient redissonClient;
+        private org.redisson.client.RedisClient redisClient;
+
+        public CachedClientConnection(RedissonClient redissonClient, RedisMode redisMode) {
+            this.redisMode = redisMode;
+            this.redissonClient = redissonClient;
+        }
+
+        public void destroy() {
+            if (connection != null && !connection.isClosed()) connection.closeAsync();
+            if (redisClient != null && !redisClient.isShutdown()) redisClient.shutdown();
+        }
+
+        /**
+         * 获取redis连接
+         *
+         * @return redis连接
+         */
+        public RedisConnection getConnection() {
+            if (connection == null || connection.isClosed() || !connection.isActive() || !connection.isOpen()) {
+                if (connection != null && !connection.isClosed()) {
+                    connection.closeAsync();
+                    connection = null;
+                }
+                org.redisson.client.RedisClient client = getRedisClient();
+                if (client != null) connection = client.connect();
+            }
+            return connection;
+        }
+
+        /**
+         * 获取redis客户端
+         *
+         * @return redis客户端
+         */
+        private org.redisson.client.RedisClient getRedisClient() {
+            if (redisClient != null && !redisClient.isShutdown()) return redisClient;
+            redisClient = null;
+            Redisson redisson = (Redisson) redissonClient;
+            ConnectionManager connectionManager = redisson.getConnectionManager();
+            RedisURI redisURI = null;
+            if (redisMode == RedisMode.SINGLE) {
+                redisURI = new RedisURI(redisson.getConfig().useSingleServer().getAddress());
+            } else if (redisMode == RedisMode.MASTER_SLAVE) {
+                redisURI = new RedisURI(redisson.getConfig().useMasterSlaveServers().getMasterAddress());
+            }
+            if (redisURI == null) return redisClient;
+            redisClient = connectionManager.createClient(NodeType.MASTER, redisURI, null);
+            return redisClient;
+        }
+    }
+
     private final static Logger logger = LoggerFactory.getLogger(RedisClient.class);
 
     private final static Long DEFAULT_LOCK_EXPIRED_SECONDS = 30L;
 
+    private RedisMode redisMode;
     private RedissonClient redissonClient;
+    private CachedClientConnection cachedClientConnection;
 
     private RedisClient() {
     }
 
-    private RedisClient(RedissonClient redissonClient) {
+    private RedisClient(RedissonClient redissonClient, RedisMode redisMode) {
+        this.redisMode = redisMode;
         this.redissonClient = redissonClient;
+        this.cachedClientConnection = new CachedClientConnection(redissonClient, redisMode);
     }
 
     /**
      * 关闭
      */
     public void close() {
+        if (cachedClientConnection != null) cachedClientConnection.destroy();
         if (redissonClient != null) redissonClient.shutdown();
     }
 
@@ -56,7 +126,7 @@ public class RedisClient {
             serverConfig.setConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new RedisClient(Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig), RedisMode.SINGLE);
     }
 
     /**
@@ -77,7 +147,7 @@ public class RedisClient {
             serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new RedisClient(Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig), RedisMode.CLUSTER);
     }
 
     /**
@@ -100,7 +170,7 @@ public class RedisClient {
             serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new RedisClient(Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig), RedisMode.MASTER_SLAVE);
     }
 
     /**
@@ -123,7 +193,7 @@ public class RedisClient {
             serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
-        return new RedisClient(Redisson.create(redissonConfig));
+        return new RedisClient(Redisson.create(redissonConfig), RedisMode.SENTINEL);
     }
 
     /**
@@ -248,6 +318,18 @@ public class RedisClient {
     public RRateLimiter getRateLimiter(String key) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("rate limiter key is not allowed to be empty");
         return redissonClient.getRateLimiter(key);
+    }
+
+    /**
+     * 获取内存使用情况
+     *
+     * @return 内存使用情况，无法获取返回null
+     */
+    public RedisMemory getMemoryInfo() {
+        RedisConnection connection = cachedClientConnection.getConnection();
+        if (connection == null) return null;
+        Map<String, String> memoryInfo = connection.sync(StringCodec.INSTANCE, RedisCommands.INFO_MEMORY);
+        return JSON.toJavaObject(JSON.parseObject(JSON.toJSONString(memoryInfo)), RedisMemory.class);
     }
 
     /**
