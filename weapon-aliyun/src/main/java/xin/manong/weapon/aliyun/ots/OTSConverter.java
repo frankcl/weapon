@@ -2,6 +2,7 @@ package xin.manong.weapon.aliyun.ots;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alicloud.openservices.tablestore.model.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -195,9 +196,9 @@ public class OTSConverter {
             Object value = entry.getValue();
             if (kvRecord.getKeys().contains(key)) keyMap.put(key, value);
             else {
-                if (value instanceof JSON) columnMap.put(key, value.toString());
-                else if (value instanceof List) columnMap.put(key, JSON.toJSONString(value));
-                else if (value instanceof Map) columnMap.put(key, JSON.toJSONString(value));
+                if (value instanceof JSON) columnMap.put(key, JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect));
+                else if (value instanceof List) columnMap.put(key, JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect));
+                else if (value instanceof Map) columnMap.put(key, JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect));
                 else columnMap.put(key, value);
             }
         }
@@ -315,7 +316,7 @@ public class OTSConverter {
     private static Object convertJavaFieldToColumnValue(Object javaObject) {
         if (javaObject == null) return null;
         if (checkColumn(javaObject)) return javaObject;
-        return JSON.toJSONString(javaObject);
+        return JSON.toJSONString(javaObject, SerializerFeature.DisableCircularReferenceDetect);
     }
 
     /**

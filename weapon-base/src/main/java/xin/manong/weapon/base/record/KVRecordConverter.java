@@ -3,6 +3,7 @@ package xin.manong.weapon.base.record;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.CommonUtil;
@@ -55,7 +56,9 @@ public class KVRecordConverter {
             else if (CommonUtil.isPrimitiveType(value) || (jsonParse == null || !jsonParse)) json.put(key, value);
             else {
                 try {
-                    json.put(key, JSON.toJSON(value));
+                    //直接调用JSON.toJSON()会存在循环引用问题
+                    String jsonStr = JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect);
+                    json.put(key, jsonStr.startsWith("[") ? JSON.parseArray(jsonStr) : JSON.parseObject(jsonStr));
                 } catch (Exception e) {
                     logger.error("convert java object to JSON failed for type[{}]", value.getClass().getName());
                     logger.error(e.getMessage(), e);
