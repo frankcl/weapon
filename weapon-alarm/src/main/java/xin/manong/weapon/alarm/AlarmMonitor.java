@@ -1,5 +1,6 @@
 package xin.manong.weapon.alarm;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,12 +103,15 @@ public class AlarmMonitor implements Runnable {
      * @return 合并后报警列表
      */
     private List<Alarm> combineAlarms(List<Alarm> alarms) {
+        String appName = "", title = "";
         Map<AlarmStatus, Map<String, Integer>> groupAlarmMap = new HashMap<>();
         for (Alarm alarm : alarms) {
             if (!groupAlarmMap.containsKey(alarm.status)) groupAlarmMap.put(alarm.status, new HashMap<>());
             Map<String, Integer> messageCountMap = groupAlarmMap.get(alarm.status);
             if (!messageCountMap.containsKey(alarm.content)) messageCountMap.put(alarm.content, 0);
             messageCountMap.put(alarm.content, messageCountMap.get(alarm.content) + 1);
+            if (StringUtils.isEmpty(appName)) appName = alarm.appName;
+            if (StringUtils.isEmpty(title)) title = alarm.title;
         }
         List<Alarm> combinedAlarms = new ArrayList<>();
         for (Map.Entry<AlarmStatus, Map<String, Integer>> entry : groupAlarmMap.entrySet()) {
@@ -118,6 +122,7 @@ public class AlarmMonitor implements Runnable {
             String message = String.join("\n", messageCountMap.keySet());
             Alarm combinedAlarm = new Alarm(messageCount > 1 ?
                     String.format("合并报警数量[%d] %s", messageCount, message) : message, status);
+            combinedAlarm.setAppName(appName).setTitle(title);
             combinedAlarms.add(combinedAlarm);
         }
         return combinedAlarms;
