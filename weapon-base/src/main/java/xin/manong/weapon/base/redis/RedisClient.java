@@ -200,15 +200,15 @@ public class RedisClient {
      * 加锁
      *
      * @param key 锁key
-     * @param expiredSeconds 过期时间（单位：秒），如果小于等于0，默认30秒
+     * @param expiredSeconds 过期时间（单位：秒），如果为null表示不过期；如果小于等于0，默认30秒
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryLock(String key, Long expiredSeconds) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
         RLock lock = redissonClient.getLock(key);
         try {
-            return lock.tryLock(0, expiredSeconds == null || expiredSeconds <= 0 ?
-                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds, TimeUnit.SECONDS);
+            return lock.tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
+                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds), TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return false;
@@ -230,15 +230,15 @@ public class RedisClient {
      * 加读锁
      *
      * @param key 锁key
-     * @param expiredSeconds 过期时间（单位：秒），如果小于等于0，默认30秒
+     * @param expiredSeconds 过期时间（单位：秒），如果为null表示不过期；如果小于等于0，默认30秒
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryReadLock(String key, Long expiredSeconds) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         try {
-            return readWriteLock.readLock().tryLock(0, expiredSeconds == null || expiredSeconds <= 0 ?
-                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds, TimeUnit.SECONDS);
+            return readWriteLock.readLock().tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
+                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds), TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return false;
@@ -260,15 +260,15 @@ public class RedisClient {
      * 加写锁
      *
      * @param key 锁key
-     * @param expiredSeconds 过期时间（单位：秒），如果小于等于0，默认30秒
+     * @param expiredSeconds 过期时间（单位：秒），如果为null表示不过期；如果小于等于0，默认30秒
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryWriteLock(String key, Long expiredSeconds) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         try {
-            return readWriteLock.writeLock().tryLock(0, expiredSeconds == null || expiredSeconds <= 0 ?
-                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds, TimeUnit.SECONDS);
+            return readWriteLock.writeLock().tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
+                    DEFAULT_LOCK_EXPIRED_SECONDS : expiredSeconds), TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return false;
