@@ -122,6 +122,29 @@ public class OSSClient implements Rebuildable {
     }
 
     /**
+     * 获取数据流
+     *
+     * @param bucket
+     * @param key
+     * @return 如果成功返回数据流，否则返回null
+     */
+    public InputStream getObjectStream(String bucket, String key) {
+        GetObjectRequest request = new GetObjectRequest(bucket, key);
+        try {
+            OSSObject ossObject = instance.getObject(request);
+            if (ossObject == null || ossObject.getObjectContent() == null) {
+                logger.warn("oss object is not found for key[{}] and bucket[{}]",
+                        request.getKey(), request.getBucketName());
+                return null;
+            }
+            return ossObject.getObjectContent();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
      * 获取数据
      *
      * @param bucket
