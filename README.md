@@ -23,7 +23,7 @@
   - [x] OTS支持：客户端封装及数据通道封装
 ### 3. weapon-spring-boot-starter: spring boot starter支持
   - [x] 阿里云工具spring boot starter支持：ONS生产及消费支持、OSS支持、OTS客户端及数据通道支持
-  - [x] Redis客户端支持
+  - [x] Redis客户端spring boot starter支持
   - [x] spring web层增强：web切面日志支持、web层异常处理、web层响应对象归一化
 ### 4. weapon-dynamic-secret-listener 阿里云工具AK/SK加载实现
   - [x] 通过加载本地配置文件实现AK/SK加载，不具备动态更新功能
