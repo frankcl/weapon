@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -166,5 +168,40 @@ public class CommonUtil {
         if (object instanceof String) return true;
         if (object instanceof Boolean) return true;
         return false;
+    }
+
+    /**
+     * 二分查找
+     *
+     * @param objects 有序列表
+     * @param object 查找对象
+     * @param comparator 比较器
+     * @return 成功返回下标，否则返回-1
+     * @param <T>
+     */
+    public static <T> int binarySearch(List<T> objects, T object, Comparator<T> comparator) {
+        if (object == null) {
+            logger.warn("search object is null");
+            return -1;
+        }
+        if (objects == null || objects.isEmpty()) {
+            logger.warn("search object list is empty");
+            return -1;
+        }
+        if (comparator == null) {
+            logger.warn("comparator is null");
+            return -1;
+        }
+        int start = 0, end = objects.size() - 1, mid = (start + end) / 2;
+        while (true) {
+            T middleObject = objects.get(mid);
+            int compareResult = comparator.compare(object, middleObject);
+            if (compareResult == 0) return mid;
+            if (compareResult < 0) end = mid - 1;
+            else start = mid + 1;
+            if (start > end) break;
+            mid = (start + end) / 2;
+        }
+        return -1;
     }
 }
