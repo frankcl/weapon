@@ -15,6 +15,17 @@ import java.util.List;
 public class AlgorithmUtilSuite {
 
     @Test
+    public void testComputeMaxPalindromeString() {
+        Assert.assertEquals("", AlgorithmUtil.computeMaxPalindromeString(null));
+        Assert.assertEquals("", AlgorithmUtil.computeMaxPalindromeString(""));
+        Assert.assertEquals("", AlgorithmUtil.computeMaxPalindromeString("abc"));
+        Assert.assertEquals("abba", AlgorithmUtil.computeMaxPalindromeString("abba"));
+        Assert.assertEquals("aba", AlgorithmUtil.computeMaxPalindromeString("abaa"));
+        Assert.assertEquals("aa", AlgorithmUtil.computeMaxPalindromeString("abcaa"));
+        Assert.assertEquals("dcaacd", AlgorithmUtil.computeMaxPalindromeString("adcaacdb"));
+    }
+
+    @Test
     public void testComputeMaxCommonSequence() {
         Assert.assertEquals("", AlgorithmUtil.computeMaxCommonSequence(null, "123"));
         Assert.assertEquals("", AlgorithmUtil.computeMaxCommonSequence("null", ""));

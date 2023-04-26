@@ -18,6 +18,33 @@ public class AlgorithmUtil {
     private static final Logger logger = LoggerFactory.getLogger(AlgorithmUtil.class);
 
     /**
+     * 计算最大回文子串
+     *
+     * @param s 输入字符串
+     * @return 如果存在返回最大回文子串，否则返回空字符串
+     */
+    public static String computeMaxPalindromeString(String s) {
+        if (StringUtils.isEmpty(s)) return "";
+        int maxLen = 0, m = 0, n = 0;
+        boolean[][] matrix = new boolean[s.length()][s.length()];
+        for (int i = 0; i < s.length(); i++) matrix[i][i] = true;
+        for (int len = 2; len <= s.length(); len++) {
+            for (int i = 0; i < s.length(); i++) {
+                int j = i + len - 1;
+                if (j >= s.length()) continue;
+                int u = i + 1, v = j - 1;
+                if (!(s.charAt(i) == s.charAt(j) && (u >= v || (u < v && matrix[u][v])))) continue;
+                matrix[i][j] = true;
+                if (j - i + 1 <= maxLen) continue;
+                maxLen = j - i + 1;
+                m = i; n = j;
+            }
+        }
+        if (maxLen <= 0) return "";
+        return s.substring(m, n + 1);
+    }
+
+    /**
      * 计算最长公共子串
      *
      * @param s1 输入字符串
@@ -61,8 +88,7 @@ public class AlgorithmUtil {
                 distance[i][j] = distance[i - 1][j - 1] + 1;
                 if (distance[i][j] <= maxLen) continue;
                 maxLen = distance[i][j];
-                m = i;
-                n = j;
+                m = i; n = j;
             }
         }
         if (maxLen == 0) return "";
