@@ -139,4 +139,46 @@ public class AlgorithmUtil {
         }
         return -1;
     }
+
+    /**
+     * 计算最大公约数
+     *
+     * @param m 输入数字
+     * @param n 输入数字
+     * @return 最大公约数
+     */
+    public static int computeGCD(int m, int n) {
+        if (m < 0 || n < 0) {
+            logger.error("input num must be greater than zero");
+            throw new RuntimeException("input num must be greater than zero");
+        }
+        if (m == 0) return n;
+        if (n == 0) return m;
+        if (m < n) {
+            int temp = m;
+            m = n;
+            n = temp;
+        }
+        while (m % n != 0) {
+            int temp = m % n;
+            m = n;
+            n = temp;
+        }
+        return n;
+    }
+
+    /**
+     * 计算最小公倍数
+     *
+     * @param m 输入数字
+     * @param n 输入数字
+     * @return 最小公倍数
+     */
+    public static int computeLCM(int m, int n) {
+        if (m < 0 || n < 0) {
+            logger.error("input num must be greater than zero");
+            throw new RuntimeException("input num must be greater than zero");
+        }
+        return m * n / computeGCD(m, n);
+    }
 }

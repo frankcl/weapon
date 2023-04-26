@@ -15,6 +15,24 @@ import java.util.List;
 public class AlgorithmUtilSuite {
 
     @Test
+    public void testComputeGCD() {
+        Assert.assertEquals(2, AlgorithmUtil.computeGCD(6, 10));
+        Assert.assertEquals(1, AlgorithmUtil.computeGCD(3, 10));
+        Assert.assertEquals(8, AlgorithmUtil.computeGCD(8, 16));
+        Assert.assertEquals(16, AlgorithmUtil.computeGCD(16, 16));
+        Assert.assertEquals(16, AlgorithmUtil.computeGCD(0, 16));
+    }
+
+    @Test
+    public void testComputeLCM() {
+        Assert.assertEquals(30, AlgorithmUtil.computeLCM(6, 10));
+        Assert.assertEquals(30, AlgorithmUtil.computeLCM(3, 10));
+        Assert.assertEquals(16, AlgorithmUtil.computeLCM(8, 16));
+        Assert.assertEquals(16, AlgorithmUtil.computeLCM(16, 16));
+        Assert.assertEquals(0, AlgorithmUtil.computeLCM(0, 16));
+    }
+
+    @Test
     public void testComputeMaxPalindromeString() {
         Assert.assertEquals("", AlgorithmUtil.computeMaxPalindromeString(null));
         Assert.assertEquals("", AlgorithmUtil.computeMaxPalindromeString(""));
