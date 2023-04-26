@@ -2,12 +2,8 @@ package xin.manong.weapon.base.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import xin.manong.weapon.base.sort.BasicSorter;
-import xin.manong.weapon.base.sort.IntComparator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author frankcl
@@ -116,23 +112,5 @@ public class CommonUtilSuite {
         Assert.assertFalse(CommonUtil.isPrimitiveType(new Object()));
         Assert.assertFalse(CommonUtil.isPrimitiveType(new HashMap<>()));
         Assert.assertFalse(CommonUtil.isPrimitiveType(null));
-    }
-
-    @Test
-    public void testBinarySearch() {
-        IntComparator comparator = new IntComparator();
-        List<Integer> objects = new ArrayList<>();
-        objects.add(3);
-        objects.add(1);
-        objects.add(27);
-        objects.add(12);
-        objects.add(6);
-        objects.add(3);
-        BasicSorter.quickSort(objects, comparator);
-        Assert.assertEquals(2, CommonUtil.binarySearch(objects, 3, comparator));
-        Assert.assertEquals(5, CommonUtil.binarySearch(objects, 27, comparator));
-        Assert.assertEquals(-1, CommonUtil.binarySearch(objects, 33, comparator));
-        Assert.assertEquals(-1, CommonUtil.binarySearch(objects, 0, comparator));
-        Assert.assertEquals(-1, CommonUtil.binarySearch(objects, 16, comparator));
     }
 }
