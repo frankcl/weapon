@@ -73,6 +73,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.sejda.imageio</groupId>
             <artifactId>webp-imageio</artifactId>
         </dependency>
