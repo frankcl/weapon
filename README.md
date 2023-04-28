@@ -84,25 +84,45 @@
 
 ## 依赖三方库信息
 
-| 组ID                        | 工件ID                 | 版本             | optional |
-|:---------------------------|:---------------------|:---------------|:--------:|
-| commons-codec              | commons-codec        | 1.15           |  false   |
- | com.alibaba                | fastjson             | 2.0.12         |  false   |
- | com.aliyun.openservices    | ons-client           | 1.8.0.Final    |   true   |
- | com.aliyun.openservices    | tablestore           | 5.13.10        |   true   |
-| com.aliyun.oss             | aliyun-sdk-oss       | 3.15.0         |   true   |
-| com.esotericsoftware       | kryo                 | 5.5.0          |   true   |
-| com.fasterxml.jackson.core | jackson-annotations  | 2.13.3         |   true   |
- | com.hankcs                 | hanlp                | portable-1.7.8 |   true   |
-| com.squareup.okhttp3       | okhttp3              | 4.9.3          |   true   |
- | jakarta.ws.rs              | jakarta.ws.rs-api    | 2.1.6          |   true   |
- | org.apache.commons         | commons-collections4 | 4.4            |  false   |
-| org.apache.commons         | commons-lang3        | 3.8            |  false   |
-| org.apache.kafka           | kafka-clients        | 3.3.1          |   true   |
-| org.jsoup                  | jsoup                | 1.15.3         |   true   |
-| org.redisson               | redisson             | 3.19.0         |   true   | 
- | org.sejda.imageio          | webp-imageio         | 0.1.6          |  false   |
- | org.slf4j                  | slf4j-log4j12        | 1.7.25         |   true   |
- | org.springframework        | spring-aspects       | 5.3.22         |   true   |
- | org.springframework        | spring-web           | 5.3.22         |   true   |
- | org.springframework.boot   | spring-boot-starter  | 2.7.3          |   true   |
+| 工件                   | 分组                         |       版本       | optional |
+|:---------------------|:---------------------------|:--------------:|:--------:|
+| aliyun-sdk-oss       | com.aliyun.oss             |     3.15.0     |   true   |
+| commons-codec        | commons-codec              |      1.15      |  false   |
+| commons-collections4 | org.apache.commons         |      4.4       |  false   |
+| commons-lang3        | org.apache.commons         |      3.8       |  false   |
+| fastjson             | com.alibaba                |     2.0.12     |  false   |
+| hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
+| jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
+| jakarta.ws.rs-api    | jakarta.ws.rs              |     2.1.6      |   true   |
+| jsoup                | org.jsoup                  |     1.15.3     |   true   |
+| kafka-clients        | org.apache.kafka           |     3.3.1      |   true   |
+| kryo                 | com.esotericsoftware       |     5.5.0      |   true   |
+| okhttp3              | com.squareup.okhttp3       |     4.9.3      |   true   |
+| ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
+| redisson             | org.redisson               |     3.19.0     |   true   | 
+| slf4j-log4j12        | org.slf4j                  |     1.7.25     |   true   |
+| spring-aspects       | org.springframework        |     5.3.22     |   true   |
+| spring-boot-starter  | org.springframework.boot   |     2.7.3      |   true   |
+| spring-web           | org.springframework        |     5.3.22     |   true   |
+| tablestore           | com.aliyun.openservices    |    5.13.10     |   true   |
+| webp-imageio         | org.sejda.imageio          |     0.1.6      |  false   |
+
+
+ 
+ 
+ 
+
+
+
+ 
+
+
+ 
+
+
+
+ 
+ 
+ 
+ 
+ 
