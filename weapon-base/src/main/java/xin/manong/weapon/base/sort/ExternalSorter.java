@@ -70,6 +70,11 @@ public class ExternalSorter<T> {
      */
     public void addRecord(T record) throws IOException {
         if (record == null) return;
+        if (!recordClass.isAssignableFrom(record.getClass())) {
+            logger.error("record class[{}] is not compatible for {}",
+                    record.getClass().getName(), recordClass.getName());
+            return;
+        }
         if (state != State.PREPARE) {
             logger.error("unsupported operation[ADD] for state[{}]", state.name());
             return;
