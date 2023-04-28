@@ -16,7 +16,6 @@ public class ExternalSorterSuite {
     @Test
     public void testSortRecord() throws Exception {
         ExternalSorter<Record> sorter = new ExternalSorter<>(Record.class, new RecordComparator(), tempDirectory);
-        sorter.registerSerializeClass(HashMap.class);
         sorter.setMaxCacheRecordNum(2);
         sorter.setMaxOpenFileNum(2);
 

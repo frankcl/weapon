@@ -1,6 +1,7 @@
 package xin.manong.weapon.base.sort;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.SerializerFactory;
 import com.esotericsoftware.kryo.io.Output;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,7 +37,6 @@ public class ExternalSorter<T> {
     private State state;
     private String tempDirectory;
     private Class<T> recordClass;
-    private Set<Class> serializeClasses;
     private Comparator<T> comparator;
     private RecordReaderComparator<T> readerComparator;
     private List<T> memoryCachedRecords;
@@ -47,12 +47,13 @@ public class ExternalSorter<T> {
     public ExternalSorter(Class<T> recordClass, Comparator<T> comparator) {
         maxOpenFileNum = DEFAULT_MAX_OPEN_FILE_NUM;
         maxCacheRecordNum = DEFAULT_MAX_CACHE_RECORD_NUM;
-        this.serializeClasses = new HashSet<>();
         this.kryo = new Kryo();
+        this.kryo.setReferences(true);
+        this.kryo.setRegistrationRequired(false);
+        this.kryo.setDefaultSerializer(new SerializerFactory.CompatibleFieldSerializerFactory());
         this.recordClass = recordClass;
         this.comparator = comparator;
         this.readerComparator = new RecordReaderComparator<>(this.comparator);
-        registerSerializeClass(recordClass);
         reset();
     }
 
@@ -210,17 +211,6 @@ public class ExternalSorter<T> {
                     !fileName.endsWith(DUMP_FILE_SUFFIX)) continue;
             if (dumpFile.delete()) logger.info("sweep dump file[{}]", fileName);
         }
-    }
-
-    /**
-     * 注册序列化类信息
-     *
-     * @param serializeClass 序列化类信息
-     */
-    public void registerSerializeClass(Class serializeClass) {
-        if (serializeClass == null || serializeClasses.contains(serializeClass)) return;
-        kryo.register(serializeClass);
-        serializeClasses.add(serializeClass);
     }
 
     /**
