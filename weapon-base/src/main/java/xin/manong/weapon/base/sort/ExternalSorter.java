@@ -2,6 +2,7 @@ package xin.manong.weapon.base.sort;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,8 @@ public class ExternalSorter<T> {
 
     private static final int DEFAULT_MAX_OPEN_FILE_NUM = 100;
     private static final int DEFAULT_MAX_CACHE_RECORD_NUM = 10000;
-    private static final String DUMP_FILE_PREFIX = "DUMP_FILE_";
+    private static final String DUMP_FILE_PREFIX = "TEMP_SORT_FILE_";
+    private static final String DUMP_FILE_SUFFIX = ".dump";
 
     private int dumpFileIndex;
     private int maxOpenFileNum;
@@ -43,18 +45,15 @@ public class ExternalSorter<T> {
     private Kryo kryo;
 
     public ExternalSorter(Class<T> recordClass, Comparator<T> comparator) {
-        dumpFileIndex = 0;
         maxOpenFileNum = DEFAULT_MAX_OPEN_FILE_NUM;
         maxCacheRecordNum = DEFAULT_MAX_CACHE_RECORD_NUM;
-        serializeClasses = new HashSet<>();
-        memoryCachedRecords = new ArrayList<>();
-        dumpFiles = new LinkedList<>();
-        state = State.PREPARE;
-        kryo = new Kryo();
+        this.serializeClasses = new HashSet<>();
+        this.kryo = new Kryo();
         this.recordClass = recordClass;
         this.comparator = comparator;
         this.readerComparator = new RecordReaderComparator<>(this.comparator);
         registerSerializeClass(recordClass);
+        reset();
     }
 
     public ExternalSorter(Class<T> recordClass, Comparator<T> comparator, String tempDirectory) {
@@ -115,17 +114,26 @@ public class ExternalSorter<T> {
     }
 
     /**
+     * 重置排序
+     */
+    public void reset() {
+        sweepDumpFiles();
+        dumpFileIndex = 0;
+        dumpFiles = new LinkedList<>();
+        memoryCachedRecords = new ArrayList<>();
+        heap = new PriorityQueue<>();
+        state = State.PREPARE;
+    }
+
+    /**
      * 关闭清理资源
      */
     public void close() {
-        heap.clear();
-        heap = null;
-        for (String dumpFile : dumpFiles) {
-            new File(dumpFile).delete();
-            logger.info("delete dump file[{}] success", dumpFile);
-        }
+        sweepDumpFiles();
+        new File(tempDirectory).delete();
+        dumpFileIndex = 0;
         dumpFiles.clear();
-        System.out.println(new File(tempDirectory).delete());
+        heap.clear();
         state = State.CLOSED;
         logger.info("close external sorter");
     }
@@ -137,7 +145,7 @@ public class ExternalSorter<T> {
      * @throws IOException
      */
     private void dumpRecords(List<T> records) throws IOException {
-        String dumpFile = String.format("%s%s%d", tempDirectory, DUMP_FILE_PREFIX, dumpFileIndex);
+        String dumpFile = String.format("%s%s%d%s", tempDirectory, DUMP_FILE_PREFIX, dumpFileIndex, DUMP_FILE_SUFFIX);
         Output output = new Output(new FileOutputStream(dumpFile));
         for (T record : records) kryo.writeObject(output, record);
         output.close();
@@ -156,7 +164,7 @@ public class ExternalSorter<T> {
             for (int i = 0; i < maxOpenFileNum; i++) batchDumpFiles.add(dumpFiles.removeFirst());
             PriorityQueue<RecordReader<T>> priorityQueue = new PriorityQueue<>(maxOpenFileNum, readerComparator);
             buildHeap(batchDumpFiles, priorityQueue);
-            String dumpFile = String.format("%s%s%d", tempDirectory, DUMP_FILE_PREFIX, dumpFileIndex);
+            String dumpFile = String.format("%s%s%d%s", tempDirectory, DUMP_FILE_PREFIX, dumpFileIndex, DUMP_FILE_SUFFIX);
             Output output = new Output(new FileOutputStream(dumpFile));
             while (!priorityQueue.isEmpty()) {
                 RecordReader<T> recordReader = priorityQueue.poll();
@@ -189,6 +197,22 @@ public class ExternalSorter<T> {
     }
 
     /**
+     * 清理dump文件
+     */
+    private void sweepDumpFiles() {
+        if (StringUtils.isEmpty(tempDirectory)) return;
+        File dumpDirectory = new File(tempDirectory);
+        if (!dumpDirectory.exists() || !dumpDirectory.isDirectory()) return;
+        File[] dumpFiles = dumpDirectory.listFiles();
+        for (File dumpFile : dumpFiles) {
+            String fileName = dumpFile.getName();
+            if (dumpFile.isDirectory() || !fileName.startsWith(DUMP_FILE_PREFIX) ||
+                    !fileName.endsWith(DUMP_FILE_SUFFIX)) continue;
+            if (dumpFile.delete()) logger.info("sweep dump file[{}]", fileName);
+        }
+    }
+
+    /**
      * 注册序列化类信息
      *
      * @param serializeClass 序列化类信息
@@ -208,6 +232,7 @@ public class ExternalSorter<T> {
         this.tempDirectory = tempDirectory.endsWith("/") ? tempDirectory : tempDirectory + "/";
         File directory = new File(tempDirectory);
         if (!directory.exists() || !directory.isDirectory()) directory.mkdirs();
+        else sweepDumpFiles();
     }
 
     /**
