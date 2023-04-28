@@ -89,7 +89,7 @@ public class ExternalSorter<T> {
     public T getRecord() throws IOException {
         if (state == State.PREPARE) {
             mergeDumpFiles();
-            heap = new PriorityQueue<>(maxOpenFileNum, readerComparator);
+            heap = new PriorityQueue<>(dumpFiles.size() + 1, readerComparator);
             if (!memoryCachedRecords.isEmpty()) {
                 MemoryReader memoryReader = new MemoryReader(memoryCachedRecords, comparator);
                 if (!memoryReader.open()) throw new RuntimeException("open memory reader failed");
