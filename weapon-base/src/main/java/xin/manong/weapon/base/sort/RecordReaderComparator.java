@@ -8,7 +8,7 @@ import java.util.Comparator;
  * @author frankcl
  * @date 2023-04-27 14:53:43
  */
-public class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
+class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
 
     private Comparator<T> comparator;
 

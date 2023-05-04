@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author frankcl
  * @date 2023-04-27 14:43:48
  */
-public class DumpReader<T> implements RecordReader<T> {
+class DumpReader<T> implements RecordReader<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(DumpReader.class);
 

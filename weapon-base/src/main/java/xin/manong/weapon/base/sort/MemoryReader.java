@@ -12,7 +12,7 @@ import java.util.List;
  * @author frankcl
  * @date 2023-04-27 14:46:09
  */
-public class MemoryReader<T> implements RecordReader<T> {
+class MemoryReader<T> implements RecordReader<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(MemoryReader.class);
 

@@ -47,29 +47,29 @@ public class BasicSorter {
     private static <T> void quickSort(List<T> objects, Comparator<T> comparator,
                                       int start, int end) {
         if (start >= end) return;
-        int leftPos = start, rightPos = end, pivotPos = start;
-        T pivot = objects.get(start);
-        while (leftPos < rightPos) {
-            for (; leftPos < rightPos; rightPos--) {
-                T object = objects.get(rightPos);
-                if (comparator.compare(object, pivot) >= 0) continue;
-                objects.set(pivotPos, object);
-                pivotPos = rightPos;
-                rightPos--;
+        int left = start, right = end, pivot = start;
+        T pivotObject = objects.get(start);
+        while (left < right) {
+            for (; left < right; right--) {
+                T object = objects.get(right);
+                if (comparator.compare(object, pivotObject) >= 0) continue;
+                objects.set(pivot, object);
+                pivot = right;
+                right--;
                 break;
             }
-            for (; leftPos < rightPos; leftPos++) {
-                T object = objects.get(leftPos);
-                if (comparator.compare(object, pivot) <= 0) continue;
-                objects.set(pivotPos, object);
-                pivotPos = leftPos;
-                leftPos++;
+            for (; left < right; left++) {
+                T object = objects.get(left);
+                if (comparator.compare(object, pivotObject) <= 0) continue;
+                objects.set(pivot, object);
+                pivot = left;
+                left++;
                 break;
             }
         }
-        objects.set(pivotPos, pivot);
-        quickSort(objects, comparator, start, pivotPos - 1);
-        quickSort(objects, comparator, pivotPos + 1, end);
+        objects.set(pivot, pivotObject);
+        quickSort(objects, comparator, start, pivot - 1);
+        quickSort(objects, comparator, pivot + 1, end);
     }
 
     /**
@@ -102,25 +102,25 @@ public class BasicSorter {
      *
      * @param objects 堆列表
      * @param comparator 比较器
-     * @param pos 调整位置
+     * @param position 调整位置
      * @param heapSize 堆大小
      * @param <T>
      */
     private static <T> void adjustHeap(List<T> objects, Comparator<T> comparator,
-                                       int pos, int heapSize) {
-        while (pos < heapSize - 1) {
-            int leftPos = pos * 2, rightPos = leftPos + 1;
-            T leftObject = leftPos >= heapSize ? null : objects.get(leftPos);
-            T rightObject = rightPos >= heapSize ? null : objects.get(rightPos);
-            if (leftObject == null && rightObject == null) break;
-            T comparedObject = leftObject == null ? rightObject : (rightObject == null ? leftObject :
-                    comparator.compare(leftObject, rightObject) >= 0 ? leftObject : rightObject);
-            int comparedPos = comparedObject == leftObject ? leftPos : rightPos;
-            T object = objects.get(pos);
-            if (comparator.compare(object, comparedObject) >= 0) break;
-            objects.set(pos, comparedObject);
-            objects.set(comparedPos, object);
-            pos = comparedPos;
+                                       int position, int heapSize) {
+        while (position < heapSize - 1) {
+            int left = position * 2, right = left + 1;
+            T leftChild = left >= heapSize ? null : objects.get(left);
+            T rightChild = right >= heapSize ? null : objects.get(right);
+            if (leftChild == null && rightChild == null) break;
+            T selectedChild = leftChild == null ? rightChild : (rightChild == null ? leftChild :
+                    comparator.compare(leftChild, rightChild) >= 0 ? leftChild : rightChild);
+            int adjustedPosition = selectedChild == leftChild ? left : right;
+            T object = objects.get(position);
+            if (comparator.compare(object, selectedChild) >= 0) break;
+            objects.set(position, selectedChild);
+            objects.set(adjustedPosition, object);
+            position = adjustedPosition;
         }
     }
 }

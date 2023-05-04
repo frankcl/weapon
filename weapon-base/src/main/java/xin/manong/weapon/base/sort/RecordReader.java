@@ -6,7 +6,7 @@ package xin.manong.weapon.base.sort;
  * @author frankcl
  * @date 2023-04-27 14:37:22
  */
-public interface RecordReader<T> {
+interface RecordReader<T> {
 
     /**
      * 打开数据读取器
