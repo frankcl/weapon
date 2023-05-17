@@ -66,6 +66,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>com.aliyun.openservices</groupId>
+            <artifactId>aliyun-log-producer</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>xin.manong</groupId>
             <artifactId>weapon-base</artifactId>
             <version>${weapon.version}</version>

@@ -1,10 +1,15 @@
 package xin.manong.weapon.aliyun.log;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.aliyun.openservices.aliyun.log.producer.*;
 import com.aliyun.openservices.log.Client;
 import com.aliyun.openservices.log.common.LogContent;
+import com.aliyun.openservices.log.common.LogItem;
 import com.aliyun.openservices.log.common.QueriedLog;
 import com.aliyun.openservices.log.request.GetLogsRequest;
 import com.aliyun.openservices.log.response.GetLogsResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
@@ -13,7 +18,10 @@ import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.record.KVRecords;
 import xin.manong.weapon.base.secret.DynamicSecret;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 阿里云SLS客户端
@@ -27,6 +35,8 @@ public class LogClient implements Rebuildable {
 
     private LogClientConfig config;
     private Client client;
+    private Producer producer;
+    private Set<String> projects;
 
     public LogClient(LogClientConfig config) {
         this.config = config;
@@ -52,6 +62,11 @@ public class LogClient implements Rebuildable {
     public void destroy() {
         logger.info("log client is destroying ...");
         if (config.dynamic) RebuildManager.unregister(this);
+        try {
+            if (producer != null) producer.close();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
         if (client != null) client.shutdown();
         logger.info("log client has been destroyed");
     }
@@ -67,7 +82,13 @@ public class LogClient implements Rebuildable {
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Client prevClient = client;
+        Producer prevProducer = producer;
         if (!build()) throw new RuntimeException("rebuild log client failed");
+        try {
+            if (prevProducer != null) prevProducer.close();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
         if (prevClient != null) prevClient.shutdown();
         logger.info("log client rebuild success");
     }
@@ -80,7 +101,73 @@ public class LogClient implements Rebuildable {
     private boolean build() {
         client = new Client(config.endpoint, config.aliyunSecret.accessKey,
                 config.aliyunSecret.secretKey);
+        producer = new LogProducer(new ProducerConfig());
+        projects = new HashSet<>();
         return true;
+    }
+
+    /**
+     * 构建project连接客户端
+     *
+     * @param project
+     */
+    private void buildProjectClient(String project) {
+        if (projects.contains(project)) return;
+        synchronized (this) {
+            if (projects.contains(project)) return;
+            producer.putProjectConfig(new ProjectConfig(project, config.endpoint,
+                    config.aliyunSecret.accessKey, config.aliyunSecret.secretKey));
+            projects.add(project);
+        }
+    }
+
+    /**
+     * 转换KVRecord为LogItem
+     *
+     * @param kvRecord
+     * @return LogItem
+     */
+    private LogItem convert(KVRecord kvRecord) {
+        LogItem logItem = new LogItem();
+        for (Map.Entry<String, Object> entry : kvRecord.getFieldMap().entrySet()) {
+            Object value = entry.getValue();
+            logItem.PushBack(entry.getKey(), value instanceof JSON ? JSON.toJSONString(
+                    value, SerializerFeature.DisableCircularReferenceDetect) : value.toString());
+        }
+        return logItem;
+    }
+
+    /**
+     * 推送日志
+     *
+     * @param project project
+     * @param logStore log store
+     * @param kvRecords 推送数据
+     */
+    public void push(String project, String logStore, KVRecords kvRecords) {
+        if (StringUtils.isEmpty(project)) {
+            logger.error("project is empty");
+            return;
+        }
+        if (StringUtils.isEmpty(logStore)) {
+            logger.error("log store is empty");
+            return;
+        }
+        if (kvRecords == null || kvRecords.isEmpty()) {
+            logger.error("push records are empty");
+            return;
+        }
+        buildProjectClient(project);
+        for (int i = 0; i < kvRecords.getRecordCount(); i++) {
+            KVRecord kvRecord = kvRecords.getRecord(i);
+            LogItem logItem = convert(kvRecord);
+            LogPushCallback callback = new LogPushCallback(project, logStore, logItem);
+            try {
+                producer.send(project, logStore, logItem, callback);
+            } catch (Exception e) {
+                logger.warn(e.getMessage(), e);
+            }
+        }
     }
 
     /**
