@@ -86,6 +86,8 @@
 
 | 工件                   | 分组                         |       版本       | optional |
 |:---------------------|:---------------------------|:--------------:|:--------:|
+| aliyun-log           | com.aliyun.openservices    |     0.6.82     |   true   |
+| aliyun-log-producer  | com.aliyun.openservices    |     0.3.12     |   true   |
 | aliyun-sdk-oss       | com.aliyun.oss             |     3.15.0     |   true   |
 | commons-codec        | commons-codec              |      1.15      |  false   |
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
