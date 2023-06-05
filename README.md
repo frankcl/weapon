@@ -32,55 +32,15 @@
 
 ## 使用
 
-如需使用基础工具，请引入以下artifact
+如需使用，请引入对应工具包
 
-```xml
-<dependency>
-    <groupId>xin.manong</groupId>
-    <artifactId>weapon-base</artifactId>
-    <version>按需参考release信息</version>
-</dependency>
-```
-
-如需使用阿里云工具，请引入以下artifact
-
-```xml
-<dependency>
-    <groupId>xin.manong</groupId>
-    <artifactId>weapon-aliyun</artifactId>
-    <version>按需参考release信息</version>
-</dependency>
-```
-
-如需使用spring boot增强工具，请引入以下artifact
-
-```xml
-<dependency>
-    <groupId>xin.manong</groupId>
-    <artifactId>weapon-spring-boot-starter</artifactId>
-    <version>按需参考release信息</version>
-</dependency>
-```
-
-如需使用本地资源文件加载阿里云AK/SK，请引入以下artifact
-
-```xml
-<dependency>
-    <groupId>xin.manong</groupId>
-    <artifactId>weapon-dynamic-secret-listener</artifactId>
-    <version>按需参考release信息</version>
-</dependency>
-```
-
-如需实现自定义报警，请引入以下artifact，并自定义AlarmSender
-
-```xml
-<dependency>
-    <groupId>xin.manong</groupId>
-    <artifactId>weapon-alarm</artifactId>
-    <version>按需参考release信息</version>
-</dependency>
-```
+| 工件                             | 分组         | 最新版本  | 是否必须 | 说明                 |
+|:-------------------------------|:-----------|:------|:-----|:-------------------|
+| weapon-base                    | xin.manong | 0.1.3 | 否    | 基础开发工具             |
+| weapon-aliyun                  | xin.manong | 0.1.3 | 否    | 阿里云工具              |
+| weapon-spring-boot-starter     | xin.manong | 0.1.3 | 否    | spring boot增强工具    |
+| weapon-dynamic-secret-listener | xin.manong | 0.1.3 | 否    | 通过本地资源文件加载阿里云AK/SK |
+| weapon-alarm                   | xin.manong | 0.1.3 | 否    | 报警接口定义，引入使用实现自定义报警 |
 
 ## 依赖三方库信息
 
