@@ -92,7 +92,7 @@ public class WebLogAspect {
             context.put(WebAspectConstants.SUCCESS, false);
             context.put(WebAspectConstants.MESSAGE, t.getMessage());
             context.put(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
-            throw new Exception(t);
+            throw new Exception(t.getMessage(), t);
         } finally {
             if (returnObject != null) context.put(WebAspectConstants.RESPONSE, returnObject);
             context.put(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
