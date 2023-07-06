@@ -21,13 +21,15 @@
   - [x] ONS支持：生产及消费封装
   - [x] OSS客户端封装
   - [x] OTS支持：客户端封装及数据通道封装
+  - [x] DataHub客户端封装
+  - [x] SLS日志客户端封装
 ### 3. weapon-spring-boot-starter: spring boot starter支持
-  - [x] 阿里云工具spring boot starter支持：ONS生产及消费支持、OSS支持、OTS客户端及数据通道支持
+  - [x] 阿里云工具spring boot starter支持：ONS生产及消费支持、OSS支持、OTS客户端及数据通道支持、DataHub客户端支持、SLS日志客户端支持
   - [x] Redis客户端spring boot starter支持
   - [x] spring web层增强：web切面日志支持、web层异常处理、web层响应对象归一化
 ### 4. weapon-dynamic-secret-listener 阿里云工具AK/SK加载实现
   - [x] 通过加载本地配置文件实现AK/SK加载，不具备动态更新功能
-### 5. weapon-alarm 报警发送和监控定义
+### 5. weapon-alarm 报警和监控规范及接口定义
 
 
 ## 使用
@@ -48,6 +50,7 @@
 |:---------------------|:---------------------------|:--------------:|:--------:|
 | aliyun-log           | com.aliyun.openservices    |     0.6.82     |   true   |
 | aliyun-log-producer  | com.aliyun.openservices    |     0.3.12     |   true   |
+| aliyun-sdk-datahub   | com.aliyun.datahub         |  2.3.0-public  |   true   |
 | aliyun-sdk-oss       | com.aliyun.oss             |     3.15.0     |   true   |
 | commons-codec        | commons-codec              |      1.15      |  false   |
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
