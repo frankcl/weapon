@@ -5,7 +5,7 @@
     <parent>
         <artifactId>weapon</artifactId>
         <groupId>xin.manong</groupId>
-        <version>0.1.3</version>
+        <version>0.1.4</version>
     </parent>
     <packaging>jar</packaging>
     <name>weapon-aliyun</name>
@@ -58,6 +58,11 @@
         <dependency>
             <groupId>com.aliyun.openservices</groupId>
             <artifactId>tablestore</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun.datahub</groupId>
+            <artifactId>aliyun-sdk-datahub</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>

@@ -7,7 +7,7 @@
     <groupId>xin.manong</groupId>
     <artifactId>weapon</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.3</version>
+    <version>0.1.4</version>
     <name>weapon</name>
     <description>parent module of basic tools libraries for developing</description>
     <url>https://github.com/frankcl/weapon</url>
@@ -66,9 +66,10 @@
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
         <tablestore.version>5.13.10</tablestore.version>
+        <datahub.version>2.3.0-public</datahub.version>
         <aliyun-log.version>0.6.82</aliyun-log.version>
         <aliyun-log-producer.version>0.3.12</aliyun-log-producer.version>
-        <weapon.version>0.1.3</weapon.version>
+        <weapon.version>0.1.4</weapon.version>
     </properties>
 
     <profiles>
@@ -284,6 +285,11 @@
                 <groupId>com.aliyun.openservices</groupId>
                 <artifactId>aliyun-log</artifactId>
                 <version>${aliyun-log.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun.datahub</groupId>
+                <artifactId>aliyun-sdk-datahub</artifactId>
+                <version>${datahub.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun.openservices</groupId>

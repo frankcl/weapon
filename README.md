@@ -36,11 +36,11 @@
 
 | 工件                             | 分组         | 最新版本  | 是否必须 | 说明                 |
 |:-------------------------------|:-----------|:------|:-----|:-------------------|
-| weapon-base                    | xin.manong | 0.1.3 | 否    | 基础开发工具             |
-| weapon-aliyun                  | xin.manong | 0.1.3 | 否    | 阿里云工具              |
-| weapon-spring-boot-starter     | xin.manong | 0.1.3 | 否    | spring boot增强工具    |
-| weapon-dynamic-secret-listener | xin.manong | 0.1.3 | 否    | 通过本地资源文件加载阿里云AK/SK |
-| weapon-alarm                   | xin.manong | 0.1.3 | 否    | 报警接口定义，引入使用实现自定义报警 |
+| weapon-base                    | xin.manong | 0.1.4 | 否    | 基础开发工具             |
+| weapon-aliyun                  | xin.manong | 0.1.4 | 否    | 阿里云工具              |
+| weapon-spring-boot-starter     | xin.manong | 0.1.4 | 否    | spring boot增强工具    |
+| weapon-dynamic-secret-listener | xin.manong | 0.1.4 | 否    | 通过本地资源文件加载阿里云AK/SK |
+| weapon-alarm                   | xin.manong | 0.1.4 | 否    | 报警接口定义，引入使用实现自定义报警 |
 
 ## 依赖三方库信息
 
