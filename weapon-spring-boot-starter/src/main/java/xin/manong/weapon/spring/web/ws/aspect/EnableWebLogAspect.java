@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnableWebLogAspect {
+
+    boolean commitResponse() default true;
 }

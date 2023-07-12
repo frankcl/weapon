@@ -95,7 +95,10 @@ public class WebLogAspect {
             context.put(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
             throw new Exception(t.getMessage(), t);
         } finally {
-            if (returnObject != null) context.put(WebAspectConstants.RESPONSE, returnObject);
+            EnableWebLogAspect annotation = getEnableWebLogAspect(joinPoint);
+            if (returnObject != null && annotation != null && annotation.commitResponse()) {
+                context.put(WebAspectConstants.RESPONSE, returnObject);
+            }
             context.put(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
             if (webAspectLogger != null) webAspectLogger.commit(context.featureMap);
             else logger.warn("web aspect logger is null");
@@ -168,6 +171,17 @@ public class WebLogAspect {
             Object object = requestMap.values().iterator().next();
             if (!CommonUtil.isPrimitiveType(object)) context.put(WebAspectConstants.REQUEST, JSON.toJSON(object));
         }
+    }
+
+    /**
+     * 从切面方法获取注解EnableWebLogAspect
+     *
+     * @param joinPoint 切面方法
+     * @return 注解EnableWebLogAspect
+     */
+    private EnableWebLogAspect getEnableWebLogAspect(JoinPoint joinPoint) {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        return method.getAnnotation(EnableWebLogAspect.class);
     }
 
     /**
