@@ -15,6 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import xin.manong.weapon.base.common.Context;
 import xin.manong.weapon.base.common.ThreadContext;
 import xin.manong.weapon.base.log.JSONLogger;
+import xin.manong.weapon.base.util.CommonUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -152,26 +153,20 @@ public class WebLogAspect {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Parameter[] parameters = method.getParameters();
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
-        String bodyKey = null;
         Map<String, Object> requestMap = new HashMap<>();
         for (int i = 0; i < joinPoint.getArgs().length; i++) {
             Object arg = joinPoint.getArgs()[i];
             if (arg instanceof HttpServletRequest) continue;
             if (arg instanceof HttpServletResponse) continue;
             if (arg instanceof InputStream) continue;
-            if (requestMethod.equals(HTTP_METHOD_POST) || requestMethod.equals(HTTP_METHOD_PUT)) {
-                bodyKey = parameters[i].getName();
-                requestMap.put(parameters[i].getName(), arg);
-                continue;
-            }
             String annotatedKey = getAnnotatedParamKey(paramAnnotations[i]);
             requestMap.put(StringUtils.isEmpty(annotatedKey) ? parameters[i].getName() : annotatedKey, arg);
         }
         if (requestMap.isEmpty()) return;
         context.put(WebAspectConstants.REQUEST, requestMap);
-        if ((requestMethod.equals(HTTP_METHOD_POST) || requestMethod.equals(HTTP_METHOD_PUT)) &&
-                requestMap.size() == 1) {
-            context.put(WebAspectConstants.REQUEST, JSON.toJSON(requestMap.get(bodyKey)));
+        if (requestMap.size() == 1) {
+            Object object = requestMap.values().iterator().next();
+            if (!CommonUtil.isPrimitiveType(object)) context.put(WebAspectConstants.REQUEST, JSON.toJSON(object));
         }
     }
 
