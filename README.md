@@ -55,7 +55,7 @@
 | commons-codec        | commons-codec              |      1.15      |  false   |
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
 | commons-lang3        | org.apache.commons         |      3.8       |  false   |
-| fastjson             | com.alibaba                |     2.0.12     |  false   |
+| fastjson             | com.alibaba                |     2.0.35     |  false   |
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
 | jakarta.ws.rs-api    | jakarta.ws.rs              |     2.1.6      |   true   |
