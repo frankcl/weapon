@@ -34,6 +34,7 @@ public class OSSClient implements Rebuildable {
     private final static String PREFIX_HTTP = "http://";
     private final static String PREFIX_HTTPS = "https://";
     private final static String ALIYUN_OSS_DOMAIN = "aliyuncs.com";
+    private final static String INTERNAL = "-internal";
 
     private final static int BUFFER_SIZE = 4096;
     private final static long EXPIRED_TIME_1H = 60 * 60 * 1000L;
@@ -291,7 +292,7 @@ public class OSSClient implements Rebuildable {
         long currentTime = new Date().getTime();
         Date expiredTime = ttl > 0 ? new Date(currentTime + ttl) : new Date(currentTime + EXPIRED_TIME_1H);
         URL url = instance.generatePresignedUrl(bucket, key, expiredTime);
-        return url.toString();
+        return OSSClient.eraseInternal(url.toString());
     }
 
     /**
@@ -353,6 +354,23 @@ public class OSSClient implements Rebuildable {
         }
         return String.format(ossMeta.region.startsWith("oss-") ? "http://%s.%s.%s/%s" : "http://%s.oss-%s.%s/%s",
                 ossMeta.bucket, ossMeta.region, ALIYUN_OSS_DOMAIN, ossMeta.key);
+    }
+
+    /**
+     * 抹除OSS URL中internal信息
+     *
+     * @param ossURL OSS URL
+     * @return 抹除internal信息OSS URL
+     */
+    public static String eraseInternal(String ossURL) {
+        OSSMeta ossMeta = parseURL(ossURL);
+        if (ossMeta == null) return ossURL;
+        if (!ossMeta.region.endsWith(INTERNAL)) return ossURL;
+        int pos = ossURL.indexOf(ossMeta.region);
+        if (pos == -1) return ossURL;
+        return String.format("%s%s%s", ossURL.substring(0, pos),
+                ossMeta.region.substring(0, ossMeta.region.length() - INTERNAL.length()),
+                ossURL.substring(pos + ossMeta.region.length()));
     }
 
     /**

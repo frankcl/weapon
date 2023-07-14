@@ -60,8 +60,9 @@ public class OSSClientSuite {
     }
 
     @Test
-    public void testSign(){
-        Assert.assertNotNull(ossClient.sign("news-image", "image-download/general_news/f434b3c156dd1ecbb8ae7993a2558f67.png"));
+    public void testSign() {
+        String ossURL = ossClient.sign("news-image", "image-download/general_news/f434b3c156dd1ecbb8ae7993a2558f67.png");
+        Assert.assertNotNull(ossURL);
     }
 
     @Test
@@ -105,5 +106,12 @@ public class OSSClientSuite {
         String ossURL = OSSClient.buildURL(ossMeta);
         Assert.assertTrue(ossURL != null);
         Assert.assertEquals("http://xhzy-data-video.oss-cn-hangzhou.aliyuncs.com/1605603493782-26246b82-671c-4839-860d-328fbb7d3353.mp4", ossURL);
+    }
+
+    @Test
+    public void testEraseInternal() {
+        String ossURL = "http://xhzy-data-external.oss-cn-hangzhou-internal.aliyuncs.com/xinhuashe/test/image/8628cdac0e931b19a550543a4547c24b.jpg";
+        String processedURL = OSSClient.eraseInternal(ossURL);
+        Assert.assertEquals("http://xhzy-data-external.oss-cn-hangzhou.aliyuncs.com/xinhuashe/test/image/8628cdac0e931b19a550543a4547c24b.jpg", processedURL);
     }
 }
