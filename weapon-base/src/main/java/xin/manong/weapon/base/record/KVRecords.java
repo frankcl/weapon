@@ -23,6 +23,11 @@ public class KVRecords implements Serializable {
         kvRecords = new ArrayList<>();
     }
 
+    public KVRecords(KVRecord record) {
+        this();
+        if (record != null) kvRecords.add(record);
+    }
+
     /**
      * 拷贝
      *
