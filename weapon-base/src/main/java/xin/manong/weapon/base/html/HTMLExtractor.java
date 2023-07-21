@@ -3,7 +3,6 @@ package xin.manong.weapon.base.html;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
-import org.jsoup.parser.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.CommonUtil;
@@ -46,7 +45,7 @@ public class HTMLExtractor {
      * @param url 网页URL
      * @return 存在返回正文主体元素，否则返回null
      */
-    public static Element extractMainElement(String html, String url) {
+    public static Element mainHTMLElement(String html, String url) {
         if (StringUtils.isEmpty(html)) {
             logger.error("page HTML is empty");
             return null;
@@ -70,7 +69,7 @@ public class HTMLExtractor {
      * @param mainElement 主体元素
      * @return 成功返回毫秒时间戳，否则返回null
      */
-    public static Long extractPublishTime(Element mainElement) {
+    public static Long publishTime(Element mainElement) {
         Element element = mainElement;
         for (int i = 0; i < 6; i++) {
             if (element == null) return null;
@@ -96,22 +95,45 @@ public class HTMLExtractor {
     }
 
     /**
-     * 构建HTML内容
+     * 格式化HTML内容
      * 以分段元素p构建HTML内容
      *
-     * @param mainElement 主体元素
+     * @param html HTML内容
+     * @param url 网页URL
+     * @return
+     */
+    public static String formatHTML(String html, String url) {
+        if (StringUtils.isEmpty(html)) {
+            logger.error("page HTML is empty");
+            return "";
+        }
+        Document document = StringUtils.isEmpty(url) ? Jsoup.parse(html) : Jsoup.parse(html, url);
+        document.select(String.join(",", EXCLUDE_NODES)).remove();
+        Element body = document.body();
+        if (body == null) {
+            logger.warn("page body is not found");
+            return "";
+        }
+        return formatHTMLElement(body);
+    }
+
+    /**
+     * 格式化HTML内容
+     * 以分段元素p构建HTML内容
+     *
+     * @param htmlElement HTML元素
      * @return HTML内容
      */
-    public static String buildMainHTML(Element mainElement) {
-        if (mainElement == null) return "";
+    public static String formatHTMLElement(Element htmlElement) {
+        if (htmlElement == null) return "";
         List<Element> htmlElements = new ArrayList<>();
-        for (Node childNode : mainElement.childNodes()) {
+        for (Node childNode : htmlElement.childNodes()) {
             htmlElements.addAll(buildHTMLElements(childNode));
         }
         StringBuffer buffer = new StringBuffer();
-        for (Element htmlElement : htmlElements) {
+        for (Element element : htmlElements) {
             if (buffer.length() > 0) buffer.append("\n");
-            buffer.append(htmlElement.outerHtml());
+            buffer.append(element.outerHtml());
         }
         return buffer.toString();
     }
