@@ -165,6 +165,8 @@ public class CommonUtil {
         if (object instanceof Double) return true;
         if (object instanceof String) return true;
         if (object instanceof Boolean) return true;
+        if (object instanceof Character) return true;
+        if (object instanceof Byte) return true;
         return false;
     }
 }

@@ -109,6 +109,8 @@ public class CommonUtilSuite {
         Assert.assertTrue(CommonUtil.isPrimitiveType(1.0d));
         Assert.assertTrue(CommonUtil.isPrimitiveType(false));
         Assert.assertTrue(CommonUtil.isPrimitiveType("abc"));
+        Assert.assertTrue(CommonUtil.isPrimitiveType((byte) 0x1f));
+        Assert.assertTrue(CommonUtil.isPrimitiveType('c'));
         Assert.assertFalse(CommonUtil.isPrimitiveType(new Object()));
         Assert.assertFalse(CommonUtil.isPrimitiveType(new HashMap<>()));
         Assert.assertFalse(CommonUtil.isPrimitiveType(null));
