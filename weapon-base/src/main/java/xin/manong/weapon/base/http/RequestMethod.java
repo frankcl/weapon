@@ -7,5 +7,5 @@ package xin.manong.weapon.base.http;
  * @date 2022-06-29 19:18:53
  */
 public enum RequestMethod {
-    GET, POST
+    GET, POST, PUT, DELETE, PATCH, HEAD
 }

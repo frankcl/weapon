@@ -150,6 +150,18 @@ public class HttpRequest {
             logger.error("http post body format is null");
             return false;
         }
+        if (method == RequestMethod.PUT && format == null) {
+            logger.error("http put body format is null");
+            return false;
+        }
+        if (method == RequestMethod.DELETE && format == null) {
+            logger.error("http delete body format is null");
+            return false;
+        }
+        if (method == RequestMethod.PATCH && format == null) {
+            logger.error("http patch body format is null");
+            return false;
+        }
         return true;
     }
 }

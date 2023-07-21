@@ -23,9 +23,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClient {
 
-    private final static Logger logger = LoggerFactory.getLogger(HttpClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
-    private final static String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
+    private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
+    private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
     private HttpClientConfig config;
     private OkHttpClient okHttpClient;
@@ -79,7 +80,11 @@ public class HttpClient {
             return null;
         }
         if (httpRequest.method == RequestMethod.GET) return doGet(httpRequest);
+        else if (httpRequest.method == RequestMethod.HEAD) return doHead(httpRequest);
         else if (httpRequest.method == RequestMethod.POST) return doPost(httpRequest);
+        else if (httpRequest.method == RequestMethod.PUT) return doPut(httpRequest);
+        else if (httpRequest.method == RequestMethod.DELETE) return doDelete(httpRequest);
+        else if (httpRequest.method == RequestMethod.PATCH) return doPatch(httpRequest);
         return null;
     }
 
@@ -105,6 +110,26 @@ public class HttpClient {
     }
 
     /**
+     * 执行HEAD请求
+     *
+     * @param httpRequest HTTP请求
+     * @return HTTP响应对象
+     */
+    private Response doHead(HttpRequest httpRequest) {
+        try {
+            Request.Builder requestBuilder = new Request.Builder();
+            String requestURL = encodeGetURL(httpRequest);
+            requestBuilder.url(requestURL).head();
+            handleRequestHeaders(requestBuilder, httpRequest);
+            Request request = requestBuilder.build();
+            return executeRequest(request);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
      * 执行GET请求
      *
      * @param httpRequest HTTP请求
@@ -125,31 +150,86 @@ public class HttpClient {
     }
 
     /**
-     * 通过JSON方式执行POST请求
+     * 执行HTTP POST请求
      *
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
     private Response doPost(HttpRequest httpRequest) {
-        RequestBody requestBody = RequestBody.create("", null);
-        if (httpRequest.params != null) {
-            if (httpRequest.format == RequestFormat.FORM) {
-                FormBody.Builder builder = new FormBody.Builder();
-                for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
-                    if (StringUtils.isEmpty(entry.getKey()) || entry.getValue() == null) continue;
-                    builder.add(entry.getKey(), entry.getValue().toString());
-                }
-                requestBody = builder.build();
-            } else {
-                JSONObject body = new JSONObject(httpRequest.params);
-                requestBody = RequestBody.create(body.toJSONString(), MediaType.parse("application/json; charset=utf-8"));
-            }
-        }
+        RequestBody requestBody = buildRequestBody(httpRequest);
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).post(requestBody);
         handleRequestHeaders(requestBuilder, httpRequest);
         Request request = requestBuilder.build();
         return executeRequest(request);
+    }
+
+    /**
+     * 执行HTTP DELETE请求
+     *
+     * @param httpRequest HTTP请求
+     * @return HTTP响应对象
+     */
+    private Response doDelete(HttpRequest httpRequest) {
+        RequestBody requestBody = buildRequestBody(httpRequest);
+        Request.Builder requestBuilder = new Request.Builder();
+        requestBuilder.url(httpRequest.requestURL).delete(requestBody);
+        handleRequestHeaders(requestBuilder, httpRequest);
+        Request request = requestBuilder.build();
+        return executeRequest(request);
+    }
+
+    /**
+     * 执行HTTP PUT请求
+     *
+     * @param httpRequest HTTP请求
+     * @return HTTP响应对象
+     */
+    private Response doPut(HttpRequest httpRequest) {
+        RequestBody requestBody = buildRequestBody(httpRequest);
+        Request.Builder requestBuilder = new Request.Builder();
+        requestBuilder.url(httpRequest.requestURL).put(requestBody);
+        handleRequestHeaders(requestBuilder, httpRequest);
+        Request request = requestBuilder.build();
+        return executeRequest(request);
+    }
+
+    /**
+     * 执行HTTP PATCH请求
+     *
+     * @param httpRequest HTTP请求
+     * @return HTTP响应对象
+     */
+    private Response doPatch(HttpRequest httpRequest) {
+        RequestBody requestBody = buildRequestBody(httpRequest);
+        Request.Builder requestBuilder = new Request.Builder();
+        requestBuilder.url(httpRequest.requestURL).patch(requestBody);
+        handleRequestHeaders(requestBuilder, httpRequest);
+        Request request = requestBuilder.build();
+        return executeRequest(request);
+    }
+
+    /**
+     * 构建请求体
+     * HTTP GET/PUT/DELETE请求
+     *
+     * @param httpRequest HTTP请求
+     * @return 请求体
+     */
+    private RequestBody buildRequestBody(HttpRequest httpRequest) {
+        if (httpRequest.params == null || httpRequest.params.isEmpty()) {
+            return RequestBody.create("", null);
+        } else if (httpRequest.format == RequestFormat.FORM) {
+            FormBody.Builder builder = new FormBody.Builder();
+            for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
+                if (StringUtils.isEmpty(entry.getKey()) || entry.getValue() == null) continue;
+                builder.add(entry.getKey(), entry.getValue().toString());
+            }
+            return builder.build();
+        } else {
+            JSONObject body = new JSONObject(httpRequest.params);
+            return RequestBody.create(body.toJSONString(), MediaType.parse(MEDIA_TYPE_JSON));
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package xin.manong.weapon.base.http;
 
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,21 @@ public class HttpClientSuite {
         Assert.assertTrue(response.isSuccessful());
         Assert.assertTrue(response.code() == 200);
         Assert.assertTrue(response.body() != null);
+        response.close();
+    }
+
+    @Test
+    public void testDoHeadHttp() throws Exception {
+        HttpRequest httpRequest = new HttpRequest();
+        httpRequest.requestURL = "http://www.sina.com.cn";
+        httpRequest.method = RequestMethod.HEAD;
+        httpRequest.headers.put("Host", "www.sina.com.cn");
+        Response response = httpClient.execute(httpRequest);
+        Assert.assertTrue(response.isSuccessful());
+        Assert.assertTrue(response.code() == 200);
+        Assert.assertTrue(response.body() != null);
+        String content = response.body().string();
+        Assert.assertTrue(StringUtils.isEmpty(content));
         response.close();
     }
 
