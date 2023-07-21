@@ -139,7 +139,7 @@ public class HttpClient {
         try {
             Request.Builder requestBuilder = new Request.Builder();
             String requestURL = encodeGetURL(httpRequest);
-            requestBuilder.url(requestURL);
+            requestBuilder.url(requestURL).get();
             handleRequestHeaders(requestBuilder, httpRequest);
             Request request = requestBuilder.build();
             return executeRequest(request);
