@@ -23,6 +23,8 @@ public abstract class AlarmSender {
     private final static Logger logger = LoggerFactory.getLogger(AlarmSender.class);
 
     private final static int ALARM_QUEUE_SIZE = 200;
+    private final static String SHA256 = "HmacSHA256";
+    private final static String CHARSET_UTF8 = "UTF-8";
 
     protected AlarmConfig config;
     BlockingQueue<Alarm> alarmQueue;
@@ -95,12 +97,11 @@ public abstract class AlarmSender {
         }
         Long timestamp = System.currentTimeMillis();
         try {
-            String sha256 = "HmacSHA256", utf8Encoding = "UTF-8";
-            Mac mac = Mac.getInstance(sha256);
-            mac.init(new SecretKeySpec(config.dingWebHookSecret.getBytes(utf8Encoding), sha256));
+            Mac mac = Mac.getInstance(SHA256);
+            mac.init(new SecretKeySpec(config.dingWebHookSecret.getBytes(CHARSET_UTF8), SHA256));
             byte[] bytes = mac.doFinal(String.format("%d\n%s", timestamp,
-                    config.dingWebHookSecret).getBytes(utf8Encoding));
-            String sign = URLEncoder.encode(new String(Base64.getEncoder().encode(bytes)), utf8Encoding);
+                    config.dingWebHookSecret).getBytes(CHARSET_UTF8));
+            String sign = URLEncoder.encode(new String(Base64.getEncoder().encode(bytes)), CHARSET_UTF8);
             return String.format("%s&timestamp=%d&sign=%s", config.dingWebHookURL, timestamp, sign);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
