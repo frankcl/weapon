@@ -8,7 +8,10 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.Raster;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -23,6 +26,9 @@ import java.util.Iterator;
 public class ImageUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+
+    private static ColorConvertOp colorConverter = new ColorConvertOp(
+            ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
 
     /**
      * 不使用ImageIO默认缓存
@@ -80,6 +86,37 @@ public class ImageUtil {
             return null;
         } finally {
             closeImageReader(reader);
+        }
+    }
+
+    /**
+     * 灰度图片
+     *
+     * @param image 图片信息
+     */
+    public static void gray(BufferedImage image) {
+        colorConverter.filter(image, image);
+    }
+
+    /**
+     * 缩放图片
+     *
+     * @param image 图片信息
+     * @param width 缩放后宽度
+     * @param height 缩放后高度
+     * @param imageType 缩放后图片类型
+     * @return 缩放后图片信息
+     */
+    public static BufferedImage resize(BufferedImage image, int width,
+                                       int height, int imageType) {
+        BufferedImage resizeImage = new BufferedImage(width, height, imageType);
+        Graphics2D graphics = resizeImage.createGraphics();
+        try {
+            graphics.drawImage(image.getScaledInstance(width, height,
+                    Image.SCALE_SMOOTH), 0, 0, null);
+            return resizeImage;
+        } finally {
+            graphics.dispose();
         }
     }
 
