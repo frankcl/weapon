@@ -16,7 +16,7 @@ public class PerceivedHashSuite {
     private String hashImageFile3 = this.getClass().getResource("/image/hash_image_3.jpeg").getPath();
 
     @Test
-    public void testComputeHash() throws Exception {
+    public void testComputeHash() {
         byte[] imageBytes1 = FileUtil.read(hashImageFile1);
         byte[] imageBytes2 = FileUtil.read(hashImageFile2);
         byte[] imageBytes3 = FileUtil.read(hashImageFile3);

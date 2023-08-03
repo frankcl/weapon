@@ -75,7 +75,7 @@ public class PerceivedHash extends Hash {
                 matrix[x][y] = processedImage.getRGB(x, y) & 0xff;
             }
         }
-        double[][] dctMatrix = applyDCT(matrix);
+        double[][] matrixDCT = applyDCT(matrix);
         /**
          * 保留左上角8*8矩阵，这部分表示图片的低频部分
          * 计算8*8矩阵平均值（排除矩阵第一个元素）
@@ -83,10 +83,10 @@ public class PerceivedHash extends Hash {
         double total = 0;
         for (int x = 0; x < SAMPLE_SIZE; x++) {
             for (int y = 0; y < SAMPLE_SIZE; y++) {
-                total += dctMatrix[x][y];
+                total += matrixDCT[x][y];
             }
         }
-        total -= dctMatrix[0][0];
+        total -= matrixDCT[0][0];
         double mean = total / (double) (SAMPLE_SIZE * SAMPLE_SIZE - 1);
 
         /**
@@ -98,7 +98,7 @@ public class PerceivedHash extends Hash {
             hash[x] = 0x00;
             for (int y = 0; y < SAMPLE_SIZE; y++) {
                 if (x == 0 && y == 0) continue;
-                if (dctMatrix[x][y] <= mean) continue;
+                if (matrixDCT[x][y] <= mean) continue;
                 hash[x] = (byte) ((hash[x] | (1 << (SAMPLE_SIZE - y - 1))) & 0xff);
             }
         }

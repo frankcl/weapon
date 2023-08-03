@@ -15,7 +15,7 @@ public class MeanHashSuite {
     private String hashImageFile2 = this.getClass().getResource("/image/hash_image_2.jpg").getPath();
 
     @Test
-    public void testComputeHash() throws Exception {
+    public void testComputeHash() {
         byte[] imageBytes1 = FileUtil.read(hashImageFile1);
         byte[] imageBytes2 = FileUtil.read(hashImageFile2);
         Assert.assertTrue(imageBytes1 != null && imageBytes1.length > 0);

@@ -19,15 +19,18 @@ public class MeanHash extends Hash {
         if (image == null) throw new RuntimeException("input image is null");
         BufferedImage processedImage = ImageUtil.resize(image, SIZE, SIZE, BufferedImage.TYPE_3BYTE_BGR);
         ImageUtil.gray(processedImage);
-        byte[] matrix = (byte[]) processedImage.getData().getDataElements(0, 0, SIZE, SIZE, null);
+        byte[] bytes = (byte[]) processedImage.getData().getDataElements(0, 0, SIZE, SIZE, null);
         long sum = 0;
-        for (byte b : matrix) sum += (long) b & 0xff;
-        int mean = Math.round((float) sum / matrix.length);
-        byte[] hash = new byte[matrix.length / 8];
-        for (int i = 0; i < matrix.length; i++) {
-            int remainder = i % 8, quotient = i / 8;
-            if (remainder == 0) hash[quotient] = 0x00;
-            if (((int) matrix[i] & 0xff) >= mean) hash[quotient] = (byte) ((hash[quotient] | (1 << remainder)) & 0xff);
+        for (byte b : bytes) sum += (long) b & 0xff;
+        int mean = Math.round((float) sum / bytes.length);
+        /**
+         * 计算均值hash（24字节，192位）
+         */
+        byte[] hash = new byte[bytes.length / 8];
+        for (int i = 0; i < bytes.length; i++) {
+            int m = i % 8, n = i / 8;
+            if (m == 0) hash[n] = 0x00;
+            if (((int) bytes[i] & 0xff) >= mean) hash[n] = (byte) ((hash[n] | (1 << m)) & 0xff);
         }
         return hash;
     }
