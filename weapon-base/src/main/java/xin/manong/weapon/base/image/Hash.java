@@ -22,6 +22,7 @@ public abstract class Hash {
         BufferedImage image = null;
         try {
             image = ImageUtil.read(bytes);
+            if (image == null) throw new RuntimeException("read image failed");
             return compute(image);
         } finally {
             if (image != null) {

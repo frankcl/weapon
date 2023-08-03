@@ -16,7 +16,6 @@ public class MeanHash extends Hash {
 
     @Override
     public byte[] compute(BufferedImage image) {
-        if (image == null) throw new RuntimeException("input image is null");
         BufferedImage processedImage = ImageUtil.resize(image, SIZE, SIZE, BufferedImage.TYPE_3BYTE_BGR);
         ImageUtil.gray(processedImage);
         byte[] bytes = (byte[]) processedImage.getData().getDataElements(0, 0, SIZE, SIZE, null);

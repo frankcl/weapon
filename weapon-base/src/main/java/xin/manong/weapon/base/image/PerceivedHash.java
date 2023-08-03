@@ -66,7 +66,6 @@ public class PerceivedHash extends Hash {
 
     @Override
     public byte[] compute(BufferedImage image) {
-        if (image == null) throw new RuntimeException("input image is null");
         BufferedImage processedImage = ImageUtil.resize(image, SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
         ImageUtil.gray(processedImage);
         double[][] matrix = new double[SIZE][SIZE];
