@@ -44,7 +44,7 @@ public class ExternalSorter<T> {
     private PriorityQueue<RecordReader<T>> heap;
     private Kryo kryo;
 
-    public ExternalSorter(Class<T> recordClass, Comparator<T> comparator) {
+    private ExternalSorter(Class<T> recordClass, Comparator<T> comparator) {
         maxOpenFileNum = DEFAULT_MAX_OPEN_FILE_NUM;
         maxCacheRecordNum = DEFAULT_MAX_CACHE_RECORD_NUM;
         this.kryo = new Kryo();
