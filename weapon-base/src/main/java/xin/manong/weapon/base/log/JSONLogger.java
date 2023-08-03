@@ -26,23 +26,23 @@ public class JSONLogger {
     private final static String KEY_LOGGER_TIME = "__LOGGER_TIME__";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
-    private Set<String> KEYS;
-    private Logger LOGGER;
+    private Set<String> __log_keys__;
+    private Logger __logger__;
 
     public JSONLogger(String filename, Set<String> keys) {
         try {
             String md5 = DigestUtils.md5Hex(filename);
             String name = String.format("%s$%s", JSONLogger.class.getName(), md5);
-            LOGGER = LoggerFactory.getLogger(name);
+            __logger__ = LoggerFactory.getLogger(name);
             Layout layout = new PatternLayout("%m%n");
             RollingFileAppender appender = new RollingFileAppender(layout, filename);
             appender.setMaxFileSize(MAX_FILE_SIZE);
             appender.setMaxBackupIndex(10);
-            org.apache.log4j.Logger logger = LogManager.getLogger(LOGGER.getName());
+            org.apache.log4j.Logger logger = LogManager.getLogger(__logger__.getName());
             logger.addAppender(appender);
             logger.setAdditivity(false);
             logger.setLevel(Level.INFO);
-            KEYS = keys;
+            __log_keys__ = keys;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -54,14 +54,14 @@ public class JSONLogger {
      * @param featureMap 日志数据
      */
     public void commit(Map<String, Object> featureMap) {
-        JSONObject loggerMap = KEYS == null ? new JSONObject(featureMap) : new JSONObject();
+        JSONObject loggerMap = __log_keys__ == null ? new JSONObject(featureMap) : new JSONObject();
         loggerMap.put(KEY_LOGGER_TIME, DATE_FORMAT.format(new Date()));
-        Iterator<String> iterator = KEYS == null ? null : KEYS.iterator();
+        Iterator<String> iterator = __log_keys__ == null ? null : __log_keys__.iterator();
         while (iterator != null && iterator.hasNext()) {
             String key = iterator.next();
             if (!featureMap.containsKey(key)) continue;
             loggerMap.put(key, featureMap.get(key));
         }
-        LOGGER.info(JSON.toJSONString(loggerMap, SerializerFeature.DisableCircularReferenceDetect));
+        __logger__.info(JSON.toJSONString(loggerMap, SerializerFeature.DisableCircularReferenceDetect));
     }
 }
