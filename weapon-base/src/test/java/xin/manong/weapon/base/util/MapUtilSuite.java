@@ -13,6 +13,33 @@ import java.util.Map;
 public class MapUtilSuite {
 
     @Test
+    public void testEquals() {
+        byte[] bytes1 = new byte[2];
+        bytes1[0] = (byte) 0xff;
+        bytes1[1] = (byte) 0xef;
+        byte[] bytes2 = new byte[2];
+        bytes2[0] = (byte) 0xff;
+        bytes2[1] = (byte) 0xef;
+        Map<String, Object> map1 = new HashMap<>();
+        Map<String, Object> map2 = new HashMap<>();
+        Map<String, Object> map3 = new HashMap<>();
+        map1.put("1", 1L);
+        map1.put("2", "abc");
+        map1.put("3", bytes1);
+
+        map2.put("1", 1L);
+        map2.put("2", "abc");
+        map2.put("3", bytes2);
+
+        map3.put("1", 1L);
+        map3.put("2", "abcd");
+        map3.put("3", bytes2);
+
+        Assert.assertTrue(MapUtil.equals(map1, map2));
+        Assert.assertFalse(MapUtil.equals(map1, map3));
+    }
+
+    @Test
     public void testSafeReplace() {
         Map<String, String> targetMap = new HashMap<>();
         targetMap.put("k1", "v1");
