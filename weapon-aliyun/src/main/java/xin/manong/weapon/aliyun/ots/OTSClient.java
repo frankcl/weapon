@@ -4,6 +4,7 @@ import com.alicloud.openservices.tablestore.ClientConfiguration;
 import com.alicloud.openservices.tablestore.SyncClient;
 import com.alicloud.openservices.tablestore.TableStoreException;
 import com.alicloud.openservices.tablestore.model.*;
+import com.alicloud.openservices.tablestore.model.filter.ColumnPaginationFilter;
 import com.alicloud.openservices.tablestore.model.search.SearchQuery;
 import com.alicloud.openservices.tablestore.model.search.SearchRequest;
 import com.alicloud.openservices.tablestore.model.search.SearchResponse;
@@ -15,6 +16,7 @@ import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.base.record.KVRecords;
 import xin.manong.weapon.base.secret.DynamicSecret;
 import xin.manong.weapon.base.record.KVRecord;
+import xin.manong.weapon.base.util.EqualsUtil;
 
 import java.util.*;
 
@@ -261,6 +263,178 @@ public class OTSClient implements Rebuildable {
     }
 
     /**
+     * 批量获取数据
+     *
+     * @param tableName 表名
+     * @param keyMaps 主键列表
+     * @return 批处理响应
+     */
+    public BatchResponse batchGet(String tableName, List<Map<String, Object>> keyMaps) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (keyMaps == null || keyMaps.isEmpty()) throw new RuntimeException("key map list are empty");
+        MultiRowQueryCriteria multiRowQueryCriteria = new MultiRowQueryCriteria(tableName);
+        for (Map<String, Object> keyMap : keyMaps) {
+            PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
+            multiRowQueryCriteria.addRow(primaryKey);
+        }
+        multiRowQueryCriteria.setMaxVersions(1);
+        ColumnPaginationFilter filter = new ColumnPaginationFilter(128);
+        multiRowQueryCriteria.setFilter(filter);
+        BatchGetRowRequest request = new BatchGetRowRequest();
+        request.addMultiRowQueryCriteria(multiRowQueryCriteria);
+        BatchResponse batchResponse = new BatchResponse();
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                BatchGetRowResponse response = syncClient.batchGetRow(request);
+                List<BatchGetRowResponse.RowResult> results = response.getSucceedRows();
+                for (BatchGetRowResponse.RowResult result : results) {
+                    batchResponse.addRecordResult(buildGetResult(result, request));
+                }
+                if (response.isAllSucceed()) return batchResponse;
+                for (BatchGetRowResponse.RowResult result : response.getFailedRows()) {
+                    logger.warn("batch get record[{}] failed, cause[{}], retry {} times",
+                            request.getPrimaryKey(result.getTableName(), result.getIndex()),
+                            result.getError().toString(), i + 1);
+                    if (i >= config.retryCnt) batchResponse.addRecordResult(buildGetResult(result, request));
+                }
+                request = request.createRequestForRetry(response.getFailedRows());
+            } catch (Exception e) {
+                logger.error("batch get records failed for table[{}], retry {} times", tableName, i + 1);
+                logger.error(e.getMessage(), e);
+                if (i >= config.retryCnt) processUnhandledKeyMaps(batchResponse, keyMaps);
+            }
+        }
+        return batchResponse;
+    }
+
+    /**
+     * 批量写入数据
+     *
+     * @param tableName 表名
+     * @param kvRecords 写入数据列表
+     * @return 批处理响应
+     */
+    public BatchResponse batchPut(String tableName, List<KVRecord> kvRecords) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (kvRecords == null || kvRecords.isEmpty()) throw new RuntimeException("put records are empty");
+        List<Row> records = new ArrayList<>();
+        for (KVRecord kvRecord : kvRecords) records.add(OTSConverter.convertRecord(kvRecord));
+        BatchWriteRowRequest request = new BatchWriteRowRequest();
+        for (Row record : records) {
+            RowPutChange putChange = new RowPutChange(tableName, record.getPrimaryKey());
+            for (Column column : record.getColumns()) putChange.addColumn(column);
+            request.addRowChange(putChange);
+        }
+        BatchResponse batchResponse = new BatchResponse();
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                BatchWriteRowResponse response = syncClient.batchWriteRow(request);
+                List<BatchWriteRowResponse.RowResult> results = response.getSucceedRows();
+                for (BatchWriteRowResponse.RowResult result : results) {
+                    batchResponse.addRecordResult(buildWriteResult(result, request, kvRecords));
+                }
+                if (response.isAllSucceed()) return batchResponse;
+                for (BatchWriteRowResponse.RowResult result : response.getFailedRows()) {
+                    logger.warn("batch put record[{}] failed, cause[{}], retry {} times",
+                            request.getRowChange(result.getTableName(), result.getIndex()).getPrimaryKey(),
+                            result.getError().toString(), i + 1);
+                    if (i >= config.retryCnt) batchResponse.addRecordResult(buildWriteResult(result, request, kvRecords));
+                }
+                request = request.createRequestForRetry(response.getFailedRows());
+            } catch (Exception e) {
+                logger.error("batch put records failed for table[{}], retry {} times", tableName, i + 1);
+                logger.error(e.getMessage(), e);
+                if (i >= config.retryCnt) processUnhandledRecords(batchResponse, kvRecords);
+            }
+        }
+        return batchResponse;
+    }
+
+    /**
+     * 批量更新数据
+     *
+     * @param tableName 表名
+     * @param kvRecords 更新数据列表
+     * @return 批处理响应
+     */
+    public BatchResponse batchUpdate(String tableName, List<KVRecord> kvRecords) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (kvRecords == null || kvRecords.isEmpty()) throw new RuntimeException("update records are empty");
+        List<Row> records = new ArrayList<>();
+        for (KVRecord kvRecord : kvRecords) records.add(OTSConverter.convertRecord(kvRecord));
+        BatchWriteRowRequest request = new BatchWriteRowRequest();
+        for (Row record : records) {
+            RowUpdateChange updateChange = new RowUpdateChange(tableName, record.getPrimaryKey());
+            for (Column column : record.getColumns()) updateChange.put(column);
+            request.addRowChange(updateChange);
+        }
+        BatchResponse batchResponse = new BatchResponse();
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                BatchWriteRowResponse response = syncClient.batchWriteRow(request);
+                List<BatchWriteRowResponse.RowResult> results = response.getSucceedRows();
+                for (BatchWriteRowResponse.RowResult result : results) {
+                    batchResponse.addRecordResult(buildWriteResult(result, request, kvRecords));
+                }
+                if (response.isAllSucceed()) return batchResponse;
+                for (BatchWriteRowResponse.RowResult result : response.getFailedRows()) {
+                    logger.warn("batch update record[{}] failed, cause[{}], retry {} times",
+                            request.getRowChange(result.getTableName(), result.getIndex()).getPrimaryKey(),
+                            result.getError().toString(), i + 1);
+                    if (i >= config.retryCnt) batchResponse.addRecordResult(buildWriteResult(result, request, kvRecords));
+                }
+                request = request.createRequestForRetry(response.getFailedRows());
+            } catch (Exception e) {
+                logger.error("batch update records failed for table[{}], retry {} times", tableName, i + 1);
+                logger.error(e.getMessage(), e);
+                if (i >= config.retryCnt) processUnhandledRecords(batchResponse, kvRecords);
+            }
+        }
+        return batchResponse;
+    }
+
+    /**
+     * 批量删除数据
+     *
+     * @param tableName 表名
+     * @param keyMaps 删除主键列表
+     * @return 批处理响应
+     */
+    public BatchResponse batchDelete(String tableName, List<Map<String, Object>> keyMaps) {
+        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (keyMaps == null || keyMaps.isEmpty()) throw new RuntimeException("delete key map list are empty");
+        BatchWriteRowRequest request = new BatchWriteRowRequest();
+        for (Map<String, Object> keyMap : keyMaps) {
+            PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
+            RowDeleteChange deleteChange = new RowDeleteChange(tableName, primaryKey);
+            request.addRowChange(deleteChange);
+        }
+        BatchResponse batchResponse = new BatchResponse();
+        for (int i = 0; i < config.retryCnt; i++) {
+            try {
+                BatchWriteRowResponse response = syncClient.batchWriteRow(request);
+                List<BatchWriteRowResponse.RowResult> results = response.getSucceedRows();
+                for (BatchWriteRowResponse.RowResult result : results) {
+                    batchResponse.addRecordResult(buildWriteResult(result, request));
+                }
+                if (response.isAllSucceed()) return batchResponse;
+                for (BatchWriteRowResponse.RowResult result : response.getFailedRows()) {
+                    logger.warn("batch delete record[{}] failed, cause[{}], retry {} times",
+                            request.getRowChange(result.getTableName(), result.getIndex()).getPrimaryKey(),
+                            result.getError().toString(), i + 1);
+                    if (i >= config.retryCnt) batchResponse.addRecordResult(buildWriteResult(result, request));
+                }
+                request = request.createRequestForRetry(response.getFailedRows());
+            } catch (Exception e) {
+                logger.error("batch delete records failed for table[{}], retry {} times", tableName, i + 1);
+                logger.error(e.getMessage(), e);
+                if (i >= config.retryCnt) processUnhandledKeyMaps(batchResponse, keyMaps);
+            }
+        }
+        return batchResponse;
+    }
+
+    /**
      * 数据搜索
      *
      * @param request 搜素请求
@@ -299,5 +473,104 @@ public class OTSClient implements Rebuildable {
             logger.error(e.getMessage(), e);
             return OTSSearchResponse.buildError(String.format("搜索异常[%s]", e.getMessage()));
         }
+    }
+
+    /**
+     * 构建批处理写单行结果
+     *
+     * @param result 单行批处理写结果
+     * @param request 批处理写请求
+     * @param kvRecords 处理数据列表
+     * @return 批处理写单行结果
+     */
+    private RecordResult buildWriteResult(BatchWriteRowResponse.RowResult result,
+                                          BatchWriteRowRequest request, List<KVRecord> kvRecords) {
+        RowChange rowChange = request.getRowChange(result.getTableName(), result.getIndex());
+        PrimaryKey primaryKey = rowChange.getPrimaryKey();
+        Map<String, Object> keyMap = OTSConverter.convertPrimaryKey(primaryKey);
+        String message = result.getError() == null ? "" : result.getError().toString();
+        for (KVRecord kvRecord : kvRecords) {
+            if (!EqualsUtil.mapEquals(keyMap, kvRecord.getKeyMap())) continue;
+            return result.isSucceed() ? RecordResult.buildSuccessResult(kvRecord) :
+                    RecordResult.buildFailResult(kvRecord, message);
+        }
+        KVRecord kvRecord = new KVRecord(new HashSet<>(keyMap.keySet()), new HashMap<>(keyMap));
+        return result.isSucceed() ? RecordResult.buildSuccessResult(kvRecord) :
+                RecordResult.buildFailResult(kvRecord, message);
+    }
+
+    /**
+     * 构建批处理写单行结果
+     *
+     * @param result 单行批处理写结果
+     * @param request 批处理写请求
+     * @return 批处理写单行结果
+     */
+    private RecordResult buildWriteResult(BatchWriteRowResponse.RowResult result, BatchWriteRowRequest request) {
+        RowChange rowChange = request.getRowChange(result.getTableName(), result.getIndex());
+        PrimaryKey primaryKey = rowChange.getPrimaryKey();
+        Map<String, Object> keyMap = OTSConverter.convertPrimaryKey(primaryKey);
+        String message = result.getError() == null ? "" : result.getError().toString();
+        KVRecord kvRecord = new KVRecord(new HashSet<>(keyMap.keySet()), new HashMap<>(keyMap));
+        return result.isSucceed() ? RecordResult.buildSuccessResult(kvRecord) :
+                RecordResult.buildFailResult(kvRecord, message);
+    }
+
+    /**
+     * 构建读处理失败数据结果
+     *
+     * @param result 失败结果
+     * @param request 批处理请求
+     */
+    private RecordResult buildGetResult(BatchGetRowResponse.RowResult result, BatchGetRowRequest request) {
+        PrimaryKey primaryKey = request.getPrimaryKey(result.getTableName(), result.getIndex());
+        Map<String, Object> keyMap = OTSConverter.convertPrimaryKey(primaryKey);
+        String message = result.getError() == null ? "" : result.getError().toString();
+        KVRecord kvRecord = result.isSucceed() ?
+                (result.getRow() == null ? null : OTSConverter.convertRecord(result.getRow())) :
+                new KVRecord(new HashSet<>(keyMap.keySet()), new HashMap<>(keyMap));
+        return result.isSucceed() ? RecordResult.buildSuccessResult(kvRecord) :
+                RecordResult.buildFailResult(kvRecord, message);
+    }
+
+    /**
+     * 将未处理数据添加到批处理响应结果中
+     *
+     * @param batchResponse 批处理结果
+     * @param keyMaps 待处理主键列表
+     */
+    private void processUnhandledKeyMaps(BatchResponse batchResponse, List<Map<String, Object>> keyMaps) {
+        for (Map<String, Object> keyMap : keyMaps) {
+            if (findRecordResult(keyMap, batchResponse) != null) continue;
+            KVRecord kvRecord = new KVRecord(new HashSet<>(keyMap.keySet()), new HashMap<>(keyMap));
+            batchResponse.addRecordResult(RecordResult.buildFailResult(kvRecord, "异常发生，数据未处理"));
+        }
+    }
+
+    /**
+     * 将未处理数据添加到批处理响应结果中
+     *
+     * @param batchResponse 批处理结果
+     * @param kvRecords 待处理数据列表
+     */
+    private void processUnhandledRecords(BatchResponse batchResponse, List<KVRecord> kvRecords) {
+        for (KVRecord kvRecord : kvRecords) {
+            if (findRecordResult(kvRecord.getKeyMap(), batchResponse) != null) continue;
+            batchResponse.addRecordResult(RecordResult.buildFailResult(kvRecord, "异常发生，数据未处理"));
+        }
+    }
+
+    /**
+     * 在批处理结果中寻找与主键一致的结果
+     *
+     * @param keyMap 主键列表
+     * @param batchResponse 批处理结果
+     * @return 如果存在返回行结果，否则返回null
+     */
+    private RecordResult findRecordResult(Map<String, Object> keyMap, BatchResponse batchResponse) {
+        for (RecordResult recordResult : batchResponse.recordResults) {
+            if (EqualsUtil.mapEquals(keyMap, recordResult.record.getKeyMap())) return recordResult;
+        }
+        return null;
     }
 }

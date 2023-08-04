@@ -34,8 +34,8 @@ public class OTSClientSuite {
         OTSClientConfig config = new OTSClientConfig();
         config.dynamic = false;
         config.aliyunSecret = aliyunSecret;
-        config.endpoint = "https://ai-media.cn-hangzhou.ots.aliyuncs.com";
-        config.instance = "ai-media";
+        config.endpoint = "https://ai-media-test.cn-hangzhou.ots.aliyuncs.com";
+        config.instance = "ai-media-test";
         Assert.assertTrue(config.check());
         otsClient = new OTSClient(config);
     }
@@ -44,6 +44,31 @@ public class OTSClientSuite {
     public void tearDown() {
         otsClient.close();
         otsClient = null;
+    }
+
+    @Test
+    public void testBatchGet() {
+        String tableName = "media_quality_data";
+        List<Map<String, Object>> keyMaps = new ArrayList<>();
+        {
+            Map<String, Object> keyMap = new HashMap<>();
+            keyMap.put("pk", "000000ffb17a0a14af53d79c94f95283");
+            keyMap.put("group", "default");
+            keyMaps.add(keyMap);
+        }
+        {
+            Map<String, Object> keyMap = new HashMap<>();
+            keyMap.put("pk", "000002a259e88c683ac083c8794925f8");
+            keyMap.put("group", "default");
+            keyMaps.add(keyMap);
+        }
+        BatchResponse batchResponse = otsClient.batchGet(tableName, keyMaps);
+        Assert.assertTrue(batchResponse.success);
+        Assert.assertEquals(2, batchResponse.recordResults.size());
+        Assert.assertTrue(batchResponse.recordResults.get(0).success);
+        Assert.assertTrue(batchResponse.recordResults.get(1).success);
+        Assert.assertTrue(batchResponse.recordResults.get(0).record != null);
+        Assert.assertTrue(batchResponse.recordResults.get(1).record != null);
     }
 
     @Test
