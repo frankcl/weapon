@@ -75,8 +75,8 @@ public class EqualsUtil {
      * 2. 数组大小不相同则不相等
      * 2. 数组对应元素不相等则不相等
      *
-     * @param array1 数组1
-     * @param array2 数组2
+     * @param array1 比较数组
+     * @param array2 比较数组
      * @return 相等返回true，否则返回false
      */
     public static boolean arrayEquals(Object array1, Object array2) {
@@ -100,8 +100,8 @@ public class EqualsUtil {
      * 2. 类型不同不相等
      * 3. 类型相同，equals返回true则相等
      *
-     * @param o1 对象1
-     * @param o2 对象2
+     * @param o1 比较对象
+     * @param o2 比较对象
      * @return 相等返回true，否则返回false
      */
     public static boolean objectEquals(Object o1, Object o2) {
