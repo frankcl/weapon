@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,7 +18,6 @@ import xin.manong.weapon.base.common.ThreadContext;
 import xin.manong.weapon.base.log.JSONLogger;
 import xin.manong.weapon.base.util.CommonUtil;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -42,9 +42,6 @@ public class WebLogAspect {
 
     private final static Logger logger = LoggerFactory.getLogger(WebLogAspect.class);
 
-    private final static String HTTP_METHOD_POST = "POST";
-    private final static String HTTP_METHOD_PUT = "PUT";
-
     private final static List<String> ADDRESS_HEADERS = new ArrayList<String>() { {
         add("HTTP_CLIENT_IP");
         add("x-forwarded-for");
@@ -53,7 +50,7 @@ public class WebLogAspect {
         add("HTTP_X_FORWARDED_FOR");
     } };
 
-    @Resource
+    @Autowired(required = false)
     protected JSONLogger webAspectLogger;
 
     @Pointcut("@annotation(xin.manong.weapon.spring.web.ws.aspect.EnableWebLogAspect) && execution(public * *(..))")
