@@ -26,7 +26,7 @@ public class WebResponseFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext containerRequestContext,
                        ContainerResponseContext containerResponseContext) throws IOException {
         MediaType mediaType = containerResponseContext.getMediaType();
-        if (mediaType == null || mediaType != MediaType.APPLICATION_JSON_TYPE) return;
+        if (mediaType == null || mediaType.equals(MediaType.APPLICATION_JSON_TYPE)) return;
         if (containerResponseContext.getEntity() instanceof WebResponse) return;
         containerResponseContext.setEntity(WebResponse.buildOK(containerResponseContext.getEntity()));
     }
