@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
@@ -24,6 +25,8 @@ public class WebResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext containerRequestContext,
                        ContainerResponseContext containerResponseContext) throws IOException {
+        MediaType mediaType = containerResponseContext.getMediaType();
+        if (mediaType == null || mediaType != MediaType.APPLICATION_JSON_TYPE) return;
         if (containerResponseContext.getEntity() instanceof WebResponse) return;
         containerResponseContext.setEntity(WebResponse.buildOK(containerResponseContext.getEntity()));
     }
