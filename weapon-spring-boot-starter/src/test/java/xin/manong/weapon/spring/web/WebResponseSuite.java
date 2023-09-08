@@ -1,8 +1,9 @@
 package xin.manong.weapon.spring.web;
 
-import jakarta.ws.rs.core.Response;
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.ws.rs.core.Response;
 
 
 /**

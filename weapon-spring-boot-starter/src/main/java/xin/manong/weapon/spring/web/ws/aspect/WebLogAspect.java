@@ -1,7 +1,6 @@
 package xin.manong.weapon.spring.web.ws.aspect;
 
 import com.alibaba.fastjson.JSON;
-import jakarta.ws.rs.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -21,6 +20,7 @@ import xin.manong.weapon.base.util.CommonUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
