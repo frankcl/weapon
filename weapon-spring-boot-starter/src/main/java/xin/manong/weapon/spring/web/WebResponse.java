@@ -2,9 +2,8 @@ package xin.manong.weapon.spring.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.ws.rs.core.Response;
 
 /**
  * web响应对象

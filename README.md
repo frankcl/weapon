@@ -58,7 +58,7 @@
 | fastjson             | com.alibaba                |     2.0.35     |  false   |
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
-| jakarta.ws.rs-api    | jakarta.ws.rs              |     2.1.6      |   true   |
+| jakarta.ws.rs-api    | jakarta.ws.rs              |     3.0.0      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
 | kafka-clients        | org.apache.kafka           |     3.3.1      |   true   |
 | kryo                 | com.esotericsoftware       |     5.5.0      |   true   |
