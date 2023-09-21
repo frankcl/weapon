@@ -12,6 +12,13 @@ import java.util.HashMap;
 public class CommonUtilSuite {
 
     @Test
+    public void testCharacterOccurrence() {
+        Assert.assertEquals(0, CommonUtil.characterOccurrence("adfa", 'g'));
+        Assert.assertEquals(2, CommonUtil.characterOccurrence("adfa", 'a'));
+        Assert.assertEquals(0, CommonUtil.characterOccurrence(null, 'a'));
+    }
+
+    @Test
     public void testStringToTime() {
         Assert.assertEquals(1538486588000L, CommonUtil.stringToTime("2018-10-02 21:23:08", null).longValue());
     }

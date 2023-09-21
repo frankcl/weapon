@@ -25,6 +25,20 @@ public class CommonUtil {
     private final static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
+     * 计算字符串中指定字符出现次数
+     *
+     * @param s 字符串
+     * @param character 字符
+     * @return 字符出现次数
+     */
+    public static int characterOccurrence(String s, char character) {
+        int n = 0;
+        if (StringUtils.isEmpty(s)) return n;
+        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == character) n++;
+        return n;
+    }
+
+    /**
      * 字符串转换时间戳
      *
      * @param string 时间字符串
