@@ -25,6 +25,10 @@ public class HttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
+    private static final String HEADER_USER_AGENT = "User-Agent";
+    private static final String HEADER_CONNECTION = "Connection";
+    private static final String HEADER_ACCEPT = "Accept";
+
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
@@ -239,14 +243,14 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      */
     private void handleRequestHeaders(Request.Builder builder, HttpRequest httpRequest) {
-        if (httpRequest.headers == null || !httpRequest.headers.containsKey("User-Agent")) {
-            builder.addHeader("User-Agent", BROWSER_USER_AGENT);
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey(HEADER_USER_AGENT)) {
+            builder.addHeader(HEADER_USER_AGENT, BROWSER_USER_AGENT);
         }
-        if (httpRequest.headers == null || !httpRequest.headers.containsKey("Connection")) {
-            builder.addHeader("Connection", "keep-alive");
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey(HEADER_CONNECTION)) {
+            builder.addHeader(HEADER_CONNECTION, "keep-alive");
         }
-        if (httpRequest.headers == null || !httpRequest.headers.containsKey("Accept")) {
-            builder.addHeader("Accept", "*/*");
+        if (httpRequest.headers == null || !httpRequest.headers.containsKey(HEADER_ACCEPT)) {
+            builder.addHeader(HEADER_ACCEPT, "*/*");
         }
         if (httpRequest.headers == null || httpRequest.headers.isEmpty()) return;
         for (Map.Entry<String, String> entry : httpRequest.headers.entrySet()) {

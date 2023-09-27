@@ -18,14 +18,16 @@ import java.io.IOException;
  */
 public class RequestInterceptor implements Interceptor {
 
+    private static final String HEADER_HOST = "Host";
+
     @NotNull
     @Override
     public Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
         String requestHost = request.url().url().getHost();
-        String host = request.header("Host");
+        String host = request.header(HEADER_HOST);
         if (StringUtils.isNotEmpty(host) && !host.equals(requestHost) && !CommonUtil.isIP(requestHost)) {
-            request = request.newBuilder().header("Host", requestHost).build();
+            request = request.newBuilder().header(HEADER_HOST, requestHost).build();
         }
         return chain.proceed(request);
     }
