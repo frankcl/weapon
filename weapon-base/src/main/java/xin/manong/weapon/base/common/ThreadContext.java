@@ -48,4 +48,15 @@ public class ThreadContext {
         if (context == null) return;
         context.put(key, value);
     }
+
+    /**
+     * 从上下文中移除信息
+     *
+     * @param key 记录key
+     */
+    public static void remove(String key) {
+        Context context = getContext();
+        if (context == null || !context.contains(key)) return;
+        context.remove(key);
+    }
 }
