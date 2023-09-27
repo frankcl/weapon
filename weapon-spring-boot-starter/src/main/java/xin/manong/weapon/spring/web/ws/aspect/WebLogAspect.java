@@ -192,6 +192,7 @@ public class WebLogAspect {
         for (Annotation annotation : annotations) {
             if (annotation instanceof QueryParam) return ((QueryParam) annotation).value();
             else if (annotation instanceof PathParam) return ((PathParam) annotation).value();
+            else if (annotation instanceof FormParam) return ((FormParam) annotation).value();
         }
         return null;
     }
