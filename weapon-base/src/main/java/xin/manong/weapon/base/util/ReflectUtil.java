@@ -107,14 +107,14 @@ public class ReflectUtil {
      *
      * @param methodName 方法名
      * @param object 目标对象
-     * @param params 方法参数
+     * @param args 方法参数
      * @return 如果调用成功返回结果，否则抛出RuntimeException
      */
-    public static Object invoke(String methodName, Object object, ReflectParams params) {
+    public static Object invoke(String methodName, Object object, ReflectArgs args) {
         ReflectClass reflectClass = getReflectClass(object.getClass());
-        Method method = reflectClass.getMethod(methodName, params == null ? null : params.types);
+        Method method = reflectClass.getMethod(methodName, args == null ? null : args.argTypes);
         try {
-            return method.invoke(object, params == null ? null : params.values);
+            return method.invoke(object, args == null ? null : args.argValues);
         } catch (Exception e) {
             logger.error("invoke method[{}] failed for class[{}]", method.getName(), object.getClass().getName());
             logger.error(e.getMessage(), e);
@@ -126,13 +126,13 @@ public class ReflectUtil {
      * 创建对象实例
      *
      * @param className 类全限定名
-     * @param params 构造参数
+     * @param args 构造参数
      * @return 如果成功返回实例对象，否则抛出RuntimeException
      */
-    public static Object newInstance(String className, ReflectParams params) {
+    public static Object newInstance(String className, ReflectArgs args) {
         try {
             Class clazz = Class.forName(className);
-            return newInstance(clazz, params);
+            return newInstance(clazz, args);
         } catch (Exception e) {
             logger.error("create instance failed for class[{}]", className);
             logger.error(e.getMessage(), e);
@@ -144,14 +144,14 @@ public class ReflectUtil {
      * 创建对象实例
      *
      * @param clazz 类实例
-     * @param params 构造参数
+     * @param args 构造参数
      * @return 如果成功返回实例对象，否则抛出RuntimeException
      */
-    public static Object newInstance(Class clazz, ReflectParams params) {
+    public static Object newInstance(Class clazz, ReflectArgs args) {
         ReflectClass reflectClass = getReflectClass(clazz);
-        Constructor constructor = reflectClass.getConstructor(params == null ? null : params.types);
+        Constructor constructor = reflectClass.getConstructor(args == null ? null : args.argTypes);
         try {
-            return constructor.newInstance(params == null ? null : params.values);
+            return constructor.newInstance(args == null ? null : args.argValues);
         } catch (Exception e) {
             logger.error("create instance failed for class[{}]", clazz.getName());
             logger.error(e.getMessage(), e);

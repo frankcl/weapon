@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.client.codec.Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.util.ReflectParams;
+import xin.manong.weapon.base.util.ReflectArgs;
 import xin.manong.weapon.base.util.ReflectUtil;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class RedisConfig {
         if (connectionPoolSize != null && connectionPoolSize <= 0) connectionPoolSize = null;
         if (!StringUtils.isEmpty(codecClassName)) {
             try {
-                codec = (Codec) ReflectUtil.newInstance(codecClassName, new ReflectParams());
+                codec = (Codec) ReflectUtil.newInstance(codecClassName, new ReflectArgs());
             } catch (Exception e) {
                 logger.error("redisson codec[{}] is not found", codecClassName);
                 logger.error(e.getMessage(), e);

@@ -28,18 +28,18 @@ public class ReflectUtilSuite {
     @Test
     public void testInvokeMethod() {
         Map<String, Object> map = (Map<String, Object>) ReflectUtil.newInstance(
-                "java.util.HashMap", new ReflectParams());
-        ReflectParams reflectParams = new ReflectParams(new Class[]
+                "java.util.HashMap", new ReflectArgs());
+        ReflectArgs reflectParams = new ReflectArgs(new Class[]
                 {Object.class, Object.class}, new Object[] {"key", 123});
         Object object = ReflectUtil.invoke("put", map, reflectParams);
         Assert.assertTrue(object == null);
-        Boolean isEmpty = (Boolean) ReflectUtil.invoke("isEmpty", map, new ReflectParams());
+        Boolean isEmpty = (Boolean) ReflectUtil.invoke("isEmpty", map, new ReflectArgs());
         Assert.assertFalse(isEmpty);
     }
 
     @Test
     public void testConstructorWithParams() {
-        ReflectParams reflectParams = new ReflectParams(new Class[]{int.class}, new Object[]{36});
+        ReflectArgs reflectParams = new ReflectArgs(new Class[]{int.class}, new Object[]{36});
         Map map = (Map) ReflectUtil.newInstance("java.util.HashMap", reflectParams);
         Assert.assertTrue(map != null);
     }
@@ -89,7 +89,7 @@ public class ReflectUtilSuite {
     @Test(expected = RuntimeException.class)
     public void testInvokeErrorParams() {
         String string = "test";
-        ReflectParams reflectParams = new ReflectParams(new Class[]{int.class}, new Object[]{"1"});
+        ReflectArgs reflectParams = new ReflectArgs(new Class[]{int.class}, new Object[]{"1"});
         ReflectUtil.invoke("charAt", string, reflectParams);
     }
 
@@ -100,7 +100,7 @@ public class ReflectUtilSuite {
 
     @Test(expected = RuntimeException.class)
     public void testConstructorErrorParams() {
-        ReflectParams reflectParams = new ReflectParams(new Class[]{String.class}, new Object[]{36});
+        ReflectArgs reflectParams = new ReflectArgs(new Class[]{String.class}, new Object[]{36});
         ReflectUtil.newInstance(String.class, reflectParams);
     }
 }

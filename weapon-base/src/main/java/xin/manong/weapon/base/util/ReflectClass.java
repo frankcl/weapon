@@ -73,16 +73,16 @@ class ReflectClass {
      * 根据方法签名获取方法
      *
      * @param methodName 方法名
-     * @param parameterTypes 方法参数类型
+     * @param argTypes 方法参数类型
      * @return 如果方法存咋返回方法对象，否则抛出RuntimeException
      */
-    public Method getMethod(String methodName, Class... parameterTypes) {
-        String key = getMethodKey(methodName, parameterTypes);
+    public Method getMethod(String methodName, Class... argTypes) {
+        String key = getMethodKey(methodName, argTypes);
         try {
             if (methodMap.containsKey(key)) return methodMap.get(key);
             synchronized (methodMap) {
                 if (methodMap.containsKey(key)) return methodMap.get(key);
-                Method method = deepGetMethod(methodName, parameterTypes);
+                Method method = deepGetMethod(methodName, argTypes);
                 method.setAccessible(true);
                 methodMap.put(key, method);
                 return method;
@@ -97,16 +97,16 @@ class ReflectClass {
     /**
      * 获取构造器方法
      *
-     * @param parameterTypes 构造器参数类型
+     * @param argTypes 构造器参数类型
      * @return 如果成功返回构造器实例，否则抛出RuntimeException
      */
-    public Constructor getConstructor(Class... parameterTypes) {
-        String key = getMethodKey("", parameterTypes);
+    public Constructor getConstructor(Class... argTypes) {
+        String key = getMethodKey("", argTypes);
         try {
             if (constructorMap.containsKey(key)) return constructorMap.get(key);
             synchronized (constructorMap) {
                 if (constructorMap.containsKey(key)) return constructorMap.get(key);
-                Constructor constructor = clazz.getConstructor(parameterTypes);
+                Constructor constructor = clazz.getConstructor(argTypes);
                 constructor.setAccessible(true);
                 constructorMap.put(key, constructor);
                 return constructor;
@@ -143,35 +143,35 @@ class ReflectClass {
      * 深度搜索父类方法
      *
      * @param methodName 方法名
-     * @param parameterTypes 方法参数
+     * @param argTypes 方法参数
      * @return 方法
      * @throws NoSuchMethodException 如果方法不存在抛出该异常
      */
-    private Method deepGetMethod(String methodName, Class... parameterTypes) throws NoSuchMethodException {
+    private Method deepGetMethod(String methodName, Class... argTypes) throws NoSuchMethodException {
         Class c = clazz;
         while (c != null) {
             try {
-                return c.getDeclaredMethod(methodName, parameterTypes);
+                return c.getDeclaredMethod(methodName, argTypes);
             } catch (NoSuchMethodException e) {
                 c = c.getSuperclass();
             }
         }
-        throw new NoSuchMethodException(getMethodKey(methodName, parameterTypes));
+        throw new NoSuchMethodException(getMethodKey(methodName, argTypes));
     }
 
     /**
      * 根据方法签名获取方法key，用于方法缓存map key
      *
      * @param methodName 方法名
-     * @param parameterTypes 方法参数类型
+     * @param argTypes 方法参数类型
      * @return 方法key
      */
-    private String getMethodKey(String methodName, Class... parameterTypes) {
+    private String getMethodKey(String methodName, Class... argTypes) {
         StringBuffer buffer = new StringBuffer(methodName);
         buffer.append("(");
-        for (int i = 0; parameterTypes != null && i < parameterTypes.length; i++) {
+        for (int i = 0; argTypes != null && i < argTypes.length; i++) {
             if (i > 0) buffer.append(",");
-            buffer.append(parameterTypes[i].getName());
+            buffer.append(argTypes[i].getName());
         }
         buffer.append(")");
         return buffer.toString();
