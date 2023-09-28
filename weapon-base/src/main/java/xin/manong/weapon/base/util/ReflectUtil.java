@@ -112,9 +112,9 @@ public class ReflectUtil {
      */
     public static Object invoke(String methodName, Object object, ReflectArgs args) {
         ReflectClass reflectClass = getReflectClass(object.getClass());
-        Method method = reflectClass.getMethod(methodName, args == null ? null : args.argTypes);
+        Method method = reflectClass.getMethod(methodName, args == null ? null : args.types);
         try {
-            return method.invoke(object, args == null ? null : args.argValues);
+            return method.invoke(object, args == null ? null : args.values);
         } catch (Exception e) {
             logger.error("invoke method[{}] failed for class[{}]", method.getName(), object.getClass().getName());
             logger.error(e.getMessage(), e);
@@ -149,9 +149,9 @@ public class ReflectUtil {
      */
     public static Object newInstance(Class clazz, ReflectArgs args) {
         ReflectClass reflectClass = getReflectClass(clazz);
-        Constructor constructor = reflectClass.getConstructor(args == null ? null : args.argTypes);
+        Constructor constructor = reflectClass.getConstructor(args == null ? null : args.types);
         try {
-            return constructor.newInstance(args == null ? null : args.argValues);
+            return constructor.newInstance(args == null ? null : args.values);
         } catch (Exception e) {
             logger.error("create instance failed for class[{}]", clazz.getName());
             logger.error(e.getMessage(), e);

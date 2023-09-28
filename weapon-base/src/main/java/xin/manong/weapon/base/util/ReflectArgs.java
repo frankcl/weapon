@@ -8,15 +8,15 @@ package xin.manong.weapon.base.util;
  */
 public class ReflectArgs {
 
-    public Class[] argTypes;
-    public Object[] argValues;
+    public Class[] types;
+    public Object[] values;
 
     public ReflectArgs() {
     }
 
-    public ReflectArgs(Class[] argTypes, Object[] argValues) {
-        this.argTypes = argTypes;
-        this.argValues = argValues;
+    public ReflectArgs(Class[] types, Object[] values) {
+        this.types = types;
+        this.values = values;
         check();
     }
 
@@ -25,8 +25,8 @@ public class ReflectArgs {
      * 如果参数类型和参数值数量不一致则抛出RuntimeException
      */
     private void check() {
-        if (argValues == null && argTypes == null) return;
-        if (argValues == null || argTypes == null || argTypes.length != argValues.length) {
+        if (values == null && types == null) return;
+        if (values == null || types == null || types.length != values.length) {
             throw new RuntimeException("argument type and value not consistent");
         }
     }
