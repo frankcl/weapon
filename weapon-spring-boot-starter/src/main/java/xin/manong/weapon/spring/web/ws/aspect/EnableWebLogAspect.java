@@ -1,5 +1,7 @@
 package xin.manong.weapon.spring.web.ws.aspect;
 
+import org.springframework.context.annotation.Import;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,6 +15,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Import({ WebLogAspect.class })
 public @interface EnableWebLogAspect {
 
     boolean commitResponse() default true;
