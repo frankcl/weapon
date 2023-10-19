@@ -39,7 +39,7 @@ public class SkipList<K, V> implements Iterable {
     }
 
     public SkipList(int maxLevel, Comparator<? super K> comparator) {
-        if (maxLevel <= 0) throw new IllegalArgumentException(String.format("illegal max leve[%d]", maxLevel));
+        if (maxLevel <= 0) throw new IllegalArgumentException(String.format("illegal max level[%d]", maxLevel));
         this.level = 0;
         this.size = 0;
         this.random = new Random();
