@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * 跳表实现
@@ -13,7 +14,7 @@ import java.util.Random;
  * @author frankcl
  * @date 2023-10-17 15:46:37
  */
-public class SkipList<K, V> implements Iterable {
+public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
 
     private static final int DEFAULT_MAX_LEVEL = 7;
     private static final int MAX_MAX_LEVEL = 13;
@@ -218,6 +219,11 @@ public class SkipList<K, V> implements Iterable {
     @Override
     public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Entry<K, V>> action) {
+        throw new UnsupportedOperationException("unsupported operation");
     }
 
     /**

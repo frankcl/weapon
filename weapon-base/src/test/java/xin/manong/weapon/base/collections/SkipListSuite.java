@@ -36,17 +36,12 @@ public class SkipListSuite {
         Assert.assertTrue(removeEntry != null);
         Assert.assertEquals("888", removeEntry.getKey());
         Assert.assertEquals("888", removeEntry.getValue());
+        Assert.assertEquals("1234", skipList.remove("1234"));
         Assert.assertFalse(skipList.isEmpty());
-        Assert.assertEquals(4, skipList.size());
+        Assert.assertEquals(3, skipList.size());
         Assert.assertFalse(skipList.add("7", "777"));
 
         Iterator<SkipList.Entry<String, String>> iterator = skipList.iterator();
-        {
-            Assert.assertTrue(iterator.hasNext());
-            SkipList.Entry<String, String> entry = iterator.next();
-            Assert.assertEquals("1234", entry.getKey());
-            Assert.assertEquals("1234", entry.getValue());
-        }
         {
             Assert.assertTrue(iterator.hasNext());
             SkipList.Entry<String, String> entry = iterator.next();
@@ -83,12 +78,6 @@ public class SkipListSuite {
             SkipList.Entry<String, String> entry = reversedIterator.next();
             Assert.assertEquals("456", entry.getKey());
             Assert.assertEquals("456", entry.getValue());
-        }
-        {
-            Assert.assertTrue(reversedIterator.hasNext());
-            SkipList.Entry<String, String> entry = reversedIterator.next();
-            Assert.assertEquals("1234", entry.getKey());
-            Assert.assertEquals("1234", entry.getValue());
         }
         {
             Assert.assertFalse(reversedIterator.hasNext());
