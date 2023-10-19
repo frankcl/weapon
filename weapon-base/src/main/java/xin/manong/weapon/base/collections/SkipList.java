@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
-import java.util.function.Consumer;
 
 /**
  * 跳表实现
@@ -100,22 +99,14 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
      */
     public V remove(K key) {
         if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
-        Node[] updateNodes = new Node[maxLevel];
         Node<K, V> node = headNode;
         for (int i = level - 1; i >= 0; i--) {
             while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
-            updateNodes[i] = node;
         }
         node = node.nextNodes[0];
         if (compare(key, node) != 0) return null;
         V value = node.entry.value;
-        for (int i = 0; i < level; i++) {
-            if (updateNodes[i].nextNodes[i] != node) break;
-            node.nextNodes[i].prevNodes[i] = updateNodes[i];
-            updateNodes[i].nextNodes[i] = node.nextNodes[i];
-        }
-        while (level > 0 && headNode.nextNodes[level] == tailNode) level--;
-        size--;
+        removeNode(node);
         return value;
     }
 
@@ -219,11 +210,6 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
     @Override
     public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super Entry<K, V>> action) {
-        throw new UnsupportedOperationException("unsupported operation");
     }
 
     /**
@@ -424,5 +410,9 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         public String toString() {
             return entry.toString();
         }
+    }
+
+    public int getLevel() {
+        return level;
     }
 }
