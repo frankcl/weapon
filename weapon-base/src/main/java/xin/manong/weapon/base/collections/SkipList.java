@@ -327,6 +327,12 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         }
     }
 
+    /**
+     * 跳表数据
+     *
+     * @param <K> 数据key
+     * @param <V> 数据值
+     */
     static final class Entry<K, V> {
         private final K key;
         private V value;
@@ -410,9 +416,5 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         public String toString() {
             return entry.toString();
         }
-    }
-
-    public int getLevel() {
-        return level;
     }
 }
