@@ -387,8 +387,8 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
      * @param <V> 数据值
      */
     static final class Node<K, V> {
-        private final Entry<K, V> entry;
         private final int level;
+        private final Entry<K, V> entry;
         private final Node<K, V>[] nextNodes;
         private final Node<K, V>[] prevNodes;
 
