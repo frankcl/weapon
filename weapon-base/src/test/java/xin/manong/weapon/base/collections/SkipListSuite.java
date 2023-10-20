@@ -4,12 +4,26 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Iterator;
+import java.util.Random;
 
 /**
  * @author frankcl
  * @date 2023-10-19 15:29:38
  */
 public class SkipListSuite {
+
+    @Test
+    public void testCompress() {
+        Random random = new Random();
+        SkipList<Integer, Integer> skipList = new SkipList<>(13);
+        for (int i = 0; i < 100000; i++) {
+            Integer key = random.nextInt(1000000);
+            skipList.add(key, key);
+        }
+        for (SkipList.Entry<Integer, Integer> entry : skipList) {
+            System.out.println(entry);
+        }
+    }
 
     @Test
     public void testSkipListOperations() {
