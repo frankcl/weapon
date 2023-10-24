@@ -77,7 +77,7 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         int nodeLevel = randomLevel();
         if (nodeLevel > level) {
             nodeLevel = ++level;
-            updateNodes[nodeLevel - 1] = headNode;
+            updateNodes[nodeLevel-1] = headNode;
         }
         Node<K, V> newNode = new Node(new Entry(key, value), nodeLevel);
         for (int i = nodeLevel - 1; i >= 0; i--) {
