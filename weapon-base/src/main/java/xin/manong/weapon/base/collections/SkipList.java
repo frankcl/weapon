@@ -2,7 +2,6 @@ package xin.manong.weapon.base.collections;
 
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -13,7 +12,7 @@ import java.util.Random;
  * @author frankcl
  * @date 2023-10-17 15:46:37
  */
-public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
+public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     private static final int DEFAULT_MAX_LEVEL = 7;
     private static final int MAX_MAX_LEVEL = 13;
@@ -71,7 +70,7 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         }
         node = node.nextNodes[0];
         if (compare(key, node) == 0) {
-            node.entry.value = value;
+            node.entry.setValue(value);
             return false;
         }
         int nodeLevel = randomLevel();
@@ -105,7 +104,7 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
         }
         node = node.nextNodes[0];
         if (compare(key, node) != 0) return null;
-        V value = node.entry.value;
+        V value = node.entry.getValue();
         removeNode(node);
         return value;
     }
@@ -123,7 +122,7 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
             while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
         }
         node = node.nextNodes[0];
-        if (compare(key, node) == 0) return node.entry.value;
+        if (compare(key, node) == 0) return node.entry.getValue();
         return null;
     }
 
@@ -248,8 +247,8 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
     private int compare(K key, Node<K, V> node) {
         if (node == headNode) return 1;
         if (node == tailNode) return -1;
-        return comparator == null ? ((Comparable<? super K>) key).compareTo(node.entry.key) :
-                comparator.compare(key, node.entry.key);
+        return comparator == null ? ((Comparable<? super K>) key).compareTo(node.entry.getKey()) :
+                comparator.compare(key, node.entry.getKey());
     }
 
     /**
@@ -324,59 +323,6 @@ public class SkipList<K, V> implements Iterable<SkipList.Entry<K, V>> {
             Node nextCursor = cursor.nextNodes[0];
             removeNode(cursor);
             cursor = nextCursor;
-        }
-    }
-
-    /**
-     * 跳表数据
-     *
-     * @param <K> 数据key
-     * @param <V> 数据值
-     */
-    static final class Entry<K, V> {
-        private final K key;
-        private V value;
-
-        public Entry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || !(o instanceof Node)) return false;
-            Entry<?, ?> e = (Entry<?, ?>) o;
-            return Objects.equals(key, e.getKey()) && Objects.equals(value, e.getValue());
-        }
-
-        @Override
-        public int hashCode() {
-            int keyHash = key == null ? 0 : key.hashCode();
-            int valueHash = value == null ? 0 : value.hashCode();
-            return keyHash ^ valueHash;
-        }
-
-        @Override
-        public String toString() {
-            return key + "=" + value;
-        }
-
-        /**
-         * 获取数据key
-         *
-         * @return 数据key
-         */
-        public K getKey() {
-            return key;
-        }
-
-        /**
-         * 获取数据值
-         *
-         * @return 数据值
-         */
-        public V getValue() {
-            return value;
         }
     }
 

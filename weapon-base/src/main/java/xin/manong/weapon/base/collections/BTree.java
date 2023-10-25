@@ -1,0 +1,370 @@
+package xin.manong.weapon.base.collections;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * B+树实现
+ *
+ * @author frankcl
+ * @date 2023-10-25 11:37:21
+ */
+public class BTree<K, V> implements Iterable<Entry<K, V>> {
+
+    private int size;
+    private final int m;
+    private final int half;
+    private final Comparator<? super K> comparator;
+    private Node<K> currentNode;
+
+    public BTree(int m) {
+        this(m, null);
+    }
+
+    public BTree(int m, Comparator<? super K> comparator) {
+        assert m >= 2;
+        this.size = 0;
+        this.m = m;
+        this.half = (int) Math.ceil(m * 1.0 / 2);
+        this.comparator = comparator;
+        this.currentNode = null;
+    }
+
+    /**
+     * 元素数量
+     *
+     * @return 元素数量
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * 是否为空
+     *
+     * @return 为空返回true，否则返回false
+     */
+    public boolean isEmpty() {
+        return currentNode == null;
+    }
+
+    /**
+     * 添加数据
+     *
+     * @param key 数据key
+     * @param value 数据值
+     * @return 成功返回true，否则返回false
+     */
+    public boolean add(K key, V value) {
+        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (value == null) throw new IllegalArgumentException("value is not allowed to be null");
+        if (currentNode == null) {
+            Leaf<K, V> leaf = new Leaf<>(new Entry<>(key, value), comparator);
+            currentNode = leaf;
+            return true;
+        }
+        Leaf<K, V> leaf = getLeaf(key);
+        if (!leaf.add(key, value)) return false;
+        if (leaf.entries.size() <= m) return true;
+        //TODO
+        return true;
+    }
+
+    /**
+     * 移除数据
+     *
+     * @param key 数据key
+     * @return 成功返回true，否则返回false
+     */
+    public boolean remove(K key) {
+        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        return false;
+    }
+
+    /**
+     * 搜索数据
+     *
+     * @param key 数据key
+     * @return 存在返回数据，否则返回null
+     */
+    public V search(K key) {
+        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (currentNode == null) return null;
+        Leaf<K, V> leaf = getLeaf(key);
+        if (leaf == null) return null;
+        return leaf.search(key);
+    }
+
+    /**
+     * 搜索数据范围
+     *
+     * @param startKey 起始key
+     * @param endKey 结束key
+     * @return 返回在起始key（包含）和结束key（包含）范围内数据
+     */
+    public List<V> search(K startKey, K endKey) {
+        if (startKey == null || endKey == null) throw new IllegalArgumentException("key is not allowed to be null");
+        List<V> values = new ArrayList<>();
+        if (currentNode == null) return values;
+        Leaf<K, V> leaf = getLeaf(startKey);
+        if (leaf == null) return values;
+        while (leaf != null) {
+            List<V> searchResults = leaf.search(startKey, endKey);
+            if (searchResults.isEmpty()) break;
+            values.addAll(searchResults);
+        }
+        return values;
+    }
+
+    @Override
+    public Iterator<Entry<K, V>> iterator() {
+        return new EntryIterator();
+    }
+
+    /**
+     * 合并叶子
+     *
+     * @param leaf1 叶子节点
+     * @param leaf2 叶子节点
+     * @return 合并叶子节点
+     */
+    private Leaf<K, V> merge(Leaf<K, V> leaf1, Leaf<K, V> leaf2) {
+        return null;
+    }
+
+    /**
+     * 合并中间节点
+     *
+     * @param node1 中间节点
+     * @param node2 中间节点
+     * @return 合并中间节点
+     */
+    private Node<K> merge(Node<K> node1, Node<K> node2) {
+        return null;
+    }
+
+    /**
+     * 分裂叶子节点
+     *
+     * @param leaf 叶子节点
+     * @return 分裂结果
+     */
+    private Leaf<K, V>[] split(Leaf<K, V> leaf) {
+        Leaf<K, V>[] leaves = new Leaf[2];
+        return leaves;
+    }
+
+    /**
+     * 分裂中间节点
+     *
+     * @param node 中间节点
+     * @return 分裂结果
+     */
+    private Node<K>[] split(Node<K> node) {
+        Node<K>[] nodes = new Node[2];
+        return nodes;
+    }
+
+    /**
+     * 获取key所在叶子结点
+     *
+     * @param key 数据key
+     * @return 存在返回叶子结点，否则返回null
+     */
+    private Leaf<K, V> getLeaf(K key) {
+        if (currentNode == null) return null;
+        Node<K> node = currentNode;
+        while (!(node instanceof Leaf)) node = node.getChild(key);
+        return (Leaf<K, V>) node;
+    }
+
+    /**
+     * 获取第一个叶子节点
+     *
+     * @return 第一个叶子节点
+     */
+    private Leaf<K, V> getFirstLeaf() {
+        if (currentNode == null) return null;
+        Node<K> node = currentNode;
+        while (!(node instanceof Leaf)) {
+            node = node.children.get(0).getValue();
+        }
+        return (Leaf<K, V>) node;
+    }
+
+    /**
+     * 获取最后一个叶子节点
+     *
+     * @return 最后一个叶子节点
+     */
+    private Leaf<K, V> getLastLeaf() {
+        if (currentNode == null) return null;
+        Node<K> node = currentNode;
+        while (!(node instanceof Leaf)) {
+            node = node.children.get(node.children.size() - 1).getValue();
+        }
+        return (Leaf<K, V>) node;
+    }
+
+    /**
+     * 比较数据key
+     *
+     * @param key1 比较key
+     * @param key2 比较key
+     * @param comparator 比较器
+     * @return 大于返回正数，小于返回负数，等于返回0
+     * @param <K>
+     */
+    private static <K> int compare(K key1, K key2, Comparator<? super K> comparator) {
+        return comparator == null ? ((Comparable<? super K>) key1).compareTo(key2) :
+                comparator.compare(key1, key2);
+    }
+
+    /**
+     * 数据迭代器
+     */
+    class EntryIterator implements Iterator<Entry<K, V>> {
+
+        private int cursor;
+        private Leaf<K, V> leafCursor;
+
+        public EntryIterator() {
+            cursor = 0;
+            leafCursor = getFirstLeaf();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return leafCursor != null;
+        }
+
+        @Override
+        public Entry<K, V> next() {
+            if (leafCursor == null) return null;
+            Entry<K, V> entry = leafCursor.entries.get(cursor);
+            if (cursor == leafCursor.entries.size() - 1) {
+                leafCursor = leafCursor.next;
+                cursor = 0;
+            }
+            return entry;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+    }
+
+    /**
+     * 中间节点
+     *
+     * @param <K> 数据key
+     */
+    class Node<K> {
+
+        /* 孩子节点 */
+        private List<Entry<K, Node<K>>> children;
+        /* 父节点 */
+        protected Node<K> parent;
+        /* 比较器 */
+        protected Comparator<? super K> comparator;
+
+        public Node(Comparator<? super K> comparator) {
+            assert comparator != null;
+            this.comparator = comparator;
+        }
+
+        /**
+         * 获取key所在孩子节点
+         *
+         * @param key 数据key
+         * @return key所在孩子节点
+         */
+        public Node<K> getChild(K key) {
+            for (Entry<K, Node<K>> entry : children) {
+                if (compare(key, entry.getKey(), comparator) <= 0) return entry.getValue();
+            }
+            return children.get(children.size() - 1).getValue();
+        }
+    }
+
+    /**
+     * 叶子结点
+     *
+     * @param <K> 数据key
+     * @param <V> 数据值
+     */
+    final class Leaf<K, V> extends Node<K> {
+
+        /* 数据列表 */
+        private List<Entry> entries;
+        /* 后序节点 */
+        private Leaf<K, V> next;
+        /* 前序节点 */
+        private Leaf<K, V> prev;
+
+        public Leaf(Entry<K, V> entry, Comparator<? super K> comparator) {
+            super(comparator);
+            assert entry != null;
+            entries = new ArrayList<>();
+            entries.add(entry);
+        }
+
+        /**
+         * 添加数据：key存在更新数据值，否则添加数据
+         *
+         * @param key 数据key
+         * @param value 数据值
+         * @return key存在返回false，否则返回true
+         */
+        public boolean add(K key, V value) {
+            int pos = entries.size();
+            for (int i = 0; i < entries.size(); i++) {
+                Entry<K, V> entry = entries.get(i);
+                int c = compare(key, entry.getKey(), comparator);
+                if (c < 0) {
+                    pos = i;
+                    break;
+                } else if (c == 0) {
+                    entry.setValue(value);
+                    return false;
+                }
+            }
+            entries.add(pos, new Entry(key, value));
+            return true;
+        }
+
+        /**
+         * 搜索数据
+         *
+         * @param key 数据key
+         * @return 存在返回数据，否则返回null
+         */
+        public V search(K key) {
+            for (Entry<K, V> entry : entries) {
+                if (compare(key, entry.getKey(), comparator) != 0) continue;
+                return entry.getValue();
+            }
+            return null;
+        }
+
+        /**
+         * 范围搜索数据
+         *
+         * @param startKey 起始key
+         * @param endKey 结束key
+         * @return 数据列表）
+         */
+        public List<V> search(K startKey, K endKey) {
+            List<V> values = new ArrayList<>();
+            for (Entry<K, V> entry : entries) {
+                if (compare(entry.getKey(), startKey, comparator) < 0) continue;
+                if (compare(entry.getKey(), endKey, comparator) > 0) return values;
+                values.add(entry.getValue());
+            }
+            return values;
+        }
+    }
+}
