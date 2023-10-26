@@ -108,31 +108,32 @@ public class AlgorithmUtil {
     /**
      * 二分查找
      *
-     * @param objects 有序列表
-     * @param object 查找对象
+     * @param searchList 有序列表
+     * @param target 查找对象
      * @param comparator 比较器
      * @return 成功返回下标，否则返回-1
      * @param <T>
      */
-    public static <T> int binarySearch(List<T> objects, T object, Comparator<T> comparator) {
-        if (object == null) {
-            logger.warn("search object is null");
+    public static <T> int binarySearch(List<T> searchList, T target,
+                                       Comparator<T> comparator) {
+        if (target == null) {
+            logger.warn("target object is null");
             return -1;
         }
-        if (objects == null || objects.isEmpty()) {
-            logger.warn("search object list is empty");
+        if (searchList == null || searchList.isEmpty()) {
+            logger.warn("search list is empty");
             return -1;
         }
         if (comparator == null) {
             logger.warn("comparator is null");
             return -1;
         }
-        int start = 0, end = objects.size() - 1, mid = (start + end) / 2;
+        int start = 0, end = searchList.size() - 1, mid = (start + end) / 2;
         while (true) {
-            T middleObject = objects.get(mid);
-            int compareResult = comparator.compare(object, middleObject);
-            if (compareResult == 0) return mid;
-            if (compareResult < 0) end = mid - 1;
+            T object = searchList.get(mid);
+            int c = comparator.compare(target, object);
+            if (c == 0) return mid;
+            else if (c < 0) end = mid - 1;
             else start = mid + 1;
             if (start > end) break;
             mid = (start + end) / 2;
