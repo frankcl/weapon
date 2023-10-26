@@ -238,9 +238,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
                                     Comparator<? super K> comparator) {
         if (key == null) return -1;
         if (entries == null || entries.isEmpty()) return -1;
-        int start = 0;
-        int end = entries.size() - 1;
-        int mid = (start + end) / 2;
+        int start = 0, end = entries.size() - 1, mid = (start + end) / 2;
         while (true) {
             Entry<K, V> entry = entries.get(mid);
             int code = compare(key, entry.getKey(), comparator);
@@ -318,6 +316,16 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
                 if (compare(key, entry.getKey(), comparator) <= 0) return entry.getValue();
             }
             return children.get(children.size() - 1).getValue();
+        }
+
+        /**
+         * 搜索孩子节点位置
+         *
+         * @param key 孩子key
+         * @return 存在返回位置，否则返回-1
+         */
+        public int searchChild(K key) {
+            return BTree.search(children, key, comparator);
         }
     }
 
