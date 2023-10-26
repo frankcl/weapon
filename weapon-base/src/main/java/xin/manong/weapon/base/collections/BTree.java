@@ -13,9 +13,11 @@ import java.util.List;
  */
 public class BTree<K, V> implements Iterable<Entry<K, V>> {
 
+    private static final int MAX_M = 21;
+
     private int size;
     private final int m;
-    private final int half;
+    private final int n;
     private final Comparator<? super K> comparator;
     private Node<K> currentNode;
 
@@ -24,10 +26,10 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     }
 
     public BTree(int m, Comparator<? super K> comparator) {
-        assert m >= 2;
+        if (m < 3) throw new IllegalArgumentException("m must be greater than 2");
         this.size = 0;
-        this.m = m;
-        this.half = (int) Math.ceil(m * 1.0 / 2);
+        this.m = m > MAX_M ? MAX_M : m;
+        this.n = (this.m - 1) / 2 + 1;
         this.comparator = comparator;
         this.currentNode = null;
     }
@@ -223,6 +225,35 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
+     * 二分查找指定key
+     *
+     * @param entries 查找列表
+     * @param key 查找key
+     * @param comparator 比较器
+     * @return 存在key返回下标位置，否则返回-1
+     * @param <K> 数据key
+     * @param <V> 数据值
+     */
+    public static <K, V> int search(List<Entry<K, V>> entries, K key,
+                                    Comparator<? super K> comparator) {
+        if (key == null) return -1;
+        if (entries == null || entries.isEmpty()) return -1;
+        int start = 0;
+        int end = entries.size() - 1;
+        int mid = (start + end) / 2;
+        while (true) {
+            Entry<K, V> entry = entries.get(mid);
+            int code = compare(key, entry.getKey(), comparator);
+            if (code == 0) return mid;
+            else if (code < 0) end = mid - 1;
+            else start = mid + 1;
+            if (start > end) break;
+            mid = (start + end) / 2;
+        }
+        return -1;
+    }
+
+    /**
      * 数据迭代器
      */
     class EntryIterator implements Iterator<Entry<K, V>> {
@@ -299,7 +330,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     final class Leaf<K, V> extends Node<K> {
 
         /* 数据列表 */
-        private List<Entry> entries;
+        private List<Entry<K, V>> entries;
         /* 后序节点 */
         private Leaf<K, V> next;
         /* 前序节点 */
@@ -343,11 +374,8 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @return 存在返回数据，否则返回null
          */
         public V search(K key) {
-            for (Entry<K, V> entry : entries) {
-                if (compare(key, entry.getKey(), comparator) != 0) continue;
-                return entry.getValue();
-            }
-            return null;
+            int pos = BTree.search(entries, key, comparator);
+            return pos == -1 ? null : entries.get(pos).getValue();
         }
 
         /**
