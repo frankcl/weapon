@@ -241,9 +241,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         int start = 0, end = entries.size() - 1, mid = (start + end) / 2;
         while (true) {
             Entry<K, V> entry = entries.get(mid);
-            int code = compare(key, entry.getKey(), comparator);
-            if (code == 0) return mid;
-            else if (code < 0) end = mid - 1;
+            int c = compare(key, entry.getKey(), comparator);
+            if (c == 0) return mid;
+            else if (c < 0) end = mid - 1;
             else start = mid + 1;
             if (start > end) break;
             mid = (start + end) / 2;
