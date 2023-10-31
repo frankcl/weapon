@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * B+树：阶数m平衡树实现(3<=m<=31)
+ * B+树：阶数m平衡树实现(3<=m<=31，缺省m=13)
  * 1. 所有数据保存在叶子节点，非叶子节点为索引节点
  * 2. 叶子节点数据数量及非叶子节点索引(孩子)数量不小于(m-1)/2+1，不大于m
  * 3. 非叶子节点索引存储下层节点最大key及指向下层节点的引用
@@ -20,6 +20,7 @@ import java.util.List;
 public class BTree<K, V> implements Iterable<Entry<K, V>> {
 
     private static final int MAX_M = 31;
+    private static final int DEFAULT_MAX_M = 13;
 
     /* 当前数据数量 */
     private int size;
@@ -31,6 +32,10 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     private final Comparator<? super K> comparator;
     /* 根结点 */
     private Node<K> root;
+
+    public BTree() {
+        this(DEFAULT_MAX_M);
+    }
 
     public BTree(int m) {
         this(m, null);
