@@ -15,13 +15,17 @@ public class BTreeSuite {
 
     @Test
     public void testCompress() {
+        Long totalTime = 0L;
         Random random = new Random();
         BTree<Integer, Integer> bTree = new BTree<>(21);
         for (int i = 0; i < 100000; i++) {
             int v = random.nextInt(1000000);
+            Long startTime = System.currentTimeMillis();
             bTree.add(v, v);
+            totalTime += System.currentTimeMillis() - startTime;
         }
         System.out.println(bTree.size());
+        System.out.println("TotalTime: " + totalTime);
         Entry<Integer, Integer> prevEntry = null;
         Iterator<Entry<Integer, Integer>> iterator = bTree.iterator();
         while (iterator.hasNext()) {

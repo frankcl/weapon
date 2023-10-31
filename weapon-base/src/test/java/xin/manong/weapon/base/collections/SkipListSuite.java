@@ -14,12 +14,16 @@ public class SkipListSuite {
 
     @Test
     public void testCompress() {
+        Long totalTime = 0L;
         Random random = new Random();
-        SkipList<Integer, Integer> skipList = new SkipList<>(13);
+        SkipList<Integer, Integer> skipList = new SkipList<>(31);
         for (int i = 0; i < 100000; i++) {
             Integer key = random.nextInt(1000000);
+            Long startTime = System.currentTimeMillis();
             skipList.add(key, key);
+            totalTime += System.currentTimeMillis() - startTime;
         }
+        System.out.println("TotalTime: " + totalTime);
         for (Entry<Integer, Integer> entry : skipList) {
             System.out.println(entry);
         }

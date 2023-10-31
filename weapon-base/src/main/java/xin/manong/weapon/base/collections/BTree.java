@@ -12,6 +12,7 @@ import java.util.List;
  * 3. 非叶子节点索引存储下层节点最大key及指向下层节点的引用
  * 4. 非叶子根结点允许最少2个索引(孩子)
  * 5. 支持正向和逆向数据迭代
+ * 6. 支持自定义数据比较器
  *
  * @author frankcl
  * @date 2023-10-25 11:37:21
@@ -507,7 +508,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 数据迭代器
      */
-    class EntryIterator implements Iterator<Entry<K, V>> {
+    final class EntryIterator implements Iterator<Entry<K, V>> {
 
         private int cursor;
         private int currentPos;
@@ -557,7 +558,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 逆向数据迭代器
      */
-    class ReversedEntryIterator implements Iterator<Entry<K, V>> {
+    final class ReversedEntryIterator implements Iterator<Entry<K, V>> {
 
         private int cursor;
         private int currentPos;

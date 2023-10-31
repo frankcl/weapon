@@ -6,8 +6,10 @@ import java.util.Random;
 
 /**
  * 跳表实现
- * 1. 支持正向和反向数据迭代
+ * 1. 数据节点层数大于0小于等于31，缺省层数7
  * 2. 支持获取和删除首元素和尾元素
+ * 3. 支持数据正向和逆向迭代
+ * 4. 支持自定义数据比较器
  *
  * @author frankcl
  * @date 2023-10-17 15:46:37
@@ -15,14 +17,21 @@ import java.util.Random;
 public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     private static final int DEFAULT_MAX_LEVEL = 7;
-    private static final int MAX_MAX_LEVEL = 13;
+    private static final int MAX_MAX_LEVEL = 31;
 
+    /* 当前层数 */
     private int level;
+    /* 数据数量 */
     private int size;
+    /* 最大层数 */
     private final int maxLevel;
+    /* 头节点 */
     private final Node<K, V> headNode;
+    /* 尾节点 */
     private final Node<K, V> tailNode;
+    /* 数据比较器 */
     private final Comparator<? super K> comparator;
+    /* 随机数生成器 */
     private final Random random;
 
     public SkipList() {
@@ -54,9 +63,12 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     /**
      * 添加数据
+     * 1. 数据key存在更新数据值，不存在添加数据
+     * 2. 新增数据节点层数随机生成，保证最大层数不超过当前层数加1
+     * 3. 添加节点后需要调整前后相关节点的前向及后向节点引用
      *
-     * @param key 数据key
-     * @param value 数据值
+     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
+     * @param value 数据值，如果value为null抛出异常IllegalArgumentException
      * @return 如果key存在，使用value覆盖原值并返回false，否则返回true
      */
     public boolean add(K key, V value) {
@@ -92,8 +104,12 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     /**
      * 根据key删除数据
+     * 1. 如果key不存在，不进行任何操作并返回null，否则删除数据并返回数据值
+     * 2. 删除数据节点后需要进行以下调整
+     *   a）需要调整前后向相关节点的节点引用
+     *   b）可能需要降低跳表当前层数
      *
-     * @param key 数据key
+     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
      * @return 成功返回数据值，否则返回null
      */
     public V remove(K key) {
@@ -112,7 +128,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 根据key获取值
      *
-     * @param key 数据key
+     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
      * @return 如果存在返回数据值，否则返回null
      */
     public V get(K key) {
@@ -128,6 +144,10 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     /**
      * 移除首元素
+     * 1. 如果跳表为空返回null
+     * 2. 删除首元素，需要进行相关调整
+     *   a）需要调整前后向相关节点的节点引用
+     *   b）可能需要降低跳表当前层数
      *
      * @return 如果表为空返回null，否则返回首元素
      */
@@ -140,6 +160,10 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     /**
      * 移除尾元素
+     * 1. 如果跳表为空返回null
+     * 2. 删除尾元素，需要进行相关调整
+     *   a）需要调整前后向相关节点的节点引用
+     *   b）可能需要降低跳表当前层数
      *
      * @return 如果表为空返回null，否则返回尾元素
      */
@@ -151,7 +175,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
-     * 获取首元素
+     * 获取首元素，如果跳表为空返回null
      *
      * @return 成功返回元素值，否则返回null
      */
@@ -161,7 +185,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
-     * 获取尾元素值
+     * 获取尾元素值，如果跳表为空返回null
      *
      * @return 成功返回元素值，否则返回null
      */
@@ -180,9 +204,9 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
-     * 获取列表大小
+     * 获取数据数量
      *
-     * @return 列表大小
+     * @return 数据数量
      */
     public int size() {
         return size;
@@ -212,9 +236,9 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
-     * 获取反向数据迭代器
+     * 获取逆向数据迭代器
      *
-     * @return 反向数据迭代器
+     * @return 逆向数据迭代器
      */
     public Iterator<Entry<K, V>> reversedIterator() {
         return new ReversedEntryIterator();
@@ -222,6 +246,9 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     /**
      * 移除节点
+     * 1. 移除节点
+     * 2. 修改节点相关前后向节点的引用
+     * 3. 降低跳表当前层数
      *
      * @param node 节点
      */
@@ -263,7 +290,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 跳表数据迭代器
      */
-    class EntryIterator implements Iterator<Entry<K, V>> {
+    final class EntryIterator implements Iterator<Entry<K, V>> {
 
         private Node<K, V> cursor;
 
@@ -296,7 +323,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 跳表反向数据迭代器
      */
-    class ReversedEntryIterator implements Iterator<Entry<K, V>> {
+    final class ReversedEntryIterator implements Iterator<Entry<K, V>> {
 
         private Node<K, V> cursor;
 
@@ -333,9 +360,13 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      * @param <V> 数据值
      */
     static final class Node<K, V> {
+        /* 层数 */
         private final int level;
+        /* 数据 */
         private final Entry<K, V> entry;
+        /* 后向节点引用 */
         private final Node<K, V>[] nextNodes;
+        /* 前向节点引用 */
         private final Node<K, V>[] prevNodes;
 
         public Node(Entry<K, V> entry, int level) {
