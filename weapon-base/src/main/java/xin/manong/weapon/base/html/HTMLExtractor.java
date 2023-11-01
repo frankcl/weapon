@@ -22,6 +22,22 @@ public class HTMLExtractor {
 
     private final static Logger logger = LoggerFactory.getLogger(HTMLExtractor.class);
 
+    private final static String TAG_NAME_PARAGRAPH = "p";
+    private final static String TAG_NAME_SPAN = "span";
+    private final static String TAG_NAME_BR = "br";
+    private final static String TAG_NAME_IMAGE = "img";
+    private final static String TAG_NAME_VIDEO = "video";
+    private final static String TAG_NAME_ANCHOR = "a";
+    private final static String TAG_NAME_SECTION = "section";
+
+    private final static String ATTR_NAME_WIDTH = "width";
+    private final static String ATTR_NAME_HEIGHT = "height";
+    private final static String ATTR_NAME_SRC = "src";
+    private final static String ATTR_NAME_SOURCE = "source";
+    private final static String ATTR_NAME_ABS_SRC = "abs:src";
+    private final static String ATTR_NAME_ABS_DATA_SRC = "abs:data-src";
+    private final static String ATTR_NAME_STYLE = "style";
+
     private final static Pattern DATE_TIME_PATTERN1 = Pattern.compile(
             "([1-2][0-9]{3})[^0-9]{1,5}?([0-1]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-2]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-9]{1,2})");
     private final static Pattern DATE_TIME_PATTERN2 = Pattern.compile(
@@ -153,19 +169,19 @@ public class HTMLExtractor {
             Node parentNode = node.parent();
             Boolean block = parentNode instanceof Element && ((Element) parentNode).isBlock() &&
                     parentNode.childNodeSize() == 1 ? true : false;
-            Element htmlElement = new Element(block ? "p" : "span");
+            Element htmlElement = new Element(block ? TAG_NAME_PARAGRAPH : TAG_NAME_SPAN);
             htmlElement.appendChild(node.clone());
             htmlElements.add(htmlElement);
         } else if (node instanceof Element) {
             Element element = (Element) node;
             String tagName = element.tagName();
             if (!isVisible(element)) return htmlElements;
-            if (tagName.equals("br")) {
-                Element htmlElement = new Element("br");
+            if (tagName.equals(TAG_NAME_BR)) {
+                Element htmlElement = new Element(TAG_NAME_BR);
                 htmlElements.add(htmlElement);
                 return htmlElements;
-            } else if (tagName.equals("img") || tagName.equals("video")) {
-                Element htmlElement = tagName.equals("img") ?
+            } else if (tagName.equals(TAG_NAME_IMAGE) || tagName.equals(TAG_NAME_VIDEO)) {
+                Element htmlElement = tagName.equals(TAG_NAME_IMAGE) ?
                         buildImageElement(element) : buildVideoElement(element);
                 if (htmlElement != null) htmlElements.add(htmlElement);
                 return htmlElements;
@@ -177,14 +193,14 @@ public class HTMLExtractor {
                 htmlElements.addAll(children);
                 return htmlElements;
             } else if (children.size() == 1) {
-                Element htmlElement = new Element("p");
+                Element htmlElement = new Element(TAG_NAME_PARAGRAPH);
                 Element child = children.get(0);
-                if (child.tagName().equals("p")) htmlElement.appendChildren(child.childNodes());
+                if (child.tagName().equals(TAG_NAME_PARAGRAPH)) htmlElement.appendChildren(child.childNodes());
                 else htmlElement.appendChild(child);
                 htmlElements.add(htmlElement);
                 return htmlElements;
             }
-            Element htmlElement = new Element("p");
+            Element htmlElement = new Element(TAG_NAME_PARAGRAPH);
             htmlElement.appendChildren(children);
             htmlElements.add(htmlElement);
         }
@@ -198,16 +214,16 @@ public class HTMLExtractor {
      * @return 新构建图片元素
      */
     private static Element buildImageElement(Element imageElement) {
-        Element htmlElement = new Element("img");
-        String sourceURL = imageElement.attr("abs:src");
-        if (StringUtils.isEmpty(sourceURL)) sourceURL = imageElement.attr("abs:data-src");
+        Element htmlElement = new Element(TAG_NAME_IMAGE);
+        String sourceURL = imageElement.attr(ATTR_NAME_ABS_SRC);
+        if (StringUtils.isEmpty(sourceURL)) sourceURL = imageElement.attr(ATTR_NAME_ABS_DATA_SRC);
         if (StringUtils.isEmpty(sourceURL)) return null;
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
-        htmlElement.attr("src", sourceURL);
-        String width = imageElement.attr("width");
-        if (!StringUtils.isEmpty(width)) htmlElement.attr("width", width);
-        String height = imageElement.attr("height");
-        if (!StringUtils.isEmpty(height)) htmlElement.attr("height", height);
+        htmlElement.attr(ATTR_NAME_SRC, sourceURL);
+        String width = imageElement.attr(ATTR_NAME_WIDTH);
+        if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
+        String height = imageElement.attr(ATTR_NAME_HEIGHT);
+        if (!StringUtils.isEmpty(height)) htmlElement.attr(ATTR_NAME_HEIGHT, height);
         return htmlElement;
     }
 
@@ -218,20 +234,20 @@ public class HTMLExtractor {
      * @return 新构建视频元素
      */
     private static Element buildVideoElement(Element videoElement) {
-        Element htmlElement = new Element("video");
-        String sourceURL = videoElement.attr("abs:src");
+        Element htmlElement = new Element(TAG_NAME_VIDEO);
+        String sourceURL = videoElement.attr(ATTR_NAME_ABS_SRC);
         if (StringUtils.isEmpty(sourceURL)) {
-            Element sourceElement = findFirstChildElement(videoElement, "source");
+            Element sourceElement = findFirstChildElement(videoElement, ATTR_NAME_SOURCE);
             if (sourceElement == null) return null;
-            sourceURL = sourceElement.attr("abs:src");
+            sourceURL = sourceElement.attr(ATTR_NAME_ABS_SRC);
             if (StringUtils.isEmpty(sourceURL)) return null;
         }
         if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
-        htmlElement.attr("src", sourceURL);
-        String width = videoElement.attr("width");
-        if (!StringUtils.isEmpty(width)) htmlElement.attr("width", width);
-        String height = videoElement.attr("height");
-        if (!StringUtils.isEmpty(height)) htmlElement.attr("height", height);
+        htmlElement.attr(ATTR_NAME_SRC, sourceURL);
+        String width = videoElement.attr(ATTR_NAME_WIDTH);
+        if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
+        String height = videoElement.attr(ATTR_NAME_HEIGHT);
+        if (!StringUtils.isEmpty(height)) htmlElement.attr(ATTR_NAME_HEIGHT, height);
         return htmlElement;
     }
 
@@ -277,7 +293,7 @@ public class HTMLExtractor {
         } else if (htmlNode.node instanceof Element) {
             Element element = (Element) htmlNode.node;
             String tagName = element.tagName();
-            if (!isVisible(element) || tagName.equals("br")) return;
+            if (!isVisible(element) || tagName.equals(TAG_NAME_BR)) return;
             for (Node childNode : element.childNodes()) {
                 if (childNode instanceof Comment) continue;
                 HTMLNode childHTMLNode = new HTMLNode(childNode);
@@ -286,8 +302,8 @@ public class HTMLExtractor {
                 accumulateChildNode(htmlNode, childHTMLNode);
             }
             htmlNode.nodeCount++;
-            if (tagName.equals("p") || tagName.equals("section")) htmlNode.paragraphNodeCount++;
-            else if (tagName.equals("a")) {
+            if (tagName.equals(TAG_NAME_PARAGRAPH) || tagName.equals(TAG_NAME_SECTION)) htmlNode.paragraphNodeCount++;
+            else if (tagName.equals(TAG_NAME_ANCHOR)) {
                 htmlNode.anchorNodeCount++;
                 htmlNode.anchorTextCount = htmlNode.textCount;
             }
@@ -307,7 +323,7 @@ public class HTMLExtractor {
      * @return 可见返回true，否则返回false
      */
     private static boolean isVisible(Element element) {
-        String style = element.attr("style");
+        String style = element.attr(ATTR_NAME_STYLE);
         style = style == null ? "" : style.replaceAll("\\s", "");
         return style.indexOf("display:none") == -1;
     }
