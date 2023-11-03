@@ -33,6 +33,6 @@ class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
      * @return 比较结果
      */
     private int compare(T e1, T e2, Comparator<? super T> comparator) {
-        return comparator == null ? ((Comparable<T>) e1).compareTo(e2) : comparator.compare(e1, e2);
+        return comparator == null ? ((Comparable<? super T>) e1).compareTo(e2) : comparator.compare(e1, e2);
     }
 }
