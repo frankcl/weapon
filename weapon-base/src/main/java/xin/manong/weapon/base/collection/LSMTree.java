@@ -23,7 +23,7 @@ public class LSMTree<T> {
     /**
      * LSM Tree状态
      */
-    private static enum State {
+    private enum State {
         PREPARE, SORT, CLOSED
     }
 
