@@ -17,7 +17,7 @@ import java.util.Set;
  * @author frankcl
  * @date 2022-07-20 10:50:06
  */
-public class Similarity {
+public class SimilarityUtil {
 
     private static Segment segment = createSegment();
 
