@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.collections;
+package xin.manong.weapon.base.collection;
 
 import java.util.Objects;
 

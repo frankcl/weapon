@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.algorithm;
+package xin.manong.weapon.base.pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

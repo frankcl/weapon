@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.collections;
+package xin.manong.weapon.base.collection;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -76,13 +76,13 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *   b）如果节点最大值改变，需要修改其父节点索引数据
      *   c）以上a）和b）操作可能产生链式影响
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
-     * @param value 数据值，如果value为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
+     * @param value 数据值，如果value为null抛出异常NullPointerException
      * @return 如果key不存在返回true，否则返回false
      */
     public boolean add(K key, V value) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
-        if (value == null) throw new IllegalArgumentException("value is not allowed to be null");
+        if (key == null) throw new NullPointerException();
+        if (value == null) throw new NullPointerException();
         if (root == null) {
             Leaf<K, V> leaf = new Leaf<>(new Entry<>(key, value), comparator);
             root = leaf;
@@ -108,11 +108,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *   b）删除数据可能影响父节点索引数据，需要对父节点索引数据进行调整
      *   c）以上a）和b）操作可能造成链式影响
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
      * @return 成功返回数据值，否则返回null
      */
     public V remove(K key) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (key == null) throw new NullPointerException();
         Leaf<K, V> leaf = findLeaf(key);
         if (leaf == null) return null;
         V removedValue = leaf.remove(key);
@@ -175,11 +175,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 搜索数据
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
      * @return 如果key存在返回数据，否则返回null
      */
     public V search(K key) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (key == null) throw new NullPointerException();
         if (root == null) return null;
         Leaf<K, V> leaf = findLeaf(key);
         if (leaf == null) return null;
@@ -190,13 +190,13 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * 搜索数据范围
      * 如果startKey大于endKey抛出异常IllegalArgumentException
      *
-     * @param startKey 起始key，如果key为null抛出异常IllegalArgumentException
-     * @param endKey 结束key，如果key为null抛出异常IllegalArgumentException
+     * @param startKey 起始key，如果key为null抛出异常NullPointerException
+     * @param endKey 结束key，如果key为null抛出异常NullPointerException
      * @return 返回在起始key（包含）和结束key（包含）范围内数据
      */
     public List<V> search(K startKey, K endKey) {
         if (startKey == null || endKey == null) {
-            throw new IllegalArgumentException("key is not allowed to be null");
+            throw new NullPointerException();
         }
         if (compare(startKey, endKey, comparator) > 0) {
             throw new IllegalArgumentException("start key is greater than end key");
@@ -695,11 +695,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         /**
          * 合并节点
          *
-         * @param node 待合并节点，如果节点为null或节点孩子为空抛出异常IllegalArgumentException
+         * @param node 待合并节点，如果节点为null或节点孩子为空抛出异常NullPointerException
          * @return 合并结果
          */
         public Node<K> merge(Node<K> node) {
-            if (node == null) throw new IllegalArgumentException("merged node is null");
+            if (node == null) throw new NullPointerException();
             if (node.children == null || node.children.isEmpty()) {
                 throw new IllegalArgumentException("merged node is empty");
             }
@@ -832,7 +832,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
 
         @Override
         public int compareTo(Node<K> node) {
-            if (node == null) throw new IllegalArgumentException("compared node is null");
+            if (node == null) throw new NullPointerException();
             K maxKey = getMaxKey();
             K minKey = node.getMinKey();
             int c = compare(maxKey, minKey, comparator);

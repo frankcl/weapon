@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.algorithm;
+package xin.manong.weapon.base.pattern;
 
 import java.util.ArrayList;
 import java.util.List;

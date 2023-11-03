@@ -60,7 +60,7 @@ public class ExternalSorterSuite {
 
     @Test
     public void testSortInt() throws Exception {
-        ExternalSorter<Integer> sorter = new ExternalSorter<>(Integer.class, new IntComparator(), tempDirectory);
+        ExternalSorter<Integer> sorter = new ExternalSorter<>(Integer.class, null, tempDirectory);
         sorter.setMaxCacheRecordNum(2);
         sorter.setMaxOpenFileNum(2);
 

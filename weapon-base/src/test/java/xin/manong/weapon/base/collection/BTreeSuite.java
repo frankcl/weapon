@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.collections;
+package xin.manong.weapon.base.collection;
 
 import org.junit.Assert;
 import org.junit.Test;

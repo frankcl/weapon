@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.collections;
+package xin.manong.weapon.base.collection;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -6,7 +6,7 @@ import java.util.Random;
 
 /**
  * 跳表实现
- * 1. 数据节点层数大于0小于等于31，缺省层数7
+ * 1. 数据节点层数大于0小于等于31，缺省层数13
  * 2. 支持获取和删除首元素和尾元素
  * 3. 支持数据正向和逆向迭代
  * 4. 支持自定义数据比较器
@@ -16,7 +16,7 @@ import java.util.Random;
  */
 public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
-    private static final int DEFAULT_MAX_LEVEL = 7;
+    private static final int DEFAULT_MAX_LEVEL = 13;
     private static final int MAX_MAX_LEVEL = 31;
 
     /* 当前层数 */
@@ -67,13 +67,13 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      * 2. 新增数据节点层数随机生成，保证最大层数不超过当前层数加1
      * 3. 添加节点后需要调整前后相关节点的前向及后向节点引用
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
-     * @param value 数据值，如果value为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
+     * @param value 数据值，如果value为null抛出异常NullPointerException
      * @return 如果key存在，使用value覆盖原值并返回false，否则返回true
      */
     public boolean add(K key, V value) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
-        if (value == null) throw new IllegalArgumentException("value is not allowed to be null");
+        if (key == null) throw new NullPointerException();
+        if (value == null) throw new NullPointerException();
         Node[] updateNodes = new Node[maxLevel];
         Node<K, V> node = headNode;
         for (int i = level - 1; i >= 0; i--) {
@@ -109,11 +109,11 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      *   a）需要调整前后向相关节点的节点引用
      *   b）可能需要降低跳表当前层数
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
      * @return 成功返回数据值，否则返回null
      */
     public V remove(K key) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (key == null) throw new NullPointerException();
         Node<K, V> node = headNode;
         for (int i = level - 1; i >= 0; i--) {
             while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
@@ -128,11 +128,11 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 根据key获取值
      *
-     * @param key 数据key，如果key为null抛出异常IllegalArgumentException
+     * @param key 数据key，如果key为null抛出异常NullPointerException
      * @return 如果存在返回数据值，否则返回null
      */
     public V get(K key) {
-        if (key == null) throw new IllegalArgumentException("key is not allowed to be null");
+        if (key == null) throw new NullPointerException();
         Node<K, V> node = headNode;
         for (int i = level - 1; i >= 0; i--) {
             while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];

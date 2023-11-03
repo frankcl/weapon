@@ -122,4 +122,54 @@ public class CommonUtilSuite {
         Assert.assertFalse(CommonUtil.isPrimitiveType(new HashMap<>()));
         Assert.assertFalse(CommonUtil.isPrimitiveType(null));
     }
+
+    @Test
+    public void testComputeGCD() {
+        Assert.assertEquals(2, CommonUtil.computeGCD(6, 10));
+        Assert.assertEquals(1, CommonUtil.computeGCD(3, 10));
+        Assert.assertEquals(8, CommonUtil.computeGCD(8, 16));
+        Assert.assertEquals(16, CommonUtil.computeGCD(16, 16));
+        Assert.assertEquals(16, CommonUtil.computeGCD(0, 16));
+    }
+
+    @Test
+    public void testComputeLCM() {
+        Assert.assertEquals(30, CommonUtil.computeLCM(6, 10));
+        Assert.assertEquals(30, CommonUtil.computeLCM(3, 10));
+        Assert.assertEquals(16, CommonUtil.computeLCM(8, 16));
+        Assert.assertEquals(16, CommonUtil.computeLCM(16, 16));
+        Assert.assertEquals(0, CommonUtil.computeLCM(0, 16));
+    }
+
+    @Test
+    public void testComputeLPS() {
+        Assert.assertEquals("", CommonUtil.computeLPS(null));
+        Assert.assertEquals("", CommonUtil.computeLPS(""));
+        Assert.assertEquals("", CommonUtil.computeLPS("abc"));
+        Assert.assertEquals("abba", CommonUtil.computeLPS("abba"));
+        Assert.assertEquals("aba", CommonUtil.computeLPS("abaa"));
+        Assert.assertEquals("aa", CommonUtil.computeLPS("abcaa"));
+        Assert.assertEquals("dcaacd", CommonUtil.computeLPS("adcaacdb"));
+    }
+
+    @Test
+    public void testComputeMCS() {
+        Assert.assertEquals("", CommonUtil.computeMCS(null, "123"));
+        Assert.assertEquals("", CommonUtil.computeMCS("null", ""));
+        Assert.assertEquals("", CommonUtil.computeMCS("abc", "123"));
+        Assert.assertEquals("bc", CommonUtil.computeMCS("abc", "dbca"));
+        Assert.assertEquals("bca", CommonUtil.computeMCS("abcda", "dbca"));
+        Assert.assertEquals("acda", CommonUtil.computeMCS("abcda", "axcmdya"));
+    }
+
+    @Test
+    public void testComputeLCS() {
+        Assert.assertEquals("", CommonUtil.computeLCS(null, "123"));
+        Assert.assertEquals("", CommonUtil.computeLCS("null", ""));
+        Assert.assertEquals("", CommonUtil.computeLCS("abc", "123"));
+        Assert.assertEquals("bc", CommonUtil.computeLCS("abc", "dbca"));
+        Assert.assertEquals("deaf", CommonUtil.computeLCS("abdeafsda", "fdgdeafade"));
+        Assert.assertEquals("abdeaf", CommonUtil.computeLCS("abdeafsda", "abdeafa"));
+        Assert.assertEquals("eafa", CommonUtil.computeLCS("xxfeeafa", "abdeafa"));
+    }
 }

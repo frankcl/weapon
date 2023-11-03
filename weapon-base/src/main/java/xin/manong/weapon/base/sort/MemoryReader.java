@@ -22,6 +22,7 @@ class MemoryReader<T> implements RecordReader<T> {
     private List<T> memoryCachedRecords;
 
     public MemoryReader(List<T> memoryCachedRecords, Comparator<T> comparator) {
+        if (memoryCachedRecords == null) throw new NullPointerException();
         this.comparator = comparator;
         this.memoryCachedRecords = memoryCachedRecords;
     }

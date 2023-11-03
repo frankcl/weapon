@@ -21,6 +21,18 @@ class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
         if (reader1.peak() == reader2.peak()) return 0;
         if (reader1.peak() == null) return 1;
         if (reader2.peak() == null) return -1;
-        return comparator.compare(reader1.peak(), reader2.peak());
+        return compare(reader1.peak(), reader2.peak(), comparator);
+    }
+
+    /**
+     * 比较元素
+     *
+     * @param e1 元素
+     * @param e2 元素
+     * @param comparator 比较器
+     * @return 比较结果
+     */
+    private int compare(T e1, T e2, Comparator<T> comparator) {
+        return comparator == null ? ((Comparable<T>) e1).compareTo(e2) : comparator.compare(e1, e2);
     }
 }

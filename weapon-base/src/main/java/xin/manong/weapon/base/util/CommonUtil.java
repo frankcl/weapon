@@ -85,6 +85,94 @@ public class CommonUtil {
     }
 
     /**
+     * 计算最长回文子串
+     *
+     * @param s 输入字符串
+     * @return 如果存在返回最大回文子串，否则返回空字符串
+     */
+    public static String computeLPS(String s) {
+        if (StringUtils.isEmpty(s)) return "";
+        int maxLen = 0, m = 0, n = 0;
+        boolean[][] matrix = new boolean[s.length()][s.length()];
+        for (int i = 0; i < s.length(); i++) matrix[i][i] = true;
+        for (int len = 2; len <= s.length(); len++) {
+            for (int i = 0; i < s.length(); i++) {
+                int j = i + len - 1;
+                if (j >= s.length()) continue;
+                int u = i + 1, v = j - 1;
+                if (!(s.charAt(i) == s.charAt(j) && (u >= v || (u < v && matrix[u][v])))) continue;
+                matrix[i][j] = true;
+                if (j - i + 1 <= maxLen) continue;
+                maxLen = j - i + 1;
+                m = i; n = j;
+            }
+        }
+        if (maxLen <= 0) return "";
+        return s.substring(m, n + 1);
+    }
+
+    /**
+     * 计算最长公共子串
+     *
+     * @param s1 输入字符串
+     * @param s2 输入字符串
+     * @return 如果存在返回公共子串，否则返回空字符串
+     */
+    public static String computeLCS(String s1, String s2) {
+        if (StringUtils.isEmpty(s1) || StringUtils.isEmpty(s2)) return "";
+        int pos = -1, maxLen = 0;
+        int[][] d = new int[s1.length() + 1][s2.length() + 1];
+        for (int i = 1; i <= s1.length(); i++) {
+            for (int j = 1; j <= s2.length(); j++) {
+                if (s1.charAt(i - 1) != s2.charAt(j - 1)) continue;
+                d[i][j] = d[i - 1][j - 1] + 1;
+                if (d[i][j] <= maxLen) continue;
+                maxLen = d[i][j];
+                pos = i;
+            }
+        }
+        if (maxLen == 0) return "";
+        return s1.substring(pos - maxLen, pos);
+    }
+
+    /**
+     * 计算最大公共子序列
+     *
+     * @param s1 输入字符串
+     * @param s2 输入字符串
+     * @return 如果存在返回最大公共子序列，否则返回空字符串
+     */
+    public static String computeMCS(String s1, String s2) {
+        if (StringUtils.isEmpty(s1) || StringUtils.isEmpty(s2)) return "";
+        int m = 0, n = 0, maxLen = 0;
+        int[][] d = new int[s1.length() + 1][s2.length() + 1];
+        for (int i = 1; i <= s1.length(); i++) {
+            for (int j = 1; j <= s2.length(); j++) {
+                if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
+                    d[i][j] = Math.max(d[i - 1][j], d[i][j - 1]);
+                    continue;
+                }
+                d[i][j] = d[i - 1][j - 1] + 1;
+                if (d[i][j] <= maxLen) continue;
+                maxLen = d[i][j];
+                m = i; n = j;
+            }
+        }
+        if (maxLen == 0) return "";
+        StringBuffer sb = new StringBuffer();
+        while (d[m][n] > 0) {
+            if (s1.charAt(m - 1) == s2.charAt(n - 1)) {
+                sb.append(s1.charAt(m - 1));
+                m--; n--;
+                continue;
+            }
+            if (d[m - 1][n] >= d[m][n - 1]) m--;
+            else n--;
+        }
+        return sb.reverse().toString();
+    }
+
+    /**
      * 判断字符是否为字母
      *
      * @param c 字符
@@ -162,6 +250,48 @@ public class CommonUtil {
     public static int findNextPrime(int n) {
         if (n <= 1) return 2;
         while (true) if (isPrime(++n)) return n;
+    }
+
+    /**
+     * 计算最大公约数
+     *
+     * @param m 输入数字
+     * @param n 输入数字
+     * @return 最大公约数
+     */
+    public static int computeGCD(int m, int n) {
+        if (m < 0 || n < 0) {
+            logger.error("input num must be greater than zero");
+            throw new IllegalArgumentException("input num must be greater than zero");
+        }
+        if (m == 0) return n;
+        if (n == 0) return m;
+        if (m < n) {
+            int temp = m;
+            m = n;
+            n = temp;
+        }
+        while (m % n != 0) {
+            int temp = m % n;
+            m = n;
+            n = temp;
+        }
+        return n;
+    }
+
+    /**
+     * 计算最小公倍数
+     *
+     * @param m 输入数字
+     * @param n 输入数字
+     * @return 最小公倍数
+     */
+    public static int computeLCM(int m, int n) {
+        if (m < 0 || n < 0) {
+            logger.error("input num must be greater than zero");
+            throw new IllegalArgumentException("input num must be greater than zero");
+        }
+        return m * n / computeGCD(m, n);
     }
 
     /**
