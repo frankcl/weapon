@@ -132,6 +132,17 @@ public class Heap<E> implements Iterable<E> {
         return new Itr();
     }
 
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < size; i++) {
+            if (buffer.length() != 0) buffer.append(",");
+            buffer.append(elements[i].toString());
+        }
+        buffer.insert(0, "[").append("]");
+        return buffer.toString();
+    }
+
     /**
      * 移除指定下标元素
      *
