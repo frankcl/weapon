@@ -43,9 +43,8 @@ public class MapUtil {
      */
     public static <T> T getValue(Map<String, Object> map, String key, Class<T> clazz) {
         if (map == null || !map.containsKey(key)) return null;
-        Object v = null;
         try {
-            v = map.get(key);
+            Object v = map.get(key);
             return clazz.cast(v);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

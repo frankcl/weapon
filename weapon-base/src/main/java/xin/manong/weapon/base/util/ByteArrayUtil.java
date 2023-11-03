@@ -1,8 +1,6 @@
 package xin.manong.weapon.base.util;
 
 import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.List;
  * @create 2019-10-09 16:03:41
  */
 public class ByteArrayUtil {
-
-    private final static Logger logger = LoggerFactory.getLogger(ByteArrayUtil.class);
 
     /**
      * 获取byte数组的二进制字符串表示
@@ -135,8 +131,7 @@ public class ByteArrayUtil {
      */
     public static int distance(byte[] byteArray1, byte[] byteArray2) {
         if (byteArray1.length != byteArray2.length) {
-            logger.error("byte array length is not the same[{} vs {}]", byteArray1.length, byteArray2.length);
-            throw new RuntimeException(String.format("byte array length is not the same[%d vs %d]",
+            throw new IllegalArgumentException(String.format("array length is not consistent[%d vs %d]",
                     byteArray1.length, byteArray2.length));
         }
         int count = 0;
