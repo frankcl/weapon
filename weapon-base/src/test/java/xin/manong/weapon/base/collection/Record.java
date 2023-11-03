@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 import java.util.HashMap;
 import java.util.Map;

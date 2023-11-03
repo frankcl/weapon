@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.SerializerFactory;
@@ -13,38 +13,57 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 外部排序
+ * LSM Tree实现：基于本地磁盘外部排序
  *
  * @author frankcl
  * @date 2023-04-25 16:53:37
  */
-public class ExternalSorter<T> {
+public class LSMTree<T> {
 
+    /**
+     * LSM Tree状态
+     */
     private static enum State {
         PREPARE, SORT, CLOSED
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(ExternalSorter.class);
+    private static final Logger logger = LoggerFactory.getLogger(LSMTree.class);
 
     private static final int DEFAULT_MAX_OPEN_FILE_NUM = 100;
     private static final int DEFAULT_MAX_CACHE_RECORD_NUM = 10000;
+    private static final String DEFAULT_TEMP_DIRECTORY = "./temp/";
     private static final String DUMP_FILE_PREFIX = "TEMP_SORT_FILE_";
     private static final String DUMP_FILE_SUFFIX = ".dump";
 
     private int dumpFileIndex;
+    /* 同时打开文件数量 */
     private int maxOpenFileNum;
+    /* 内存cache数据数量 */
     private int maxCacheRecordNum;
+    /* LSM Tree当前状态 */
     private State state;
+    /* 临时文件目录 */
     private String tempDirectory;
+    /* 数据类型 */
     private Class<T> recordClass;
-    private Comparator<T> comparator;
+    /* 数据比较器 */
+    private Comparator<? super T> comparator;
+    /* 数据读取器比较器 */
     private RecordReaderComparator<T> readerComparator;
+    /* 内存cache数据 */
     private List<T> memoryCachedRecords;
+    /* dump文件列表 */
     private LinkedList<String> dumpFiles;
+    /* 数据读取器堆 用于归并文件数据 */
     private PriorityQueue<RecordReader<T>> heap;
+    /* kryo序列化 */
     private Kryo kryo;
 
-    private ExternalSorter(Class<T> recordClass, Comparator<T> comparator) {
+    private LSMTree(Class<T> recordClass, Comparator<? super T> comparator) {
+        this(recordClass, comparator, DEFAULT_TEMP_DIRECTORY);
+    }
+
+    public LSMTree(Class<T> recordClass, Comparator<? super T> comparator, String tempDirectory) {
         maxOpenFileNum = DEFAULT_MAX_OPEN_FILE_NUM;
         maxCacheRecordNum = DEFAULT_MAX_CACHE_RECORD_NUM;
         this.kryo = new Kryo();
@@ -54,12 +73,8 @@ public class ExternalSorter<T> {
         this.recordClass = recordClass;
         this.comparator = comparator;
         this.readerComparator = new RecordReaderComparator<>(this.comparator);
-        reset();
-    }
-
-    public ExternalSorter(Class<T> recordClass, Comparator<T> comparator, String tempDirectory) {
-        this(recordClass, comparator);
         setTempDirectory(tempDirectory);
+        reset();
     }
 
     /**
@@ -69,15 +84,15 @@ public class ExternalSorter<T> {
      * @throws IOException
      */
     public void addRecord(T record) throws IOException {
-        if (record == null) return;
+        if (record == null) throw new NullPointerException();
         if (!recordClass.isAssignableFrom(record.getClass())) {
             logger.error("record class[{}] is not compatible for {}",
                     record.getClass().getName(), recordClass.getName());
-            return;
+            throw new IllegalArgumentException("not compatible class");
         }
         if (state != State.PREPARE) {
             logger.error("unsupported operation[ADD] for state[{}]", state.name());
-            return;
+            throw new IllegalStateException(String.format("inappropriate state[%s] for adding", state.name()));
         }
         memoryCachedRecords.add(record);
         if (memoryCachedRecords.size() < maxCacheRecordNum) return;
@@ -107,7 +122,7 @@ public class ExternalSorter<T> {
         }
         if (state != State.SORT) {
             logger.error("unsupported operation[GET] for state[{}]", state.name());
-            return null;
+            throw new IllegalStateException(String.format("inappropriate state[%s] for getting", state.name()));
         }
         while (!heap.isEmpty()) {
             RecordReader<T> recordReader = heap.poll();
@@ -227,7 +242,6 @@ public class ExternalSorter<T> {
         this.tempDirectory = tempDirectory.endsWith("/") ? tempDirectory : tempDirectory + "/";
         File directory = new File(tempDirectory);
         if (!directory.exists() || !directory.isDirectory()) directory.mkdirs();
-        else sweepDumpFiles();
     }
 
     /**

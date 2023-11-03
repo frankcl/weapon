@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 /**
  * 数据读取接口

@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

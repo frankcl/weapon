@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 import java.util.Comparator;
 
@@ -10,9 +10,9 @@ import java.util.Comparator;
  */
 class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
 
-    private Comparator<T> comparator;
+    private Comparator<? super T> comparator;
 
-    public RecordReaderComparator(Comparator<T> comparator) {
+    public RecordReaderComparator(Comparator<? super T> comparator) {
         this.comparator = comparator;
     }
 
@@ -32,7 +32,7 @@ class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
      * @param comparator 比较器
      * @return 比较结果
      */
-    private int compare(T e1, T e2, Comparator<T> comparator) {
+    private int compare(T e1, T e2, Comparator<? super T> comparator) {
         return comparator == null ? ((Comparable<T>) e1).compareTo(e2) : comparator.compare(e1, e2);
     }
 }

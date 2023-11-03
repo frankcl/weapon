@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.sort;
+package xin.manong.weapon.base.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,13 +7,13 @@ import org.junit.Test;
  * @author frankcl
  * @date 2023-04-27 16:32:04
  */
-public class ExternalSorterSuite {
+public class LSMTreeSuite {
 
     private String tempDirectory = "./temp/sort/";
 
     @Test
     public void testSortRecord() throws Exception {
-        ExternalSorter<Record> sorter = new ExternalSorter<>(Record.class, new RecordComparator(), tempDirectory);
+        LSMTree<Record> sorter = new LSMTree<>(Record.class, new RecordComparator(), tempDirectory);
         sorter.setMaxCacheRecordNum(2);
         sorter.setMaxOpenFileNum(2);
 
@@ -60,7 +60,7 @@ public class ExternalSorterSuite {
 
     @Test
     public void testSortInt() throws Exception {
-        ExternalSorter<Integer> sorter = new ExternalSorter<>(Integer.class, null, tempDirectory);
+        LSMTree<Integer> sorter = new LSMTree<>(Integer.class, null, tempDirectory);
         sorter.setMaxCacheRecordNum(2);
         sorter.setMaxOpenFileNum(2);
 
