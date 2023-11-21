@@ -24,7 +24,7 @@ public class OTSTunnelMonitor implements Runnable {
 
     private final static long DEFAULT_CHECK_TIME_INTERVAL_MS = 600000;
 
-    private boolean running = false;
+    private volatile boolean running = false;
     private long checkTimeIntervalMs = DEFAULT_CHECK_TIME_INTERVAL_MS;
     private String appName;
     private OTSTunnelConfig tunnelConfig;

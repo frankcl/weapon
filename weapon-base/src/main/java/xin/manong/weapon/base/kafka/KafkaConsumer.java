@@ -21,7 +21,7 @@ public class KafkaConsumer implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
-    private boolean running;
+    private volatile boolean running;
     private String name;
     private org.apache.kafka.clients.consumer.KafkaConsumer<byte[], byte[]> consumer;
     private KafkaRecordProcessor processor;

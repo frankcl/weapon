@@ -20,7 +20,7 @@ public class AlarmMonitor implements Runnable {
 
     private final static String NAME = "AlarmMonitor";
 
-    private boolean running = false;
+    private volatile boolean running = false;
     private AlarmConfig config;
     private AlarmSender alarmSender;
     private Thread monitorThread;
