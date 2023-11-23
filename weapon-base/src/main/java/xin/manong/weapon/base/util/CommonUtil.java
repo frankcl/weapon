@@ -362,10 +362,7 @@ public class CommonUtil {
      */
     public static <V> List<List<V>> permutation(List<V> elements, int m) {
         List<List<V>> results = new ArrayList<>();
-        if (elements == null || elements.isEmpty() ||
-                m <= 0 || m > elements.size()) {
-            return results;
-        }
+        if (elements == null || m <= 0 || m > elements.size()) return results;
         permutation(elements, m, new ArrayList<>(), results);
         return results;
     }
