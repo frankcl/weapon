@@ -38,7 +38,7 @@ public class OTSTunnelBean extends OTSTunnel implements InitializingBean, Applic
             }
             Object bean = applicationContext.getBean(workerConfig.processor);
             if (bean == null || !(bean instanceof IChannelProcessor)) {
-                logger.error("bean is not IChannelProcessor, its type[{}]",
+                logger.error("unexpected bean[{}], not IChannelProcessor",
                         bean == null ? "null" : bean.getClass().getName());
                 throw new Exception(String.format("unexpected bean[%s]",
                         bean == null ? "null" : bean.getClass().getName()));
