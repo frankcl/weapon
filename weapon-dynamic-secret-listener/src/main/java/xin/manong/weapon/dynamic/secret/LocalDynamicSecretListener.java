@@ -26,7 +26,7 @@ import java.util.Enumeration;
  * }
  *
  * 默认秘钥配置文件secret.json
- * 也可通过运行参数进行设置-DsecretResource=resourcePath
+ * 也可通过运行参数进行设置-DdynamicSecret=resourcePath
  *
  * @author frankcl
  * @date 2022-12-17 10:15:18
@@ -35,7 +35,7 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
 
     private final static Logger logger = LoggerFactory.getLogger(LocalDynamicSecretListener.class);
 
-    private final static String SECRET_RESOURCE_PARAM_NAME = "secretResource";
+    private final static String SECRET_RESOURCE_PARAM_NAME = "dynamicSecret";
     private final static String DEFAULT_SECRET_RESOURCE_FILE = "secret.json";
 
     public LocalDynamicSecretListener() {
@@ -50,7 +50,7 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
                 throw new RuntimeException(e);
             }
         } else {
-            logger.error("register local resource dynamic secret listener failed");
+            logger.error("register local dynamic secret listener failed");
         }
     }
 
@@ -89,7 +89,7 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
             DynamicSecret.accessKey = aliyunSecret.accessKey;
             DynamicSecret.secretKey = aliyunSecret.secretKey;
             success = true;
-            logger.info("parse AK/SK[{}/{}] success from resource[{}]",
+            logger.info("parse dynamic AK/SK[{}/{}] success from path[{}]",
                     DynamicSecret.accessKey, DynamicSecret.secretKey, resourceURL);
         }
         if (!success) throw new RuntimeException("load dynamic secret failed from resources");
@@ -107,7 +107,7 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
             if (classLoader == null) return ClassLoader.getSystemResources(secretResourceFile);
             return classLoader.getResources(secretResourceFile);
         } catch (Exception e) {
-            logger.error("can not load secret resources for path[{}]", secretResourceFile);
+            logger.error("can not load dynamic secret for path[{}]", secretResourceFile);
             return null;
         }
     }
