@@ -45,7 +45,7 @@ public class LogClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
             LogClientConfig config = entry.getValue();
             boolean check = secret != null && secret.check();
             if (check) config.aliyunSecret = secret;
-            if (!config.dynamic && !check) logger.error("aliyun secret is not config");
+            if (!config.dynamic && !check) logger.error("dynamic secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(LogClient.class, () -> new LogClient(config));
             beanDefinition.setInitMethodName("init");
             beanDefinition.setEnforceInitMethod(true);

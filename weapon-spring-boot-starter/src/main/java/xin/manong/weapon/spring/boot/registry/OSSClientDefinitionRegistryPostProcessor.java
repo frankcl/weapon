@@ -45,7 +45,7 @@ public class OSSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
             OSSClientConfig config = entry.getValue();
             boolean check = secret != null && secret.check();
             if (check) config.aliyunSecret = secret;
-            if (!config.dynamic && !check) logger.error("aliyun secret is not config");
+            if (!config.dynamic && !check) logger.error("dynamic secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(OSSClient.class, () -> new OSSClient(config));
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);

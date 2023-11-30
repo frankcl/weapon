@@ -45,7 +45,7 @@ public class ONSConsumerDefinitionRegistryPostProcessor extends AliyunBeanDefini
             ONSConsumerConfig config = entry.getValue();
             boolean check = secret != null && secret.check();
             if (check) config.aliyunSecret = secret;
-            if (!config.dynamic && !check) logger.error("aliyun secret is not config");
+            if (!config.dynamic && !check) logger.error("dynamic secret is not config");
             RootBeanDefinition beanDefinition = new RootBeanDefinition(
                     ONSConsumerBean.class, () -> new ONSConsumerBean(config));
             beanDefinition.setInitMethodName("start");

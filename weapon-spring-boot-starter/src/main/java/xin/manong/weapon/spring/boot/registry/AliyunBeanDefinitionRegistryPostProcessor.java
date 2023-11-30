@@ -39,7 +39,7 @@ public abstract class AliyunBeanDefinitionRegistryPostProcessor implements BeanD
         try {
             return Binder.get(environment).bind(BINDING_KEY, Bindable.of(AliyunSecret.class)).get();
         } catch (Exception e) {
-            logger.warn("bind aliyun secret failed");
+            logger.warn("bind dynamic secret failed");
             return null;
         }
     }
