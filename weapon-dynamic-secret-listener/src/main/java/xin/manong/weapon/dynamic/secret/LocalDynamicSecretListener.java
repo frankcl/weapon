@@ -25,20 +25,20 @@ import java.util.Enumeration;
  *   "secretKey": "sk"
  * }
  *
- * 默认秘钥配置文件aliyun_secret.json
- * 也可通过运行参数进行设置-DaliyunSecretFile=resourcePath
+ * 默认秘钥配置文件secret.json
+ * 也可通过运行参数进行设置-DsecretResource=resourcePath
  *
  * @author frankcl
  * @date 2022-12-17 10:15:18
  */
-public class LocalResourceDynamicSecretListener implements DynamicSecretListener {
+public class LocalDynamicSecretListener implements DynamicSecretListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(LocalResourceDynamicSecretListener.class);
+    private final static Logger logger = LoggerFactory.getLogger(LocalDynamicSecretListener.class);
 
-    private final static String SECRET_RESOURCE_FILE_PARAM_NAME = "aliyunSecretFile";
-    private final static String DEFAULT_SECRET_RESOURCE_FILE = "aliyun_secret.json";
+    private final static String SECRET_RESOURCE_PARAM_NAME = "secretResource";
+    private final static String DEFAULT_SECRET_RESOURCE_FILE = "secret.json";
 
-    public LocalResourceDynamicSecretListener() {
+    public LocalDynamicSecretListener() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classLoader = (classLoader == null) ? ClassLoader.getSystemClassLoader() : classLoader;
         if (SecretListenerManager.register(this)) {
@@ -70,7 +70,7 @@ public class LocalResourceDynamicSecretListener implements DynamicSecretListener
         while (enumeration.hasMoreElements()) {
             URL resourceURL = enumeration.nextElement();
             if (success) {
-                logger.warn("aliyun AK/SK has been loaded, ignore resource[{}]", resourceURL);
+                logger.warn("secret has been loaded, ignore resource[{}]", resourceURL);
                 continue;
             }
             InputStream inputStream = resourceURL.openStream();
@@ -89,7 +89,7 @@ public class LocalResourceDynamicSecretListener implements DynamicSecretListener
             DynamicSecret.accessKey = aliyunSecret.accessKey;
             DynamicSecret.secretKey = aliyunSecret.secretKey;
             success = true;
-            logger.info("parse aliyun AK/SK[{}/{}] success from resource[{}]",
+            logger.info("parse AK/SK[{}/{}] success from resource[{}]",
                     DynamicSecret.accessKey, DynamicSecret.secretKey, resourceURL);
         }
         if (!success) throw new RuntimeException("load dynamic secret failed from resources");
@@ -102,7 +102,7 @@ public class LocalResourceDynamicSecretListener implements DynamicSecretListener
      * @return 秘钥资源迭代器
      */
     private Enumeration<URL> getSecretResources(ClassLoader classLoader) {
-        String secretResourceFile = System.getProperty(SECRET_RESOURCE_FILE_PARAM_NAME, DEFAULT_SECRET_RESOURCE_FILE);
+        String secretResourceFile = System.getProperty(SECRET_RESOURCE_PARAM_NAME, DEFAULT_SECRET_RESOURCE_FILE);
         try {
             if (classLoader == null) return ClassLoader.getSystemResources(secretResourceFile);
             return classLoader.getResources(secretResourceFile);
