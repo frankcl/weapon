@@ -44,7 +44,7 @@ public class ONSConsumerBean extends ONSConsumer implements InitializingBean, Ap
             }
             Object bean = applicationContext.getBean(subscribe.listenerName);
             if (bean == null || !(bean instanceof MessageListener)) {
-                logger.error("bean is not MessageListener, its type[{}]",
+                logger.error("unexpected bean[{}], not MessageListener",
                         bean == null ? "null" : bean.getClass().getName());
                 throw new Exception(String.format("unexpected bean[%s]",
                         bean == null ? "null" : bean.getClass().getName()));
