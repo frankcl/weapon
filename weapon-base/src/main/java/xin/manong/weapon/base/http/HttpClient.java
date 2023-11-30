@@ -57,8 +57,11 @@ public class HttpClient {
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             ConnectionPool connectionPool = new ConnectionPool(config.maxIdleConnections,
                     config.keepAliveMinutes, TimeUnit.MINUTES);
-            this.okHttpClient = new OkHttpClient.Builder().retryOnConnectionFailure(true).
-                    connectionPool(connectionPool).followRedirects(true).followSslRedirects(true).
+            this.okHttpClient = new OkHttpClient.Builder().
+                    retryOnConnectionFailure(true).
+                    connectionPool(connectionPool).
+                    followRedirects(config.followRedirect).
+                    followSslRedirects(config.followSSLRedirect).
                     addNetworkInterceptor(new RequestInterceptor()).
                     sslSocketFactory(sslSocketFactory, unsafeTrustManager).
                     hostnameVerifier(new UnsafeHostnameVerifier()).
