@@ -8,9 +8,7 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -312,81 +310,5 @@ public class CommonUtil {
         if (object instanceof Character) return true;
         if (object instanceof Byte) return true;
         return false;
-    }
-
-    /**
-     * 从列表中选择m个元素进行组合
-     *
-     * @param elements 元素列表
-     * @param m 选择数量
-     * @return 组合结果
-     * @param <V>
-     */
-    public static <V> List<List<V>> combination(List<V> elements, int m) {
-        if (elements == null || m <= 0 || m > elements.size()) return new ArrayList<>();
-        return combination(elements, 0, m);
-    }
-
-    /**
-     * 从列表中选择m个元素进行组合
-     *
-     * @param elements 元素列表
-     * @param from 起始下标
-     * @param m 选择数量
-     * @return 组合结果
-     * @param <V>
-     */
-    private static <V> List<List<V>> combination(List<V> elements, int from, int m) {
-        List<List<V>> results = new ArrayList<>();
-        if (m == 0 || from >= elements.size() || from + m > elements.size()) return results;
-        V element = elements.get(from);
-        List<List<V>> selects = combination(elements, from + 1, m - 1);
-        for (List<V> select : selects) select.add(0, element);
-        if (selects.isEmpty()) {
-            List<V> select = new ArrayList<>();
-            select.add(element);
-            selects.add(select);
-        }
-        results.addAll(selects);
-        results.addAll(combination(elements, from + 1, m));
-        return results;
-    }
-
-    /**
-     * 从列表elements中选择m个元素进行排列
-     *
-     * @param elements 元素列表
-     * @param m 选择数量
-     * @return 排列结果
-     * @param <V>
-     */
-    public static <V> List<List<V>> permutation(List<V> elements, int m) {
-        List<List<V>> results = new ArrayList<>();
-        if (elements == null || m <= 0 || m > elements.size()) return results;
-        permutation(elements, m, new ArrayList<>(), results);
-        return results;
-    }
-
-    /**
-     * 从列表elements中选择m个元素进行排列
-     *
-     * @param elements 元素列表
-     * @param m 选择数量
-     * @param selects 当前选择结果
-     * @param results 排列结果
-     * @param <V>
-     */
-    private static <V> void permutation(List<V> elements, int m,
-                                        List<V> selects, List<List<V>> results) {
-        if (selects.size() == m) {
-            results.add(new ArrayList<>(selects));
-            return;
-        }
-        for (V element : elements) {
-            if (selects.indexOf(element) != -1) continue;
-            selects.add(element);
-            permutation(elements, m, selects, results);
-            selects.remove(selects.size() - 1);
-        }
     }
 }

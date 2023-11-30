@@ -3,45 +3,13 @@ package xin.manong.weapon.base.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author frankcl
  * @create 2020-01-08 15:45:29
  */
 public class CommonUtilSuite {
-
-    @Test
-    public void testCombination() {
-        List<Integer> numbers = new ArrayList<>();
-        numbers.add(1);
-        numbers.add(2);
-        numbers.add(3);
-        numbers.add(4);
-        Assert.assertEquals(0, CommonUtil.combination(numbers, 0).size());
-        Assert.assertEquals(4, CommonUtil.combination(numbers, 1).size());
-        Assert.assertEquals(6, CommonUtil.combination(numbers, 2).size());
-        Assert.assertEquals(4, CommonUtil.combination(numbers, 3).size());
-        Assert.assertEquals(1, CommonUtil.combination(numbers, 4).size());
-        Assert.assertEquals(0, CommonUtil.combination(numbers, 5).size());
-    }
-
-    @Test
-    public void testPermutation() {
-        List<Integer> numbers = new ArrayList<>();
-        numbers.add(1);
-        numbers.add(2);
-        numbers.add(3);
-        numbers.add(4);
-        Assert.assertEquals(0, CommonUtil.permutation(numbers, 0).size());
-        Assert.assertEquals(4, CommonUtil.permutation(numbers, 1).size());
-        Assert.assertEquals(12, CommonUtil.permutation(numbers, 2).size());
-        Assert.assertEquals(24, CommonUtil.permutation(numbers, 3).size());
-        Assert.assertEquals(24, CommonUtil.permutation(numbers, 4).size());
-        Assert.assertEquals(0, CommonUtil.permutation(numbers, 5).size());
-    }
 
     @Test
     public void testCharacterOccurrence() {

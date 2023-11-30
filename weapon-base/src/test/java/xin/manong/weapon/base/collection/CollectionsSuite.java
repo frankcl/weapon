@@ -62,6 +62,36 @@ public class CollectionsSuite {
         Assert.assertEquals(103, elements.get(11).intValue());
     }
 
+    @Test
+    public void testCombination() {
+        List<Integer> numbers = new ArrayList<>();
+        numbers.add(1);
+        numbers.add(2);
+        numbers.add(3);
+        numbers.add(4);
+        Assert.assertEquals(0, Collections.combination(numbers, 0).size());
+        Assert.assertEquals(4, Collections.combination(numbers, 1).size());
+        Assert.assertEquals(6, Collections.combination(numbers, 2).size());
+        Assert.assertEquals(4, Collections.combination(numbers, 3).size());
+        Assert.assertEquals(1, Collections.combination(numbers, 4).size());
+        Assert.assertEquals(0, Collections.combination(numbers, 5).size());
+    }
+
+    @Test
+    public void testPermutation() {
+        List<Integer> numbers = new ArrayList<>();
+        numbers.add(1);
+        numbers.add(2);
+        numbers.add(3);
+        numbers.add(4);
+        Assert.assertEquals(0, Collections.permutation(numbers, 0).size());
+        Assert.assertEquals(4, Collections.permutation(numbers, 1).size());
+        Assert.assertEquals(12, Collections.permutation(numbers, 2).size());
+        Assert.assertEquals(24, Collections.permutation(numbers, 3).size());
+        Assert.assertEquals(24, Collections.permutation(numbers, 4).size());
+        Assert.assertEquals(0, Collections.permutation(numbers, 5).size());
+    }
+
     private List<Integer> createElements() {
         List<Integer> elements = new ArrayList<>();
         elements.add(3);
