@@ -106,7 +106,7 @@ public class KVRecords implements Serializable {
     public String toString() {
         int count = getRecordCount();
         StringBuffer buffer = new StringBuffer();
-        buffer.append("kv record num[").append(count).append("]").append("\n");
+        buffer.append("record count[").append(count).append("]").append("\n");
         for (int i = 0; i < count; i++) {
             buffer.append(getRecord(i).toString()).append("\n");
         }

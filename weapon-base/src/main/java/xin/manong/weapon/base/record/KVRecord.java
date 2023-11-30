@@ -256,11 +256,9 @@ public class KVRecord implements Serializable {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        boolean firstFlag = true;
-        buffer.append("kv record[");
+        buffer.append("record[");
         for (Map.Entry<String, Object> entry : fieldMap.entrySet()) {
-            if (!firstFlag) buffer.append(", ");
-            else firstFlag = false;
+            if (buffer.length() != 7) buffer.append(", ");
             buffer.append(entry.getKey());
             buffer.append("=");
             buffer.append(entry.getValue().toString());
