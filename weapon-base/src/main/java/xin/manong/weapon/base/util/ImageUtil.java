@@ -25,7 +25,9 @@ import java.util.Iterator;
  */
 public class ImageUtil {
 
-    private final static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+
+    private static final String READER_SUFFIX_GIF = "GIF";
 
     private static ColorConvertOp colorConverter = new ColorConvertOp(
             ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
@@ -46,7 +48,7 @@ public class ImageUtil {
         if (byteArray == null || byteArray.length < 3) return false;
         if (!(byteArray[0] == 'G' && byteArray[1] == 'I' && byteArray[2] == 'F')) return false;
         ImageInputStream imageInputStream;
-        ImageReader reader = ImageIO.getImageReadersBySuffix("GIF").next();
+        ImageReader reader = ImageIO.getImageReadersBySuffix(READER_SUFFIX_GIF).next();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         try {
             imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);

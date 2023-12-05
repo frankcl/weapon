@@ -24,9 +24,9 @@ public class MeanHashSuite {
         byte[] hash1 = hash.compute(imageBytes1);
         byte[] hash2 = hash.compute(imageBytes2);
         Assert.assertEquals("000000000000000000000000001111111000000000011111000001111000000011111111000001111111000011111111110001111111111111111111000000001111000011111111111111111111111111111111111111111111111111111111",
-                ByteArrayUtil.byteArrayToBinString(hash1));
+                ByteArrayUtil.byteArrayToBinary(hash1));
         Assert.assertEquals("000000000000000000000000000001111000000000011111000001111000000011111111000001111111111011111111110001111111111111111111000000001111111011111111111111111111111111111111111111111111111111111111",
-                ByteArrayUtil.byteArrayToBinString(hash2));
+                ByteArrayUtil.byteArrayToBinary(hash2));
         Assert.assertEquals(9, ByteArrayUtil.distance(hash1, hash2));
     }
 }

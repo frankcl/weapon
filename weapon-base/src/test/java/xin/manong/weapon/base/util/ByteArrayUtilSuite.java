@@ -13,15 +13,15 @@ import java.util.List;
 public class ByteArrayUtilSuite {
 
     @Test
-    public void testByteArrayToBinString() {
+    public void testByteArrayToBinary() {
         byte[] byteArray = new byte[2];
         byteArray[0] = (byte) 0xff;
         byteArray[1] = (byte) 0xf3;
-        Assert.assertEquals("1111111111110011", ByteArrayUtil.byteArrayToBinString(byteArray));
+        Assert.assertEquals("1111111111110011", ByteArrayUtil.byteArrayToBinary(byteArray));
     }
 
     @Test
-    public void testByteArraysToHexStrings() throws Exception {
+    public void testByteArraysToHex() throws Exception {
         List<byte[]> byteArrays = new ArrayList<>();
         {
             byte[] byteArray = new byte[2];
@@ -35,20 +35,20 @@ public class ByteArrayUtilSuite {
             byteArray[1] = (byte) 0x85;
             byteArrays.add(byteArray);
         }
-        List<String> strings = ByteArrayUtil.byteArraysToHexStrings(byteArrays);
+        List<String> strings = ByteArrayUtil.byteArraysToHex(byteArrays);
         Assert.assertEquals(2, strings.size());
         Assert.assertEquals("fff3", strings.get(0));
         Assert.assertEquals("2385", strings.get(1));
     }
 
     @Test
-    public void testHexStringByteArray() throws Exception {
+    public void testHexToByteArray() throws Exception {
         byte[] hash = new byte[2];
         hash[0] = (byte) 0xff;
         hash[1] = (byte) 0x32;
-        String str = ByteArrayUtil.byteArrayToHexString(hash);
+        String str = ByteArrayUtil.byteArrayToHex(hash);
         Assert.assertEquals("ff32", str);
-        byte[] bytes = ByteArrayUtil.hexStringToByteArray(str);
+        byte[] bytes = ByteArrayUtil.hexToByteArray(str);
         Assert.assertEquals(bytes[0], hash[0]);
         Assert.assertEquals(bytes[1], hash[1]);
     }

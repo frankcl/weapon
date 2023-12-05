@@ -28,11 +28,11 @@ public class PerceivedHashSuite {
         byte[] hash2 = hash.compute(imageBytes2);
         byte[] hash3 = hash.compute(imageBytes3);
         Assert.assertEquals("0011110100111101110000101100001011000001000111110001111100111100",
-                ByteArrayUtil.byteArrayToBinString(hash1));
+                ByteArrayUtil.byteArrayToBinary(hash1));
         Assert.assertEquals("0011110000111101110000101100001111000001000111110001111100011100",
-                ByteArrayUtil.byteArrayToBinString(hash2));
+                ByteArrayUtil.byteArrayToBinary(hash2));
         Assert.assertEquals("0010000011101101001101110111110101111100101110111100100101011111",
-                ByteArrayUtil.byteArrayToBinString(hash3));
+                ByteArrayUtil.byteArrayToBinary(hash3));
         Assert.assertEquals(3, ByteArrayUtil.distance(hash1, hash2));
     }
 }

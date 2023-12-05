@@ -20,7 +20,7 @@ public class ByteArrayUtil {
      * @param byteArray byte数组
      * @return 二进制字符串
      */
-    public static String byteArrayToBinString(byte[] byteArray) {
+    public static String byteArrayToBinary(byte[] byteArray) {
         StringBuffer buffer = new StringBuffer();
         for (byte b : byteArray) {
             int s = b & 0xff;
@@ -37,7 +37,7 @@ public class ByteArrayUtil {
      * @param byteArray 字节数组
      * @return 十六进制字符串
      */
-    public static String byteArrayToHexString(byte[] byteArray) {
+    public static String byteArrayToHex(byte[] byteArray) {
         return Hex.encodeHexString(byteArray);
     }
 
@@ -48,7 +48,7 @@ public class ByteArrayUtil {
      * @return 字节数组
      * @throws Exception
      */
-    public static byte[] hexStringToByteArray(String hex) throws Exception {
+    public static byte[] hexToByteArray(String hex) throws Exception {
         return Hex.decodeHex(hex.toCharArray());
     }
 
@@ -58,9 +58,9 @@ public class ByteArrayUtil {
      * @param byteArrays byte数组列表
      * @return 十六进制字符串列表
      */
-    public static List<String> byteArraysToHexStrings(List<byte[]> byteArrays) {
+    public static List<String> byteArraysToHex(List<byte[]> byteArrays) {
         List<String> stringList = new ArrayList<>();
-        for (byte[] byteArray : byteArrays) stringList.add(byteArrayToHexString(byteArray));
+        for (byte[] byteArray : byteArrays) stringList.add(byteArrayToHex(byteArray));
         return stringList;
     }
 
