@@ -13,9 +13,18 @@ public enum AlarmLevel {
     ERROR("错误"),
     FATAL("严重");
 
-    final String level;
+    final String information;
 
-    AlarmLevel(String level) {
-        this.level = level;
+    AlarmLevel(String information) {
+        this.information = information;
+    }
+
+    /**
+     * 获取展示级别
+     *
+     * @return 展示级别
+     */
+    public String getInformation() {
+        return information;
     }
 }
