@@ -183,7 +183,7 @@ public class OTSTunnel implements Rebuildable {
      *
      * @param alarmProducer 报警发送器
      */
-    public void setAlarmSender(AlarmProducer alarmProducer) {
+    public void setAlarmProducer(AlarmProducer alarmProducer) {
         this.alarmProducer = alarmProducer;
     }
 
