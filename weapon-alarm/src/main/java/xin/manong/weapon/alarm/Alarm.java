@@ -1,5 +1,7 @@
 package xin.manong.weapon.alarm;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 报警信息
  *
@@ -16,23 +18,23 @@ public class Alarm {
     public String content;
     /* 报警所属应用 */
     public String appName;
-    /* 报警状态 */
-    public AlarmStatus status;
+    /* 报警级别 */
+    public AlarmLevel level;
 
-    public Alarm(AlarmStatus status) {
+    public Alarm(AlarmLevel level) {
+        this(null, null, level);
+    }
+
+    public Alarm(String content, AlarmLevel level) {
+        this(null, content, level);
+    }
+
+    public Alarm(String title, String content, AlarmLevel level) {
+        this.title = StringUtils.isEmpty(title) ? "无标题" : title;
+        this.content = StringUtils.isEmpty(content) ? "" : content;
         this.time = System.currentTimeMillis();
-        this.status = status == null ? AlarmStatus.INFO : status;
-    }
-
-    public Alarm(String title, String content, AlarmStatus status) {
-        this(status);
-        this.title = title;
-        this.content = content;
-    }
-
-    public Alarm(String content, AlarmStatus status) {
-        this(status);
-        this.content = content;
+        this.level = level == null ? AlarmLevel.INFO : level;
+        this.appName = "未知应用";
     }
 
     /**
@@ -47,13 +49,13 @@ public class Alarm {
     }
 
     /**
-     * 设置报警状态
+     * 设置报警级别
      *
-     * @param status 报警状态
+     * @param level 报警级别
      * @return 报警信息
      */
-    public Alarm setStatus(AlarmStatus status) {
-        this.status = status;
+    public Alarm setLevel(AlarmLevel level) {
+        this.level = level;
         return this;
     }
 

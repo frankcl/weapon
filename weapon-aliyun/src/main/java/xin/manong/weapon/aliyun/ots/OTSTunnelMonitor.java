@@ -7,8 +7,8 @@ import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.alarm.Alarm;
-import xin.manong.weapon.alarm.AlarmSender;
-import xin.manong.weapon.alarm.AlarmStatus;
+import xin.manong.weapon.alarm.AlarmProducer;
+import xin.manong.weapon.alarm.AlarmLevel;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class OTSTunnelMonitor implements Runnable {
     private String appName;
     private OTSTunnelConfig tunnelConfig;
     private TunnelClient tunnelClient;
-    private AlarmSender alarmSender;
+    private AlarmProducer alarmProducer;
     private Thread workThread;
 
     public OTSTunnelMonitor(OTSTunnelConfig tunnelConfig, TunnelClient tunnelClient) {
@@ -99,18 +99,18 @@ public class OTSTunnelMonitor implements Runnable {
         if (delayChannelNum > 0) {
             Alarm alarm = new Alarm(String.format("OTS通道[%s:%s]数据堆积: 堆积channel数量[%d], 超过最大消费延时[%d]ms",
                     workerConfig.table, workerConfig.tunnel, delayChannelNum, workerConfig.maxConsumeDelayMs),
-                    AlarmStatus.ERROR).setAppName(appName).setTitle("OTS通道数据堆积报警");
-            if (alarmSender != null) alarmSender.send(alarm);
+                    AlarmLevel.ERROR).setAppName(appName).setTitle("OTS通道数据堆积报警");
+            if (alarmProducer != null) alarmProducer.send(alarm);
         }
     }
 
     /**
      * 设置报警发送器
      *
-     * @param alarmSender 报警发送器
+     * @param alarmProducer 报警发送器
      */
-    public void setAlarmSender(AlarmSender alarmSender) {
-        this.alarmSender = alarmSender;
+    public void setAlarmSender(AlarmProducer alarmProducer) {
+        this.alarmProducer = alarmProducer;
     }
 
     /**

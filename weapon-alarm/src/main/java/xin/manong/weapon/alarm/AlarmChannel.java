@@ -8,5 +8,5 @@ package xin.manong.weapon.alarm;
  */
 public enum AlarmChannel {
 
-    SMS, EMAIL, PHONE, DING_WEBHOOK
+    SMS, EMAIL, PHONE, DING_TALK
 }

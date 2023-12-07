@@ -11,12 +11,12 @@ public interface DynamicSecretListener {
     /**
      * 启动监听器
      */
-    default void start() {
-    }
+    boolean start();
 
     /**
-     * 订阅和处理秘钥变更
-     * @param secret 秘钥信息
+     * 处理变更秘钥
+     *
+     * @param changedSecret 秘钥信息
      */
-    void process(String secret);
+    void process(String changedSecret);
 }

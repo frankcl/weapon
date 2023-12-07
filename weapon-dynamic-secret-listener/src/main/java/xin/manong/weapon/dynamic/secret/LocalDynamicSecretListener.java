@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.aliyun.secret.AliyunSecret;
 import xin.manong.weapon.base.secret.DynamicSecret;
 import xin.manong.weapon.base.secret.DynamicSecretListener;
-import xin.manong.weapon.base.secret.SecretListenerManager;
+import xin.manong.weapon.base.secret.Holder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -39,40 +39,45 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
     private final static String DEFAULT_SECRET_RESOURCE_FILE = "secret.json";
 
     public LocalDynamicSecretListener() {
+    }
+
+    @Override
+    public boolean start() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classLoader = (classLoader == null) ? ClassLoader.getSystemClassLoader() : classLoader;
-        if (SecretListenerManager.register(this)) {
-            Enumeration<URL> enumeration = getSecretResources(classLoader);
-            try {
-                parseSecret(enumeration);
-                logger.info("dynamic secret listener[{}] has been started", this.getClass().getName());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            logger.error("register local dynamic secret listener failed");
+        if (!Holder.hold(this)) {
+            logger.error("hold local dynamic secret listener failed");
+            return false;
+        }
+        Enumeration<URL> enumeration = getSecretResources(classLoader);
+        try {
+            if (!parseSecret(enumeration)) return false;
+            logger.info("dynamic secret listener[{}] has been started", this.getClass().getName());
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return false;
         }
     }
 
     @Override
-    public void process(String secret) {
+    public void process(String changedSecret) {
     }
 
     /**
      * 通过资源内容解析秘钥
      *
      * @param enumeration 资源迭代器
+     * @return 解析成功返回true，否则返回false
      * @throws Exception 解析失败抛出异常
      */
-    private void parseSecret(Enumeration<URL> enumeration) throws Exception {
-        if (enumeration == null) throw new RuntimeException("resource is not found");
-        boolean success = false;
+    private boolean parseSecret(Enumeration<URL> enumeration) throws Exception {
+        if (enumeration == null) {
+            logger.error("resource is not found");
+            return false;
+        }
         while (enumeration.hasMoreElements()) {
             URL resourceURL = enumeration.nextElement();
-            if (success) {
-                logger.warn("secret has been loaded, ignore resource[{}]", resourceURL);
-                continue;
-            }
             InputStream inputStream = resourceURL.openStream();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(4096);
             int n = 4096;
@@ -81,6 +86,8 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
                 outputStream.write(buffer, 0, n);
             }
             String content = new String(outputStream.toByteArray(), Charset.forName("UTF-8"));
+            outputStream.close();
+            inputStream.close();
             AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);
             if (aliyunSecret == null || !aliyunSecret.check()) {
                 logger.error("invalid dynamic secret for resource[{}]", resourceURL);
@@ -88,11 +95,11 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
             }
             DynamicSecret.accessKey = aliyunSecret.accessKey;
             DynamicSecret.secretKey = aliyunSecret.secretKey;
-            success = true;
             logger.info("parse dynamic AK/SK[{}/{}] success from path[{}]",
                     DynamicSecret.accessKey, DynamicSecret.secretKey, resourceURL);
+            return true;
         }
-        if (!success) throw new RuntimeException("load dynamic secret failed from resources");
+        return false;
     }
 
     /**
