@@ -6,8 +6,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author frankcl
@@ -16,11 +21,29 @@ import java.util.HashMap;
 public class HttpClientSuite {
 
     private HttpClient httpClient;
+    private HttpClient proxyHttpClient;
 
     @Before
     public void setUp() {
         HttpClientConfig config = new HttpClientConfig();
         httpClient = new HttpClient(config);
+        List<Proxy> proxies = new ArrayList<>();
+        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.73.47", 888)));
+        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.78.14", 888)));
+        ProxySelector proxySelector = new DummyProxySelector(proxies);
+        proxyHttpClient = new HttpClient(config, proxySelector);
+    }
+
+    @Test
+    public void testProxyGet() throws Exception {
+        HttpRequest httpRequest = new HttpRequest();
+        httpRequest.requestURL = "https://www.sina.com.cn";
+        httpRequest.method = RequestMethod.GET;
+        httpRequest.headers.put("Host", "www.sina.com.cn");
+        Response response = proxyHttpClient.execute(httpRequest);
+        Assert.assertTrue(response != null && response.isSuccessful());
+        Assert.assertEquals(200, response.code());
+        System.out.println(response.body().string());
     }
 
     @Test

@@ -10,6 +10,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.UnsupportedEncodingException;
+import java.net.ProxySelector;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class HttpClient {
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
     private HttpClientConfig config;
+    private ProxySelector proxySelector;
     private OkHttpClient okHttpClient;
 
     public HttpClient() {
@@ -40,7 +42,12 @@ public class HttpClient {
     }
 
     public HttpClient(HttpClientConfig config) {
+        this(config, null);
+    }
+
+    public HttpClient(HttpClientConfig config, ProxySelector proxySelector) {
         this.config = config;
+        this.proxySelector = proxySelector;
         init();
     }
 
@@ -57,7 +64,7 @@ public class HttpClient {
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             ConnectionPool connectionPool = new ConnectionPool(config.maxIdleConnections,
                     config.keepAliveMinutes, TimeUnit.MINUTES);
-            this.okHttpClient = new OkHttpClient.Builder().
+            OkHttpClient.Builder builder = new OkHttpClient.Builder().
                     retryOnConnectionFailure(true).
                     connectionPool(connectionPool).
                     followRedirects(config.followRedirect).
@@ -66,7 +73,12 @@ public class HttpClient {
                     sslSocketFactory(sslSocketFactory, unsafeTrustManager).
                     hostnameVerifier(new UnsafeHostnameVerifier()).
                     connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS).
-                    readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS).build();
+                    readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS);
+            if (proxySelector != null) {
+                builder.proxySelector(proxySelector);
+                builder.proxyAuthenticator(new HttpProxyAuthenticator());
+            }
+            this.okHttpClient = builder.build();
             logger.info("http client init success");
         } catch (Exception e) {
             logger.info("http client init failed");
