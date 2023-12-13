@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
@@ -34,30 +36,64 @@ public class HttpClient {
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
     private HttpClientConfig config;
+    private Proxy proxy;
     private ProxySelector proxySelector;
+    private Authenticator authenticator;
     private OkHttpClient okHttpClient;
 
+    /**
+     * 普通模式，使用默认配置，不启用代理
+     */
     public HttpClient() {
         this(new HttpClientConfig());
     }
 
+    /**
+     * 普通模式，不启用代理
+     *
+     * @param config http client配置
+     */
     public HttpClient(HttpClientConfig config) {
-        this(config, null);
+        this(config, (ProxySelector) null, null);
     }
 
-    public HttpClient(HttpClientConfig config, ProxySelector proxySelector) {
+    /**
+     * 启用代理及认证机制
+     *
+     * @param config http client配置信息
+     * @param proxy 代理信息
+     * @param authenticator 代理认证
+     */
+    public HttpClient(HttpClientConfig config,
+                      Proxy proxy, Authenticator authenticator) {
+        this.config = config;
+        this.proxy = proxy;
+        this.authenticator = authenticator;
+        init();
+    }
+
+    /**
+     * 启用代理选择器及认证机制
+     *
+     * @param config http client配置信息
+     * @param proxySelector 代理选择器
+     * @param authenticator 代理认证
+     */
+    public HttpClient(HttpClientConfig config,
+                      ProxySelector proxySelector,
+                      Authenticator authenticator) {
         this.config = config;
         this.proxySelector = proxySelector;
+        this.authenticator = authenticator;
         init();
     }
 
     /**
      * 初始化
      */
-    public void init() {
+    private void init() {
         try {
-            logger.info("http client is init ...");
-            if (!config.check()) throw new RuntimeException("http client config is invalid");
+            if (!config.check()) throw new IllegalArgumentException("http client config is invalid");
             UnsafeTrustManager unsafeTrustManager = new UnsafeTrustManager();
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{unsafeTrustManager}, new SecureRandom());
@@ -76,12 +112,13 @@ public class HttpClient {
                     readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS);
             if (proxySelector != null) {
                 builder.proxySelector(proxySelector);
-                builder.proxyAuthenticator(new HttpProxyAuthenticator());
+                if (authenticator != null) builder.proxyAuthenticator(authenticator);
+            } else if (proxy != null) {
+                builder.proxy(proxy);
+                if (authenticator != null) builder.proxyAuthenticator(authenticator);
             }
             this.okHttpClient = builder.build();
-            logger.info("http client init success");
         } catch (Exception e) {
-            logger.info("http client init failed");
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -284,12 +321,16 @@ public class HttpClient {
         for (int i = 0; i < config.retryCnt; i++) {
             try {
                 return okHttpClient.newCall(request).execute();
-            } catch (Exception e) {
-                logger.warn("get resource failed for request url[{}], retry it", request.url().url());
+            } catch (IOException e) {
+                logger.warn("fetch failed for URL[{}], retry {} times", request.url().url(), i + 1);
                 logger.error(e.getMessage(), e);
+            } catch (Exception e) {
+                logger.warn("fetch failed for URL[{}]", request.url().url());
+                logger.error(e.getMessage(), e);
+                return null;
             }
         }
-        logger.error("get resource failed for request url[{}]", request.url().url());
+        logger.error("fetch failed for URL[{}]", request.url().url());
         return null;
     }
 }

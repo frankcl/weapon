@@ -24,11 +24,14 @@ public class HttpProxyAuthenticator implements Authenticator {
         if (response.request().header(HEADER_PROXY_AUTHORIZATION) != null) return null;
         HttpProxy proxy = (HttpProxy) route.proxy();
         if (proxy == null) {
-            logger.warn("http proxy is not found");
+            logger.warn("not http proxy[{}]", route.proxy() == null ? null : route.proxy().getClass().getName());
             return null;
         }
         if (StringUtils.isEmpty(proxy.username) || StringUtils.isEmpty(proxy.password)) return null;
-        String credential = Credentials.basic(proxy.username, proxy.password);
-        return response.request().newBuilder().header(HEADER_PROXY_AUTHORIZATION, credential).build();
+        if (response.code() == 407) {
+            String credential = Credentials.basic(proxy.username, proxy.password);
+            return response.request().newBuilder().header(HEADER_PROXY_AUTHORIZATION, credential).build();
+        }
+        return null;
     }
 }
