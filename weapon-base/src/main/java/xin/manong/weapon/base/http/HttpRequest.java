@@ -17,6 +17,9 @@ public class HttpRequest {
 
     private final static Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
+    public Integer connectTimeoutMs;
+    public Integer readTimeoutMs;
+    public Integer writeTimeoutMs;
     public String requestURL;
     public RequestMethod method;
     public RequestFormat format;
@@ -31,6 +34,39 @@ public class HttpRequest {
 
         public Builder() {
             httpRequest = new HttpRequest();
+        }
+
+        /**
+         * 设置连接超时
+         *
+         * @param connectTimeoutMs 连接超时，单位：毫秒
+         * @return Builder
+         */
+        public Builder connectTimeout(Integer connectTimeoutMs) {
+            httpRequest.connectTimeoutMs = connectTimeoutMs;
+            return this;
+        }
+
+        /**
+         * 设置读取超时
+         *
+         * @param readTimeoutMs 读取超时，单位：毫秒
+         * @return Builder
+         */
+        public Builder readTimeout(Integer readTimeoutMs) {
+            httpRequest.readTimeoutMs = readTimeoutMs;
+            return this;
+        }
+
+        /**
+         * 设置写入超时
+         *
+         * @param writeTimeoutMs 写入超时，单位：毫秒
+         * @return Builder
+         */
+        public Builder writeTimeout(Integer writeTimeoutMs) {
+            httpRequest.writeTimeoutMs = writeTimeoutMs;
+            return this;
         }
 
         /**
@@ -96,6 +132,9 @@ public class HttpRequest {
         public HttpRequest build() {
             HttpRequest replica = new HttpRequest();
             replica.requestURL = httpRequest.requestURL;
+            replica.connectTimeoutMs = httpRequest.connectTimeoutMs;
+            replica.readTimeoutMs = httpRequest.readTimeoutMs;
+            replica.writeTimeoutMs = httpRequest.writeTimeoutMs;
             replica.method = httpRequest.method;
             replica.format = httpRequest.format;
             replica.headers = httpRequest.headers;

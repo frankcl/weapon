@@ -15,6 +15,7 @@ public class HttpClientConfig {
     private final static int DEFAULT_MAX_IDLE_CONNECTIONS = 100;
     private final static long DEFAULT_CONNECT_TIMEOUT_SECONDS = 5;
     private final static long DEFAULT_READ_TIMEOUT_SECONDS = 10;
+    private final static long DEFAULT_WRITE_TIMEOUT_SECONDS = 10;
 
     public boolean followRedirect = DEFAULT_FOLLOW_REDIRECT;
     public boolean followSSLRedirect = DEFAULT_FOLLOW_SSL_REDIRECT;
@@ -23,6 +24,7 @@ public class HttpClientConfig {
     public int maxIdleConnections = DEFAULT_MAX_IDLE_CONNECTIONS;
     public long connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
     public long readTimeoutSeconds = DEFAULT_READ_TIMEOUT_SECONDS;
+    public long writeTimeoutSeconds = DEFAULT_WRITE_TIMEOUT_SECONDS;
 
     /**
      * 检测有效性
@@ -35,6 +37,7 @@ public class HttpClientConfig {
         if (maxIdleConnections <= 0) maxIdleConnections = DEFAULT_MAX_IDLE_CONNECTIONS;
         if (connectTimeoutSeconds <= 0) connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
         if (readTimeoutSeconds <= 0) readTimeoutSeconds = DEFAULT_READ_TIMEOUT_SECONDS;
+        if (writeTimeoutSeconds <= 0) writeTimeoutSeconds = DEFAULT_WRITE_TIMEOUT_SECONDS;
         return true;
     }
 }

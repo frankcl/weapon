@@ -1,6 +1,5 @@
 package xin.manong.weapon.base.http;
 
-import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -29,8 +28,8 @@ public class HttpClientSuite {
         HttpClientConfig config = new HttpClientConfig();
         httpClient = new HttpClient(config);
         List<Proxy> proxies = new ArrayList<>();
-        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.73.47", 888), "cj430n", "cj430n"));
-        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.78.14", 888), "cj430n", "cj430n"));
+        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.73.47", 888)));
+        proxies.add(new HttpProxy(Proxy.Type.HTTP, new InetSocketAddress("121.224.78.14", 888)));
         ProxySelector proxySelector = new DummyProxySelector(proxies);
         proxyHttpClient = new HttpClient(config, proxySelector, new HttpProxyAuthenticator());
     }

@@ -31,6 +31,10 @@ public class HttpClient {
     private static final String HEADER_USER_AGENT = "User-Agent";
     private static final String HEADER_CONNECTION = "Connection";
     private static final String HEADER_ACCEPT = "Accept";
+    public static final String HEADER_HOST = "Host";
+    public static final String HEADER_READ_TIMEOUT_MS = "__READ_TIMEOUT_MS__";
+    public static final String HEADER_WRITE_TIMEOUT_MS = "__WRITE_TIMEOUT_MS__";
+    public static final String HEADER_CONNECT_TIMEOUT_MS = "__CONNECT_TIMEOUT_MS__";
 
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
@@ -105,11 +109,13 @@ public class HttpClient {
                     connectionPool(connectionPool).
                     followRedirects(config.followRedirect).
                     followSslRedirects(config.followSSLRedirect).
-                    addNetworkInterceptor(new RequestInterceptor()).
+                    addInterceptor(new TimeoutModifyInterceptor()).
+                    addNetworkInterceptor(new HostModifyInterceptor()).
                     sslSocketFactory(sslSocketFactory, unsafeTrustManager).
                     hostnameVerifier(new UnsafeHostnameVerifier()).
                     connectTimeout(config.connectTimeoutSeconds, TimeUnit.SECONDS).
-                    readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS);
+                    readTimeout(config.readTimeoutSeconds, TimeUnit.SECONDS).
+                    writeTimeout(config.writeTimeoutSeconds, TimeUnit.SECONDS);
             if (proxySelector != null) {
                 builder.proxySelector(proxySelector);
                 if (authenticator != null) builder.proxyAuthenticator(authenticator);
@@ -177,6 +183,7 @@ public class HttpClient {
             String requestURL = encodeGetURL(httpRequest);
             requestBuilder.url(requestURL).head();
             handleRequestHeaders(requestBuilder, httpRequest);
+            handleTimeout(requestBuilder, httpRequest);
             Request request = requestBuilder.build();
             return executeRequest(request);
         } catch (UnsupportedEncodingException e) {
@@ -197,6 +204,7 @@ public class HttpClient {
             String requestURL = encodeGetURL(httpRequest);
             requestBuilder.url(requestURL).get();
             handleRequestHeaders(requestBuilder, httpRequest);
+            handleTimeout(requestBuilder, httpRequest);
             Request request = requestBuilder.build();
             return executeRequest(request);
         } catch (UnsupportedEncodingException e) {
@@ -216,6 +224,7 @@ public class HttpClient {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).post(requestBody);
         handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
         Request request = requestBuilder.build();
         return executeRequest(request);
     }
@@ -231,6 +240,7 @@ public class HttpClient {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).delete(requestBody);
         handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
         Request request = requestBuilder.build();
         return executeRequest(request);
     }
@@ -246,6 +256,7 @@ public class HttpClient {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).put(requestBody);
         handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
         Request request = requestBuilder.build();
         return executeRequest(request);
     }
@@ -261,6 +272,7 @@ public class HttpClient {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).patch(requestBody);
         handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
         Request request = requestBuilder.build();
         return executeRequest(request);
     }
@@ -291,7 +303,7 @@ public class HttpClient {
     /**
      * 处理请求header
      *
-     * @param builder 请求builder
+     * @param builder HTTP请求builder
      * @param httpRequest HTTP请求
      */
     private void handleRequestHeaders(Request.Builder builder, HttpRequest httpRequest) {
@@ -308,6 +320,24 @@ public class HttpClient {
         for (Map.Entry<String, String> entry : httpRequest.headers.entrySet()) {
             if (StringUtils.isEmpty(entry.getKey()) || entry.getValue() == null) continue;
             builder.addHeader(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * 处理请求超时设置
+     *
+     * @param builder HTTP请求builder
+     * @param httpRequest HTTP请求
+     */
+    private void handleTimeout(Request.Builder builder, HttpRequest httpRequest) {
+        if (httpRequest.connectTimeoutMs != null && httpRequest.connectTimeoutMs > 0) {
+            builder.addHeader(HEADER_CONNECT_TIMEOUT_MS, String.valueOf(httpRequest.connectTimeoutMs));
+        }
+        if (httpRequest.readTimeoutMs != null && httpRequest.readTimeoutMs > 0) {
+            builder.addHeader(HEADER_READ_TIMEOUT_MS, String.valueOf(httpRequest.readTimeoutMs));
+        }
+        if (httpRequest.writeTimeoutMs != null && httpRequest.writeTimeoutMs > 0) {
+            builder.addHeader(HEADER_WRITE_TIMEOUT_MS, String.valueOf(httpRequest.writeTimeoutMs));
         }
     }
 
