@@ -8,7 +8,6 @@ import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -33,8 +32,8 @@ public class DummyProxySelector extends ProxySelector {
 
     @Override
     public List<Proxy> select(URI uri) {
-        return proxies == null || proxies.isEmpty() ? new ArrayList<>() :
-                Collections.singletonList(proxies.get(random.nextInt(proxies.size())));
+        return Collections.singletonList(proxies == null || proxies.isEmpty() ?
+                Proxy.NO_PROXY : proxies.get(random.nextInt(proxies.size())));
     }
 
     @Override
