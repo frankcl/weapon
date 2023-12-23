@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 /**
  * web响应对象
@@ -21,8 +22,14 @@ public class WebResponse<T> {
     public Integer code;
     @JsonProperty("message")
     public String message;
+    @JsonProperty("request_id")
+    public String requestId;
     @JsonProperty("data")
     public T data;
+
+    private WebResponse() {
+        requestId = UUID.randomUUID().toString();
+    }
 
     public static class Builder {
         private WebResponse template = new WebResponse();
