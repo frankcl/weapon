@@ -25,7 +25,7 @@ public class OTSClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
 
     private final static Logger logger = LoggerFactory.getLogger(OTSClientDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.ots.client";
+    private final static String BINDING_KEY = "weapon.aliyun.ots.client-map";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)

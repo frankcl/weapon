@@ -25,7 +25,7 @@ public class LogClientDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
 
     private final static Logger logger = LoggerFactory.getLogger(LogClientDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.log.client";
+    private final static String BINDING_KEY = "weapon.aliyun.log.client-map";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)

@@ -25,7 +25,7 @@ public class DataHubClientDefinitionRegistryPostProcessor extends AliyunBeanDefi
 
     private final static Logger logger = LoggerFactory.getLogger(DataHubClientDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.datahub.client";
+    private final static String BINDING_KEY = "weapon.aliyun.datahub.client-map";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)

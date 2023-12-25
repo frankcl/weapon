@@ -25,7 +25,7 @@ public class ONSConsumerDefinitionRegistryPostProcessor extends AliyunBeanDefini
 
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumerDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.ons.consumer";
+    private final static String BINDING_KEY = "weapon.aliyun.ons.consumer-map";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)

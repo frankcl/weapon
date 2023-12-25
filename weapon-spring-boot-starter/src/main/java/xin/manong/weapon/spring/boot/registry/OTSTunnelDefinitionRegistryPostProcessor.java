@@ -25,7 +25,7 @@ public class OTSTunnelDefinitionRegistryPostProcessor extends AliyunBeanDefiniti
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.aliyun.ots.tunnel";
+    private final static String BINDING_KEY = "weapon.aliyun.ots.tunnel-map";
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)

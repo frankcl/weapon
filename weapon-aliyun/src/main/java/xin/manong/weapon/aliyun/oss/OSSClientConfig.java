@@ -4,6 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 /**
@@ -13,6 +14,7 @@ import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
  * @create 2019-08-26 18:28:12
  */
 @Data
+@ConfigurationProperties(prefix = "weapon.aliyun.oss.client")
 public class OSSClientConfig extends DynamicSecretConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(OSSClientConfig.class);

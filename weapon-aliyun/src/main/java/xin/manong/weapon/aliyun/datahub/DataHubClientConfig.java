@@ -1,8 +1,10 @@
 package xin.manong.weapon.aliyun.datahub;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
 
 /**
@@ -11,6 +13,8 @@ import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
  * @author frankcl
  * @date 2023-07-06 14:25:52
  */
+@Data
+@ConfigurationProperties(prefix = "weapon.aliyun.datahub.client")
 public class DataHubClientConfig extends DynamicSecretConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DataHubClientConfig.class);

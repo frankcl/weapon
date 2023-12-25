@@ -25,7 +25,7 @@ public class RedisClientDefinitionRegistryPostProcessor extends AliyunBeanDefini
 
     private final static Logger logger = LoggerFactory.getLogger(RedisClientDefinitionRegistryPostProcessor.class);
 
-    private final static String BINDING_KEY = "weapon.common.redis.client";
+    private final static String BINDING_KEY = "weapon.common.redis.client-map";
     private final static String KEY_MODE = "mode";
 
     @Override
