@@ -15,6 +15,9 @@ import xin.manong.weapon.aliyun.ots.OTSTunnelWorkerConfig;
 import java.util.List;
 
 /**
+ * OTS Tunnel封装
+ * 在属性设置完成之后保证channelProcessor注入
+ *
  * @author frankcl
  * @date 2023-02-20 21:47:31
  */

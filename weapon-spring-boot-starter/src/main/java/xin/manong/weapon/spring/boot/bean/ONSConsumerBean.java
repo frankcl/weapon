@@ -15,6 +15,9 @@ import xin.manong.weapon.aliyun.ons.Subscribe;
 import java.util.List;
 
 /**
+ * ONS Consumer封装
+ * 在属性设置完成之后保证messageListener注入
+ *
  * @author frankcl
  * @date 2023-02-20 21:44:34
  */
