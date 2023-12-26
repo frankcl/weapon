@@ -68,6 +68,7 @@
 | redisson             | org.redisson               |     3.19.0     |   true   | 
 | slf4j-log4j12        | org.slf4j                  |     1.7.25     |   true   |
 | spring-aspects       | org.springframework        |     5.3.22     |   true   |
+| spring-boot          | org.springframework.boot   |     2.7.3      |   true   |
 | spring-boot-starter  | org.springframework.boot   |     2.7.3      |   true   |
 | spring-web           | org.springframework        |     5.3.22     |   true   |
 | tablestore           | com.aliyun.openservices    |    5.13.10     |   true   |
