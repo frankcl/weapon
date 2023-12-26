@@ -30,7 +30,6 @@ public class RedisConfig {
     public Integer timeout;
     public String password;
     public String codecClassName;
-    public RedisMode mode;
     public Codec codec;
 
     /**
