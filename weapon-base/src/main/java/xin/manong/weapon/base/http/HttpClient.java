@@ -28,15 +28,18 @@ public class HttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
-    private static final String HEADER_USER_AGENT = "User-Agent";
-    private static final String HEADER_CONNECTION = "Connection";
-    private static final String HEADER_ACCEPT = "Accept";
+    public static final String HEADER_USER_AGENT = "User-Agent";
+    public static final String HEADER_CONNECTION = "Connection";
+    public static final String HEADER_ACCEPT = "Accept";
     public static final String HEADER_HOST = "Host";
     public static final String HEADER_READ_TIMEOUT_MS = "__READ_TIMEOUT_MS__";
     public static final String HEADER_WRITE_TIMEOUT_MS = "__WRITE_TIMEOUT_MS__";
     public static final String HEADER_CONNECT_TIMEOUT_MS = "__CONNECT_TIMEOUT_MS__";
 
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
+    private static final String CHARSET_UTF8 = "UTF-8";
+    private static final String ACCEPT_ALL = "*/*";
+    private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
     private HttpClientConfig config;
@@ -164,7 +167,7 @@ public class HttpClient {
         for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
             if (buffer.length() > 0) buffer.append("&");
             buffer.append(entry.getKey()).append("=").append(
-                    URLEncoder.encode(entry.getValue().toString(), "UTF-8"));
+                    URLEncoder.encode(entry.getValue().toString(), CHARSET_UTF8));
         }
         int pos = requestURL.indexOf("?");
         return pos == -1 ? String.format("%s?%s", requestURL, buffer) : (requestURL.endsWith("&") ?
@@ -311,10 +314,10 @@ public class HttpClient {
             builder.addHeader(HEADER_USER_AGENT, BROWSER_USER_AGENT);
         }
         if (httpRequest.headers == null || !httpRequest.headers.containsKey(HEADER_CONNECTION)) {
-            builder.addHeader(HEADER_CONNECTION, "keep-alive");
+            builder.addHeader(HEADER_CONNECTION, CONNECTION_KEEP_ALIVE);
         }
         if (httpRequest.headers == null || !httpRequest.headers.containsKey(HEADER_ACCEPT)) {
-            builder.addHeader(HEADER_ACCEPT, "*/*");
+            builder.addHeader(HEADER_ACCEPT, ACCEPT_ALL);
         }
         if (httpRequest.headers == null || httpRequest.headers.isEmpty()) return;
         for (Map.Entry<String, String> entry : httpRequest.headers.entrySet()) {
