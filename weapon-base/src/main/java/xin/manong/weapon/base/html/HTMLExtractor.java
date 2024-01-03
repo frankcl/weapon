@@ -38,6 +38,8 @@ public class HTMLExtractor {
     private final static String ATTR_NAME_ABS_DATA_SRC = "abs:data-src";
     private final static String ATTR_NAME_STYLE = "style";
 
+    private final static String PROTOCOL_PREFIX_FORMAT = "http:%s";
+
     private final static Pattern DATE_TIME_PATTERN1 = Pattern.compile(
             "([1-2][0-9]{3})[^0-9]{1,5}?([0-1]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-2]?[0-9])[^0-9]{1,5}?([0-9]{1,2})[^0-9]{1,5}?([0-9]{1,2})");
     private final static Pattern DATE_TIME_PATTERN2 = Pattern.compile(
@@ -218,7 +220,7 @@ public class HTMLExtractor {
         String sourceURL = imageElement.attr(ATTR_NAME_ABS_SRC);
         if (StringUtils.isEmpty(sourceURL)) sourceURL = imageElement.attr(ATTR_NAME_ABS_DATA_SRC);
         if (StringUtils.isEmpty(sourceURL)) return null;
-        if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
+        if (sourceURL.startsWith("//")) sourceURL = String.format(PROTOCOL_PREFIX_FORMAT, sourceURL);
         htmlElement.attr(ATTR_NAME_SRC, sourceURL);
         String width = imageElement.attr(ATTR_NAME_WIDTH);
         if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
@@ -242,7 +244,7 @@ public class HTMLExtractor {
             sourceURL = sourceElement.attr(ATTR_NAME_ABS_SRC);
             if (StringUtils.isEmpty(sourceURL)) return null;
         }
-        if (sourceURL.startsWith("//")) sourceURL = String.format("http:%s", sourceURL);
+        if (sourceURL.startsWith("//")) sourceURL = String.format(PROTOCOL_PREFIX_FORMAT, sourceURL);
         htmlElement.attr(ATTR_NAME_SRC, sourceURL);
         String width = videoElement.attr(ATTR_NAME_WIDTH);
         if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
