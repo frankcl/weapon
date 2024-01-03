@@ -1,6 +1,6 @@
 package xin.manong.weapon.base.util;
 
-import xin.manong.weapon.base.common.ImageMeta;
+import xin.manong.weapon.base.image.ImageMeta;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,43 +58,43 @@ public class ImageUtilSuite {
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(jpegBytes);
             Assert.assertEquals(1, imageMeta.imageNum);
-            Assert.assertEquals(165L, imageMeta.width[0]);
-            Assert.assertEquals(252L, imageMeta.height[0]);
+            Assert.assertEquals(165L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(252L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("JPEG", imageMeta.format);
         }
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(animatedBytes);
             Assert.assertEquals(12, imageMeta.imageNum);
-            Assert.assertEquals(575L, imageMeta.width[0]);
-            Assert.assertEquals(1035L, imageMeta.height[0]);
+            Assert.assertEquals(575L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(1035L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("GIF", imageMeta.format);
         }
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(cmykBytes);
             Assert.assertEquals(1, imageMeta.imageNum);
-            Assert.assertEquals(283L, imageMeta.width[0]);
-            Assert.assertEquals(390L, imageMeta.height[0]);
+            Assert.assertEquals(283L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(390L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("JPEG", imageMeta.format);
         }
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(webpBytes);
             Assert.assertEquals(1, imageMeta.imageNum);
-            Assert.assertEquals(300L, imageMeta.width[0]);
-            Assert.assertEquals(400L, imageMeta.height[0]);
+            Assert.assertEquals(300L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(400L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("WEBP", imageMeta.format);
         }
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(bmpBytes);
             Assert.assertEquals(1, imageMeta.imageNum);
-            Assert.assertEquals(600L, imageMeta.width[0]);
-            Assert.assertEquals(338L, imageMeta.height[0]);
+            Assert.assertEquals(600L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(338L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("BMP", imageMeta.format);
         }
         {
             ImageMeta imageMeta = ImageUtil.getImageMeta(pngBytes);
             Assert.assertEquals(1, imageMeta.imageNum);
-            Assert.assertEquals(128L, imageMeta.width[0]);
-            Assert.assertEquals(128L, imageMeta.height[0]);
+            Assert.assertEquals(128L, imageMeta.imageSizes[0].width);
+            Assert.assertEquals(128L, imageMeta.imageSizes[0].height);
             Assert.assertEquals("PNG", imageMeta.format);
         }
     }

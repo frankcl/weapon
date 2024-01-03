@@ -2,7 +2,8 @@ package xin.manong.weapon.base.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.common.ImageMeta;
+import xin.manong.weapon.base.image.ImageMeta;
+import xin.manong.weapon.base.image.ImageSize;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -77,12 +78,11 @@ public class ImageUtil {
         if (reader == null) return null;
         try {
             int n = reader.getNumImages(true);
-            ImageMeta imageMeta = new ImageMeta(n, reader.getFormatName().toUpperCase());
+            ImageSize[] imageSizes = new ImageSize[n];
             for (int i = 0; i < n; i++) {
-                imageMeta.width[i] = reader.getWidth(i);
-                imageMeta.height[i] = reader.getHeight(i);
+                imageSizes[i] = new ImageSize(reader.getWidth(i), reader.getHeight(i));
             }
-            return imageMeta;
+            return new ImageMeta(imageSizes, reader.getFormatName().toUpperCase());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return null;
