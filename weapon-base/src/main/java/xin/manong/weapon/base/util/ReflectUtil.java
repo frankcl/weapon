@@ -151,6 +151,7 @@ public class ReflectUtil {
         ReflectClass reflectClass = getReflectClass(clazz);
         Constructor constructor = reflectClass.getConstructor(args == null ? null : args.types);
         try {
+            constructor.setAccessible(true);
             return constructor.newInstance(args == null ? null : args.values);
         } catch (Exception e) {
             logger.error("create instance failed for class[{}]", clazz.getName());

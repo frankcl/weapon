@@ -106,7 +106,7 @@ class ReflectClass {
             if (constructorMap.containsKey(key)) return constructorMap.get(key);
             synchronized (constructorMap) {
                 if (constructorMap.containsKey(key)) return constructorMap.get(key);
-                Constructor constructor = clazz.getConstructor(argTypes);
+                Constructor constructor = clazz.getDeclaredConstructor(argTypes);
                 constructor.setAccessible(true);
                 constructorMap.put(key, constructor);
                 return constructor;
