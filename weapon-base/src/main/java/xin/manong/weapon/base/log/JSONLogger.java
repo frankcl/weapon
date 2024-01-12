@@ -22,6 +22,7 @@ import java.util.Set;
  * @create 2019-10-10 14:49:02
  */
 public class JSONLogger {
+    private final static int MAX_BACKUP_INDEX = 10;
     private final static String MAX_FILE_SIZE = "10MB";
     private final static String KEY_LOGGER_TIME = "__LOGGER_TIME__";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
@@ -37,7 +38,7 @@ public class JSONLogger {
             Layout layout = new PatternLayout("%m%n");
             RollingFileAppender appender = new RollingFileAppender(layout, filename);
             appender.setMaxFileSize(MAX_FILE_SIZE);
-            appender.setMaxBackupIndex(10);
+            appender.setMaxBackupIndex(MAX_BACKUP_INDEX);
             org.apache.log4j.Logger logger = LogManager.getLogger(slf4jLogger.getName());
             logger.addAppender(appender);
             logger.setAdditivity(false);
