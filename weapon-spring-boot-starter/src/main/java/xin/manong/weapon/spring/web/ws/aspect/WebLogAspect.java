@@ -89,6 +89,7 @@ public class WebLogAspect {
             ThreadContext.commit(WebAspectConstants.SUCCESS, false);
             ThreadContext.commit(WebAspectConstants.MESSAGE, t.getMessage());
             ThreadContext.commit(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
+            if (t instanceof Exception) throw (Exception) t;
             throw new Exception(t.getMessage(), t);
         } finally {
             EnableWebLogAspect annotation = getEnableWebLogAspect(joinPoint);
