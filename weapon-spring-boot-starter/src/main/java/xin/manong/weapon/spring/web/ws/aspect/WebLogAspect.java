@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 @Component
 @Aspect
+@Order(1000)
 public class WebLogAspect {
 
     private final static Logger logger = LoggerFactory.getLogger(WebLogAspect.class);
@@ -57,14 +59,6 @@ public class WebLogAspect {
 
     @Pointcut("@annotation(xin.manong.weapon.spring.web.ws.aspect.EnableWebLogAspect) && execution(public * *(..))")
     public void intercept() {
-    }
-
-    @Before("intercept()")
-    public void beforeIntercept(JoinPoint joinPoint) {
-    }
-
-    @AfterReturning(value = "intercept()", returning = "response")
-    public void afterReturn(JoinPoint joinPoint, Object response) {
     }
 
     /**
