@@ -9,7 +9,6 @@ import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -50,8 +49,11 @@ public class WebLogAspect {
         add("HTTP_X_FORWARDED_FOR");
     } };
 
-    @Autowired(required = false)
-    protected JSONLogger webAspectLogger;
+    protected final JSONLogger webAspectLogger;
+
+    public WebLogAspect(JSONLogger webAspectLogger) {
+        this.webAspectLogger = webAspectLogger;
+    }
 
     @Pointcut("@annotation(xin.manong.weapon.spring.web.ws.aspect.EnableWebLogAspect) && execution(public * *(..))")
     public void intercept() {
@@ -74,27 +76,26 @@ public class WebLogAspect {
      * @return 响应对象
      */
     @Around("intercept()")
-    public Object aroundIntercept(ProceedingJoinPoint joinPoint) throws Exception {
+    public Object aroundIntercept(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
-        Object returnObject = null;
+        Object response = null;
         try {
             ThreadContext.setContext(new Context());
             processHttpRequest();
             processRequest(joinPoint);
-            returnObject = joinPoint.proceed();
+            response = joinPoint.proceed();
             ThreadContext.commit(WebAspectConstants.SUCCESS, true);
-            return returnObject;
+            return response;
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
             ThreadContext.commit(WebAspectConstants.SUCCESS, false);
             ThreadContext.commit(WebAspectConstants.MESSAGE, t.getMessage());
             ThreadContext.commit(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
-            if (t instanceof Exception) throw (Exception) t;
-            throw new Exception(t.getMessage(), t);
+            throw t;
         } finally {
             EnableWebLogAspect annotation = getEnableWebLogAspect(joinPoint);
-            if (returnObject != null && annotation != null && annotation.commitResponse()) {
-                ThreadContext.commit(WebAspectConstants.RESPONSE, returnObject);
+            if (response != null && annotation != null && annotation.commitResponse()) {
+                ThreadContext.commit(WebAspectConstants.RESPONSE, response);
             }
             ThreadContext.commit(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
             if (webAspectLogger != null) webAspectLogger.commit(ThreadContext.getContext().featureMap);
@@ -188,7 +189,7 @@ public class WebLogAspect {
      * @return 存在返回注解参数名，否则返回null
      */
     private String getAnnotatedParamKey(Annotation[] annotations) {
-        if (annotations == null || annotations.length == 0) return null;
+        if (annotations == null) return null;
         for (Annotation annotation : annotations) {
             if (annotation instanceof QueryParam) return ((QueryParam) annotation).value();
             else if (annotation instanceof PathParam) return ((PathParam) annotation).value();
@@ -204,7 +205,6 @@ public class WebLogAspect {
     private void processHttpRequest() {
         HttpServletRequest httpRequest = ((ServletRequestAttributes) RequestContextHolder.
                 currentRequestAttributes()).getRequest();
-        if (httpRequest == null) return;
         String remoteAddress = httpRequest.getRemoteAddr();
         for (String header : ADDRESS_HEADERS) {
             String value = httpRequest.getHeader(header);
