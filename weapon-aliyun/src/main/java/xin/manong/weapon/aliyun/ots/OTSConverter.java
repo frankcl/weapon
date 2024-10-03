@@ -52,17 +52,19 @@ public class OTSConverter {
      * @return 成功返回java对象，否则抛出异常
      * @param <T> java对象类型
      */
+    @SuppressWarnings("unchecked")
     public static <T> T convertKVRecordToJavaObject(KVRecord kvRecord, Class<T> javaClass) {
         if (kvRecord == null || javaClass == null) throw new RuntimeException("convert record or java class is null");
         Map<String, Object> keyMap = kvRecord.getKeyMap();
         if (keyMap.isEmpty()) throw new RuntimeException("missing keys");
         Map<String, Object> fieldMap = kvRecord.getFieldMap();
         T javaObject = (T) ReflectUtil.newInstance(javaClass, null);
-        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(javaObject,
+        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(javaClass,
                 xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
         for (Field primaryKeyField : primaryKeyFields) {
             xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
                     primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+            assert primaryKey != null;
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             if (!keyMap.containsKey(keyName)) {
                 logger.error("primary key[{}] is not found from record", keyName);
@@ -70,11 +72,12 @@ public class OTSConverter {
             }
             ReflectUtil.setFieldValue(javaObject, primaryKeyField.getName(), keyMap.get(keyName));
         }
-        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaObject,
+        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaClass,
                 xin.manong.weapon.aliyun.ots.annotation.Column.class);
         for (Field columnField : columnFields) {
             xin.manong.weapon.aliyun.ots.annotation.Column column = ReflectUtil.getFieldAnnotation(
                     columnField, xin.manong.weapon.aliyun.ots.annotation.Column.class);
+            assert column != null;
             String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
             if (!fieldMap.containsKey(columnName)) continue;
             Object javaField = convertColumnValueToJavaField(fieldMap.get(columnName), columnField);
@@ -94,39 +97,22 @@ public class OTSConverter {
      * @return 成功返回KVRecord，否则抛出异常
      */
     public static KVRecord convertJavaObjectToKVRecord(Object javaObject) {
-        if (javaObject == null) throw new RuntimeException("convert java object is null");
-        List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(
-                javaObject, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
-        if (primaryKeyFields.isEmpty()) {
-            logger.error("primary keys are not annotated for java object[{}]", javaObject.getClass().getName());
-            throw new RuntimeException(String.format("primary keys are not annotated for java object[%s]",
-                    javaObject.getClass().getName()));
-        }
-        Set<String> keys = new HashSet<>();
         KVRecord kvRecord = new KVRecord();
-        for (Field primaryKeyField : primaryKeyFields) {
-            xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
-                    primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
-            String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
-            Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
-            if (!checkColumn(value)) {
-                throw new RuntimeException(String.format("primary key[{}] is invalid", primaryKeyField.getName()));
-            }
-            kvRecord.put(keyName, value);
-            keys.add(keyName);
-        }
-        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaObject,
+        Map<String, Object> keyMap = convertJavaObjectToKeyMap(javaObject);
+        for (Map.Entry<String, Object> entry : keyMap.entrySet()) kvRecord.put(entry.getKey(), entry.getValue());
+        kvRecord.setKeys(keyMap.keySet());
+        List<Field> columnFields = ReflectUtil.getAnnotatedFields(javaObject.getClass(),
                 xin.manong.weapon.aliyun.ots.annotation.Column.class);
         for (Field columnField : columnFields) {
             xin.manong.weapon.aliyun.ots.annotation.Column column = ReflectUtil.getFieldAnnotation(
                     columnField, xin.manong.weapon.aliyun.ots.annotation.Column.class);
+            assert column != null;
             String columnName = StringUtils.isEmpty(column.name()) ? columnField.getName() : column.name();
             Object value = ReflectUtil.getFieldValue(javaObject, columnField.getName());
             if (value == null) continue;
-            if (value.getClass().isEnum()) value = ((Enum) value).name();
+            if (value.getClass().isEnum()) value = ((Enum<?>) value).name();
             kvRecord.put(columnName, convertJavaFieldToColumnValue(value));
         }
-        kvRecord.setKeys(keys);
         return kvRecord;
     }
 
@@ -139,9 +125,8 @@ public class OTSConverter {
     public static Map<String, Object> convertJavaObjectToKeyMap(Object javaObject) {
         if (javaObject == null) throw new RuntimeException("convert java object is null");
         List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(
-                javaObject, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+                javaObject.getClass(), xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
         if (primaryKeyFields.isEmpty()) {
-            logger.error("primary keys are not annotated for java object[{}]", javaObject.getClass().getName());
             throw new RuntimeException(String.format("primary keys are not annotated for java object[%s]",
                     javaObject.getClass().getName()));
         }
@@ -149,10 +134,11 @@ public class OTSConverter {
         for (Field primaryKeyField : primaryKeyFields) {
             xin.manong.weapon.aliyun.ots.annotation.PrimaryKey primaryKey = ReflectUtil.getFieldAnnotation(
                     primaryKeyField, xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
+            assert primaryKey != null;
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
             if (!checkColumn(value)) {
-                throw new RuntimeException(String.format("primary key[{}] is invalid", primaryKeyField.getName()));
+                throw new RuntimeException(String.format("primary key[%s] is invalid", primaryKeyField.getName()));
             }
             keyMap.put(keyName, value);
         }
@@ -190,7 +176,7 @@ public class OTSConverter {
     public static Row convertRecord(KVRecord kvRecord) {
         if (kvRecord == null || kvRecord.isEmpty()) throw new RuntimeException("convert record is null or empty");
         if (CollectionUtils.isEmpty(kvRecord.getKeys())) throw new RuntimeException("convert keys are empty");
-        Map<String, Object> keyMap = new HashMap(), columnMap = new HashMap<>();
+        Map<String, Object> keyMap = new HashMap<>(), columnMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : kvRecord.getFieldMap().entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -216,9 +202,9 @@ public class OTSConverter {
         Map<String, Object> keyMap = new HashMap<>();
         PrimaryKeyColumn[] primaryKeyColumns = primaryKey.getPrimaryKeyColumns();
         if (primaryKeyColumns == null) return keyMap;
-        for (int i = 0; i < primaryKeyColumns.length; i++) {
-            String name = primaryKeyColumns[i].getName();
-            PrimaryKeyValue primaryKeyValue = primaryKeyColumns[i].getValue();
+        for (PrimaryKeyColumn primaryKeyColumn : primaryKeyColumns) {
+            String name = primaryKeyColumn.getName();
+            PrimaryKeyValue primaryKeyValue = primaryKeyColumn.getValue();
             keyMap.put(name, convertPrimaryKeyValue(primaryKeyValue));
         }
         return keyMap;
@@ -334,20 +320,20 @@ public class OTSConverter {
                     String.class.getName(), field.getName(), columnValue.getClass().getName());
             return null;
         }
-        Class fieldClass = field.getType();
+        Class<?> fieldClass = field.getType();
         if (List.class.isAssignableFrom(fieldClass)) {
             Type fieldType = field.getGenericType();
             if (!(fieldType instanceof ParameterizedType)) return JSON.parseArray((String) columnValue, ArrayList.class);
             Type[] paramTypes = ((ParameterizedType) fieldType).getActualTypeArguments();
             if (paramTypes.length != 1) return JSON.parseObject((String) columnValue, ArrayList.class);
-            return JSON.parseObject((String) columnValue, buildListTypeReference((Class) paramTypes[0]));
+            return JSON.parseObject((String) columnValue, buildListTypeReference((Class<?>) paramTypes[0]));
         } else if (Map.class.isAssignableFrom(fieldClass)) {
             Type fieldType = field.getGenericType();
             if (!(fieldType instanceof ParameterizedType)) return JSON.parseArray((String) columnValue, HashMap.class);
             Type[] paramTypes = ((ParameterizedType) fieldType).getActualTypeArguments();
             if (paramTypes.length != 2) return JSON.parseObject((String) columnValue, HashMap.class);
             return JSON.parseObject((String) columnValue, buildMapTypeReference(
-                    (Class) paramTypes[0], (Class) paramTypes[1]));
+                    (Class<?>) paramTypes[0], (Class<?>) paramTypes[1]));
         }
         return JSON.parseObject((String) columnValue, fieldClass);
     }
@@ -357,9 +343,9 @@ public class OTSConverter {
      *
      * @param valueClass list值类型
      * @return List类型TypeReference
-     * @param <T>
+     * @param <T> 列表模版参数
      */
-    private static <T> TypeReference buildListTypeReference(Class<T> valueClass) {
+    private static <T> TypeReference<ArrayList<T>> buildListTypeReference(Class<T> valueClass) {
         return new TypeReference<ArrayList<T>>(valueClass) {};
     }
 
@@ -369,10 +355,10 @@ public class OTSConverter {
      * @param keyClass map key类型
      * @param valueClass map value类型
      * @return Map类型TypeReference
-     * @param <K>
-     * @param <V>
+     * @param <K> Map模版参数key
+     * @param <V> Map模版参数value
      */
-    private static <K, V> TypeReference buildMapTypeReference(Class<K> keyClass, Class<V> valueClass) {
+    private static <K, V> TypeReference<HashMap<K, V>> buildMapTypeReference(Class<K> keyClass, Class<V> valueClass) {
         return new TypeReference<HashMap<K, V>>(keyClass, valueClass) {};
     }
 
@@ -431,15 +417,14 @@ public class OTSConverter {
      * @param columnClass 列类型
      * @return 合法返回true，否则返回false
      */
-    private static boolean checkColumn(Class columnClass) {
+    private static boolean checkColumn(Class<?> columnClass) {
         if (columnClass == String.class) return true;
         if (columnClass == Integer.class) return true;
         if (columnClass == Float.class) return true;
         if (columnClass == Double.class) return true;
         if (columnClass == Long.class) return true;
         if (columnClass == Boolean.class) return true;
-        if (columnClass.isArray() && columnClass.getName().equals("[B")) return true;
-        return false;
+        return columnClass.isArray() && columnClass.getName().equals("[B");
     }
 
     /**
@@ -458,7 +443,7 @@ public class OTSConverter {
         } else if (primaryKeyType == PrimaryKeyType.INTEGER) {
             return primaryKeyValue.asLong();
         }
-        throw new RuntimeException(String.format("invalid primary key type[{}]", primaryKeyType.name()));
+        throw new RuntimeException(String.format("invalid primary key type[%s]", primaryKeyType.name()));
     }
 
     /**
@@ -480,6 +465,6 @@ public class OTSConverter {
         } else if (columnType == ColumnType.STRING) {
             return columnValue.asString();
         }
-        throw new RuntimeException(String.format("invalid column value type[{}]", columnType.name()));
+        throw new RuntimeException(String.format("invalid column value type[%s]", columnType.name()));
     }
 }

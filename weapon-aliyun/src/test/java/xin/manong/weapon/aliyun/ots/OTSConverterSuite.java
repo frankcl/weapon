@@ -22,7 +22,7 @@ public class OTSConverterSuite {
         record.setC1(123L);
         record.setC2(25.0d);
         Map<String, Object> keyMap = OTSConverter.convertJavaObjectToKeyMap(record);
-        Assert.assertTrue(keyMap != null && keyMap.size() == 1);
+        Assert.assertEquals(1, keyMap.size());
         Assert.assertTrue(keyMap.containsKey("key") && keyMap.get("key").equals("key"));
     }
 
@@ -37,7 +37,7 @@ public class OTSConverterSuite {
         record.setList(new ArrayList<OTSRecord.User>() {{ add(new OTSRecord.User("zzz")); }});
         record.setMap(new HashMap<String, OTSRecord.User>() {{ put("abc", new OTSRecord.User("abc")); }});
         KVRecord kvRecord = OTSConverter.convertJavaObjectToKVRecord(record);
-        Assert.assertTrue(!kvRecord.getKeys().isEmpty() && kvRecord.getKeys().size() == 1);
+        Assert.assertEquals(1, kvRecord.getKeys().size());
         Assert.assertTrue(kvRecord.getKeys().contains("key"));
         Assert.assertEquals(7, kvRecord.getFieldCount());
         Assert.assertTrue(kvRecord.has("key"));
@@ -68,14 +68,14 @@ public class OTSConverterSuite {
         kvRecord.put("map", "{\"abc\":{\"name\":\"abc\"}}");
         kvRecord.setKeys(new HashSet<String>() {{ add("key"); }});
         OTSRecord record = OTSConverter.convertKVRecordToJavaObject(kvRecord, OTSRecord.class);
-        Assert.assertTrue(record != null);
+        Assert.assertNotNull(record);
         Assert.assertTrue(record.getKey() != null && record.getKey().equals("k"));
-        Assert.assertTrue(record.getC1() != null && record.getC1().longValue() == 111L);
-        Assert.assertTrue(record.getC2() != null && record.getC2().doubleValue() == 2.0d);
-        Assert.assertTrue(record.getC3() == null);
+        Assert.assertTrue(record.getC1() != null && record.getC1() == 111L);
+        Assert.assertTrue(record.getC2() != null && record.getC2() == 2.0d);
+        Assert.assertNull(record.getC3());
         Assert.assertTrue(record.getUser() != null && record.getUser().name.equals("xxx"));
         Assert.assertTrue(record.getList() != null && record.getList().size() == 1);
-        Assert.assertTrue(record.getList().get(0).name.equals("zzz"));
+        Assert.assertEquals("zzz", record.getList().get(0).name);
         Assert.assertTrue(record.getMap() != null && record.getMap().size() == 1);
         Assert.assertTrue(record.getMap().containsKey("abc") && record.getMap().get("abc").name.equals("abc"));
         Assert.assertTrue(record.getMediaType() != null && record.getMediaType() == OTSRecord.MediaType.TEXT);
@@ -88,23 +88,23 @@ public class OTSConverterSuite {
         keyMap.put("k2", 123);
         keyMap.put("k3", PrimaryKeyValue.INF_MAX);
         PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
-        Assert.assertTrue(primaryKey != null);
-        Assert.assertTrue(primaryKey.getPrimaryKeyColumns().length == 3);
+        Assert.assertNotNull(primaryKey);
+        Assert.assertEquals(3, primaryKey.getPrimaryKeyColumns().length);
         Assert.assertEquals("k1", primaryKey.getPrimaryKeyColumn("k1").getName());
         Assert.assertEquals("abc", primaryKey.getPrimaryKeyColumn("k1").getValue().asString());
         Assert.assertEquals("k2", primaryKey.getPrimaryKeyColumn("k2").getName());
         Assert.assertEquals(123L, primaryKey.getPrimaryKeyColumn("k2").getValue().asLong());
         Assert.assertEquals("k3", primaryKey.getPrimaryKeyColumn("k3").getName());
-        Assert.assertTrue(PrimaryKeyValue.INF_MAX == primaryKey.getPrimaryKeyColumn("k3").getValue());
+        Assert.assertSame(PrimaryKeyValue.INF_MAX, primaryKey.getPrimaryKeyColumn("k3").getValue());
 
         keyMap = OTSConverter.convertPrimaryKey(primaryKey);
-        Assert.assertTrue(keyMap != null && keyMap.size() == 3);
+        Assert.assertEquals(3, keyMap.size());
         Assert.assertTrue(keyMap.containsKey("k1"));
         Assert.assertTrue(keyMap.containsKey("k2"));
         Assert.assertTrue(keyMap.containsKey("k3"));
         Assert.assertEquals("abc", keyMap.get("k1"));
         Assert.assertEquals(123L, keyMap.get("k2"));
-        Assert.assertTrue(PrimaryKeyValue.INF_MAX == keyMap.get("k3"));
+        Assert.assertSame(PrimaryKeyValue.INF_MAX, keyMap.get("k3"));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class OTSConverterSuite {
         Assert.assertEquals("k4", columns.get(3).getName());
         Assert.assertEquals(1.2d, columns.get(3).getValue().asDouble(), 0.1d);
         Assert.assertEquals("k5", columns.get(4).getName());
-        Assert.assertEquals(false, columns.get(4).getValue().asBoolean());
+        Assert.assertFalse(columns.get(4).getValue().asBoolean());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class OTSConverterSuite {
             recordColumns.add(recordColumn);
         }
         Map<String, Object> columnMap = OTSConverter.convertRecordColumns(recordColumns);
-        Assert.assertTrue(columnMap != null && columnMap.size() == 1);
+        Assert.assertEquals(1, columnMap.size());
         Assert.assertTrue(columnMap.containsKey("k1"));
         Assert.assertEquals("v1", columnMap.get("k1"));
     }
@@ -171,7 +171,7 @@ public class OTSConverterSuite {
         Assert.assertTrue(kvRecord.has("c2"));
         Assert.assertEquals("key", kvRecord.get("key"));
         Assert.assertEquals(true, ((Boolean) kvRecord.get("c2")));
-        Assert.assertEquals(1.1d, ((Double) kvRecord.get("c1")).doubleValue(), 0.1d);
+        Assert.assertEquals(1.1d, (Double) kvRecord.get("c1"), 0.1d);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class OTSConverterSuite {
         streamRecord.setColumns(recordColumns);
         streamRecord.setRecordType(StreamRecord.RecordType.DELETE);
         KVRecord kvRecord = OTSConverter.convertStreamRecord(streamRecord);
-        Assert.assertTrue(kvRecord != null);
+        Assert.assertNotNull(kvRecord);
         Assert.assertEquals(1, kvRecord.getKeys().size());
         Assert.assertTrue(kvRecord.getKeys().contains("key"));
         Assert.assertEquals(1, kvRecord.getFieldCount());
@@ -240,7 +240,7 @@ public class OTSConverterSuite {
         streamRecord.setPrimaryKey(primaryKey);
         streamRecord.setColumns(recordColumns);
         KVRecord kvRecord = OTSConverter.convertStreamRecord(streamRecord);
-        Assert.assertTrue(kvRecord != null);
+        Assert.assertNotNull(kvRecord);
         Assert.assertEquals(1, kvRecord.getKeys().size());
         Assert.assertTrue(kvRecord.getKeys().contains("key"));
         Assert.assertEquals(5, kvRecord.getFieldCount());

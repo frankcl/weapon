@@ -17,7 +17,7 @@ public class ReflectUtilSuite {
     public void testFieldOperation() {
         JSONObject object = new JSONObject();
         Map<String, Object> map = (Map<String, Object>) ReflectUtil.getFieldValue(object, "map");
-        Assert.assertTrue(map != null);
+        Assert.assertNotNull(map);
 
         String string = "test";
         ReflectUtil.setFieldValue(string, "hash", 10086);
@@ -25,6 +25,7 @@ public class ReflectUtilSuite {
         Assert.assertEquals(10086, hash);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testInvokeMethod() {
         Map<String, Object> map = (Map<String, Object>) ReflectUtil.newInstance(
@@ -32,22 +33,24 @@ public class ReflectUtilSuite {
         ReflectArgs reflectParams = new ReflectArgs(new Class[]
                 {Object.class, Object.class}, new Object[] {"key", 123});
         Object object = ReflectUtil.invoke("put", map, reflectParams);
-        Assert.assertTrue(object == null);
+        Assert.assertNull(object);
         Boolean isEmpty = (Boolean) ReflectUtil.invoke("isEmpty", map, new ReflectArgs());
         Assert.assertFalse(isEmpty);
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void testConstructorWithParams() {
         ReflectArgs reflectParams = new ReflectArgs(new Class[]{int.class}, new Object[]{36});
         Map map = (Map) ReflectUtil.newInstance("java.util.HashMap", reflectParams);
-        Assert.assertTrue(map != null);
+        Assert.assertNotNull(map);
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void testConstructorWithoutParams() {
         Map map = (Map) ReflectUtil.newInstance("java.util.HashMap", null);
-        Assert.assertTrue(map != null);
+        Assert.assertNotNull(map);
     }
 
     @Test

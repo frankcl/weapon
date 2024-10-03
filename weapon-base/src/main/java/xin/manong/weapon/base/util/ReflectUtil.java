@@ -13,13 +13,13 @@ import java.util.*;
  * 反射工具
  *
  * @author frankcl
- * @create 2019-05-27 16:23
+ * @date 2019-05-27 16:23
  */
 public class ReflectUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(ReflectUtil.class);
 
-    private static Map<Class, ReflectClass> reflectClassMap = new HashMap<>();
+    private final static Map<Class<?>, ReflectClass> reflectClassMap = new HashMap<>();
 
     /**
      * 获取字段注解
@@ -47,13 +47,13 @@ public class ReflectUtil {
     /**
      * 获取有指定注解的字段列表
      *
-     * @param object 对象
+     * @param clazz 类
      * @param annotationClass 注解class
      * @return 字段列表
      */
-    public static List<Field> getAnnotatedFields(Object object, Class<? extends Annotation> annotationClass) {
+    public static List<Field> getAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         List<Field> annotatedFields = new ArrayList<>();
-        ReflectClass reflectClass = getReflectClass(object.getClass());
+        ReflectClass reflectClass = getReflectClass(clazz);
         Field[] fields = reflectClass.getFields();
         for (Field field : fields) {
             if (!field.isAnnotationPresent(annotationClass)) continue;
@@ -131,10 +131,9 @@ public class ReflectUtil {
      */
     public static Object newInstance(String className, ReflectArgs args) {
         try {
-            Class clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className);
             return newInstance(clazz, args);
         } catch (Exception e) {
-            logger.error("create instance failed for class[{}]", className);
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -147,14 +146,13 @@ public class ReflectUtil {
      * @param args 构造参数
      * @return 如果成功返回实例对象，否则抛出RuntimeException
      */
-    public static Object newInstance(Class clazz, ReflectArgs args) {
+    public static Object newInstance(Class<?> clazz, ReflectArgs args) {
         ReflectClass reflectClass = getReflectClass(clazz);
-        Constructor constructor = reflectClass.getConstructor(args == null ? null : args.types);
+        Constructor<?> constructor = reflectClass.getConstructor(args == null ? null : args.types);
         try {
             constructor.setAccessible(true);
             return constructor.newInstance(args == null ? null : args.values);
         } catch (Exception e) {
-            logger.error("create instance failed for class[{}]", clazz.getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -169,7 +167,7 @@ public class ReflectUtil {
     public static Field[] getFields(Object object) {
         List<Field> fields = new ArrayList<>();
         if (object == null) return fields.toArray(new Field[0]);
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         while (clazz != null) {
             fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
             clazz = clazz.getSuperclass();
@@ -183,7 +181,7 @@ public class ReflectUtil {
      * @param clazz class对象
      * @return 如果成功返回ReflectClass，否则抛出RuntimeException
      */
-    private static ReflectClass getReflectClass(Class clazz) {
+    private static ReflectClass getReflectClass(Class<?> clazz) {
         if (reflectClassMap.containsKey(clazz)) return reflectClassMap.get(clazz);
         synchronized (reflectClassMap) {
             if (reflectClassMap.containsKey(clazz)) return reflectClassMap.get(clazz);
