@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * OSS元数据信息
  *
@@ -25,6 +27,20 @@ public class OSSMeta {
         this.region = region;
         this.bucket = bucket;
         this.key = key;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof OSSMeta)) return false;
+        OSSMeta meta = (OSSMeta) object;
+        return Objects.equals(this.region, meta.region) &&
+                Objects.equals(this.bucket, meta.bucket) &&
+                Objects.equals(this.key, meta.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(region, bucket, key);
     }
 
     /**
