@@ -45,7 +45,7 @@ public abstract class AliyunBeanDefinitionRegistryPostProcessor implements BeanD
     }
 
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory)
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
             throws BeansException {
     }
 

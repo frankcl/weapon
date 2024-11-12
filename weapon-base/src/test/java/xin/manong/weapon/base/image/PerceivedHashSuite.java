@@ -31,7 +31,7 @@ public class PerceivedHashSuite {
                 ByteArrayUtil.byteArrayToBinary(hash1));
         Assert.assertEquals("0011110000111101110000101100001111000001000111110001111100011100",
                 ByteArrayUtil.byteArrayToBinary(hash2));
-        Assert.assertEquals("0010000011101101001101110111110101111100101110111100100101011111",
+        Assert.assertEquals("0101111110010010010110001101011010000011001001000001011010110001",
                 ByteArrayUtil.byteArrayToBinary(hash3));
         Assert.assertEquals(3, ByteArrayUtil.distance(hash1, hash2));
     }

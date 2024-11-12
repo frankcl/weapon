@@ -1,4 +1,4 @@
-package xin.manong.weapon.spring.boot.config.aliyun;
+package xin.manong.weapon.spring.boot.autoconfigure;
 
 import lombok.Data;
 import org.slf4j.Logger;

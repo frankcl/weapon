@@ -58,7 +58,7 @@ public class ReflectUtilSuite {
         {
             String str = "abc";
             Field[] fields = ReflectUtil.getFields(str);
-            Assert.assertEquals(5, fields.length);
+            Assert.assertEquals(9, fields.length);
         }
         {
             Object object = new Object();

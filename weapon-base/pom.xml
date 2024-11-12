@@ -78,8 +78,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.sejda.imageio</groupId>
-            <artifactId>webp-imageio</artifactId>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -93,6 +93,11 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.etcd</groupId>
+            <artifactId>jetcd-core</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>

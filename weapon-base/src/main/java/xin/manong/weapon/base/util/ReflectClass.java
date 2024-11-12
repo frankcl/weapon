@@ -12,18 +12,18 @@ import java.util.*;
  * 反射类包装
  *
  * @author frankcl
- * @create 2019-05-27 16:23
+ * @date 2019-05-27 16:23
  */
 class ReflectClass {
 
     private final static Logger logger = LoggerFactory.getLogger(ReflectClass.class);
 
-    private Class clazz;
-    private Map<String, Constructor> constructorMap;
-    private Map<String, Field> fieldMap;
-    private Map<String, Method> methodMap;
+    private final Class<?> clazz;
+    private final Map<String, Constructor<?>> constructorMap;
+    private final Map<String, Field> fieldMap;
+    private final Map<String, Method> methodMap;
 
-    public ReflectClass(Class clazz) {
+    public ReflectClass(Class<?> clazz) {
         this.clazz = clazz;
         constructorMap = new HashMap<>();
         fieldMap = new HashMap<>();
@@ -39,7 +39,7 @@ class ReflectClass {
      */
     public Field[] getFields() {
         List<Field> fields = new ArrayList<>();
-        Class c = clazz;
+        Class<?> c = clazz;
         while (c != null) {
             fields.addAll(Arrays.asList(c.getDeclaredFields()));
             c = c.getSuperclass();
@@ -76,7 +76,7 @@ class ReflectClass {
      * @param argTypes 方法参数类型
      * @return 如果方法存咋返回方法对象，否则抛出RuntimeException
      */
-    public Method getMethod(String methodName, Class... argTypes) {
+    public Method getMethod(String methodName, Class<?>... argTypes) {
         String key = getMethodKey(methodName, argTypes);
         try {
             if (methodMap.containsKey(key)) return methodMap.get(key);
@@ -100,13 +100,13 @@ class ReflectClass {
      * @param argTypes 构造器参数类型
      * @return 如果成功返回构造器实例，否则抛出RuntimeException
      */
-    public Constructor getConstructor(Class... argTypes) {
+    public Constructor<?> getConstructor(Class<?>... argTypes) {
         String key = getMethodKey("", argTypes);
         try {
             if (constructorMap.containsKey(key)) return constructorMap.get(key);
             synchronized (constructorMap) {
                 if (constructorMap.containsKey(key)) return constructorMap.get(key);
-                Constructor constructor = clazz.getDeclaredConstructor(argTypes);
+                Constructor<?> constructor = clazz.getDeclaredConstructor(argTypes);
                 constructor.setAccessible(true);
                 constructorMap.put(key, constructor);
                 return constructor;
@@ -127,7 +127,7 @@ class ReflectClass {
      * @throws NoSuchFieldException 如果字段不存在抛出该异常
      */
     private Field deepGetField(String fieldName) throws NoSuchFieldException {
-        Class c = clazz;
+        Class<?> c = clazz;
         while (c != null) {
             try {
                 return c.getDeclaredField(fieldName);
@@ -147,8 +147,8 @@ class ReflectClass {
      * @return 方法
      * @throws NoSuchMethodException 如果方法不存在抛出该异常
      */
-    private Method deepGetMethod(String methodName, Class... argTypes) throws NoSuchMethodException {
-        Class c = clazz;
+    private Method deepGetMethod(String methodName, Class<?>... argTypes) throws NoSuchMethodException {
+        Class<?> c = clazz;
         while (c != null) {
             try {
                 return c.getDeclaredMethod(methodName, argTypes);
@@ -166,14 +166,14 @@ class ReflectClass {
      * @param argTypes 方法参数类型
      * @return 方法key
      */
-    private String getMethodKey(String methodName, Class... argTypes) {
-        StringBuffer buffer = new StringBuffer(methodName);
-        buffer.append("(");
+    private String getMethodKey(String methodName, Class<?>... argTypes) {
+        StringBuilder builder = new StringBuilder(methodName);
+        builder.append("(");
         for (int i = 0; argTypes != null && i < argTypes.length; i++) {
-            if (i > 0) buffer.append(",");
-            buffer.append(argTypes[i].getName());
+            if (i > 0) builder.append(",");
+            builder.append(argTypes[i].getName());
         }
-        buffer.append(")");
-        return buffer.toString();
+        builder.append(")");
+        return builder.toString();
     }
 }

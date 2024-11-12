@@ -40,10 +40,11 @@ public class HttpClientSuite {
         httpRequest.requestURL = "https://www.sina.com.cn";
         httpRequest.method = RequestMethod.GET;
         httpRequest.headers.put("Host", "www.sina.com.cn");
-        Response response = proxyHttpClient.execute(httpRequest);
-        Assert.assertTrue(response != null && response.isSuccessful());
-        Assert.assertEquals(200, response.code());
-        System.out.println(response.body().string());
+        try (Response response = proxyHttpClient.execute(httpRequest)) {
+            Assert.assertTrue(response != null && response.isSuccessful());
+            Assert.assertEquals(200, response.code());
+            System.out.println(response.body().string());
+        }
     }
 
     @Test

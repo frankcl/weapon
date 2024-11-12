@@ -59,21 +59,21 @@
 | commons-lang3        | org.apache.commons         |      3.8       |  false   |
 | fastjson             | com.alibaba                |     2.0.35     |  false   |
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
+| imageio-webp         | com.twelvemonkeys.imageio  |     3.12.0     |  false   |
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
 | jakarta.ws.rs-api    | jakarta.ws.rs              |     3.0.0      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
 | kafka-clients        | org.apache.kafka           |     3.3.1      |   true   |
-| kryo                 | com.esotericsoftware       |     5.5.0      |   true   |
+| kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
 | okhttp3              | com.squareup.okhttp3       |     4.9.3      |   true   |
 | ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
-| redisson             | org.redisson               |     3.19.0     |   true   | 
+| redisson             | org.redisson               |     3.38.1     |   true   | 
 | slf4j-log4j12        | org.slf4j                  |     1.7.25     |   true   |
-| spring-aspects       | org.springframework        |     5.3.22     |   true   |
-| spring-boot          | org.springframework.boot   |     2.7.3      |   true   |
-| spring-boot-starter  | org.springframework.boot   |     2.7.3      |   true   |
-| spring-web           | org.springframework        |     5.3.22     |   true   |
+| spring-aspects       | org.springframework        |     5.3.31     |   true   |
+| spring-boot          | org.springframework.boot   |     2.7.18     |   true   |
+| spring-boot-starter  | org.springframework.boot   |     2.7.18     |   true   |
+| spring-web           | org.springframework        |     5.3.31     |   true   |
 | tablestore           | com.aliyun.openservices    |    5.13.10     |   true   |
-| webp-imageio         | org.sejda.imageio          |     0.1.6      |  false   |
 
 
  

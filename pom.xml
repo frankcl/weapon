@@ -43,7 +43,7 @@
     </modules>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
+        <jdk.version>11</jdk.version>
         <java-servlet.version>3.1.0</java-servlet.version>
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <jackson.version>2.13.3</jackson.version>
@@ -56,13 +56,14 @@
         <jsoup.version>1.15.3</jsoup.version>
         <okhttp3.version>4.9.3</okhttp3.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
-        <kryo.version>5.5.0</kryo.version>
-        <webp-imageio.version>0.1.6</webp-imageio.version>
-        <spring.version>5.3.22</spring.version>
-        <spring-boot.version>2.7.3</spring-boot.version>
+        <kryo.version>5.6.2</kryo.version>
+        <imageio-webp.version>3.12.0</imageio-webp.version>
+        <spring.version>5.3.31</spring.version>
+        <spring-boot.version>2.7.18</spring-boot.version>
         <kafka.version>3.3.1</kafka.version>
         <fastjson.version>2.0.35</fastjson.version>
-        <redisson.version>3.19.0</redisson.version>
+        <redisson.version>3.38.1</redisson.version>
+        <jetcd.version>0.8.3</jetcd.version>
         <oss.version>3.15.0</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
         <tablestore.version>5.13.10</tablestore.version>
@@ -228,9 +229,9 @@
                 <version>${kryo.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sejda.imageio</groupId>
-                <artifactId>webp-imageio</artifactId>
-                <version>${webp-imageio.version}</version>
+                <groupId>com.twelvemonkeys.imageio</groupId>
+                <artifactId>imageio-webp</artifactId>
+                <version>${imageio-webp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -271,6 +272,11 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.etcd</groupId>
+                <artifactId>jetcd-core</artifactId>
+                <version>${jetcd.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun.oss</groupId>

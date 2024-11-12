@@ -176,6 +176,27 @@ public class ReflectUtil {
     }
 
     /**
+     * 获取对象指定字段
+     *
+     * @param object 对象
+     * @param fieldName 字段名
+     * @return 成功返回字段，否则抛出异常
+     * @throws NoSuchFieldException 无字段异常
+     */
+    public static Field getField(Object object, String fieldName) throws NoSuchFieldException {
+        assert object != null && fieldName != null;
+        Class<?> clazz = object.getClass();
+        while (clazz != null) {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
+    }
+
+    /**
      * 获取ReflectClass
      *
      * @param clazz class对象

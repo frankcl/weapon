@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class RedisClientSuite {
 
-    private String nodeAddress = "r-bp1fac3adaa6aa14.redis.rds.aliyuncs.com:6379";
+    private String nodeAddress = "127.0.0.1:6379";
     private String password = "";
 
     @Test
