@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import xin.manong.weapon.base.common.Context;
@@ -43,7 +44,7 @@ public class WebLogAspect {
 
     private final static Logger logger = LoggerFactory.getLogger(WebLogAspect.class);
 
-    private final static List<String> ADDRESS_HEADERS = new ArrayList<String>() { {
+    private final static List<String> ADDRESS_HEADERS = new ArrayList<>() { {
         add("HTTP_CLIENT_IP");
         add("x-forwarded-for");
         add("Proxy-Client-IP");
@@ -105,14 +106,49 @@ public class WebLogAspect {
      * @return 存在返回请求路径，否则返回null
      */
     private String getRequestPath(JoinPoint joinPoint) {
+        String path = getClassPath(joinPoint);
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        Path classPath = joinPoint.getTarget().getClass().getAnnotation(Path.class);
-        Path methodPath = method.getAnnotation(Path.class);
-        String path = classPath == null ? "" : classPath.value();
-        if (methodPath == null || StringUtils.isEmpty(methodPath.value())) return path;
-        if (StringUtils.isEmpty(path)) return methodPath.value();
-        return String.format(!path.endsWith("/") && !methodPath.value().startsWith("/") ?
-                    "%s/%s" : "%s%s", path, methodPath.value());
+        String methodPath = getMethodPath(method);
+        if (StringUtils.isEmpty(methodPath)) return path;
+        if (StringUtils.isEmpty(path)) return methodPath;
+        return String.format(!path.endsWith("/") && !methodPath.startsWith("/") ?
+                    "%s/%s" : "%s%s", path, methodPath);
+    }
+
+    /**
+     * 获取类注释路径
+     *
+     * @param joinPoint 切入点
+     * @return 存在返回路径，否则返回空字符串
+     */
+    private String getClassPath(JoinPoint joinPoint) {
+        Class<?> c = joinPoint.getTarget().getClass();
+        Path path = c.getAnnotation(Path.class);
+        if (path != null) return path.value();
+        RequestMapping requestMapping = c.getAnnotation(RequestMapping.class);
+        return requestMapping == null || requestMapping.value().length == 0 ? "" : requestMapping.value()[0];
+    }
+
+    /**
+     * 获取方法注解路径
+     *
+     * @param method 方法
+     * @return 存在返回路径，否则返回空字符串
+     */
+    private String getMethodPath(Method method) {
+        Path path = method.getAnnotation(Path.class);
+        if (path != null) return path.value();
+        GetMapping getMapping = method.getAnnotation(GetMapping.class);
+        if (getMapping != null) return getMapping.value().length == 0 ? "" : getMapping.value()[0];
+        PutMapping putMapping = method.getAnnotation(PutMapping.class);
+        if (putMapping != null) return putMapping.value().length == 0 ? "" : putMapping.value()[0];
+        PostMapping postMapping = method.getAnnotation(PostMapping.class);
+        if (postMapping != null) return postMapping.value().length == 0 ? "" : postMapping.value()[0];
+        DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
+        if (deleteMapping != null) return deleteMapping.value().length == 0 ? "" : deleteMapping.value()[0];
+        RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+        if (requestMapping != null) return requestMapping.value().length == 0 ? "" : requestMapping.value()[0];
+        return "";
     }
 
     /**
@@ -127,6 +163,12 @@ public class WebLogAspect {
         else if (method.getAnnotation(POST.class) != null) return POST.class.getSimpleName();
         else if (method.getAnnotation(PUT.class) != null) return PUT.class.getSimpleName();
         else if (method.getAnnotation(DELETE.class) != null) return DELETE.class.getSimpleName();
+        else if (method.getAnnotation(GetMapping.class) != null) return RequestMethod.GET.name();
+        else if (method.getAnnotation(PostMapping.class) != null) return RequestMethod.POST.name();
+        else if (method.getAnnotation(PutMapping.class) != null) return RequestMethod.PUT.name();
+        else if (method.getAnnotation(DeleteMapping.class) != null) return RequestMethod.DELETE.name();
+        RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+        if (requestMapping != null && requestMapping.method().length > 0) return requestMapping.method()[0].name();
         return null;
     }
 
@@ -188,6 +230,8 @@ public class WebLogAspect {
             if (annotation instanceof QueryParam) return ((QueryParam) annotation).value();
             else if (annotation instanceof PathParam) return ((PathParam) annotation).value();
             else if (annotation instanceof FormParam) return ((FormParam) annotation).value();
+            else if (annotation instanceof PathVariable) return ((PathVariable) annotation).value();
+            else if (annotation instanceof RequestParam) return ((RequestParam) annotation).value();
         }
         return null;
     }
