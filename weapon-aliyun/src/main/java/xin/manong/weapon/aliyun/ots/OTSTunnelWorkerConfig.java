@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * OTS通道worker配置
  *
@@ -63,14 +65,9 @@ public class OTSTunnelWorkerConfig {
 
     @Override
     public boolean equals(Object object) {
-        if (object == null || !(object instanceof OTSTunnelWorkerConfig)) return false;
+        if (!(object instanceof OTSTunnelWorkerConfig)) return false;
         OTSTunnelWorkerConfig workerConfig = (OTSTunnelWorkerConfig) object;
-        if (workerConfig.tunnel == null && tunnel != null) return false;
-        if (workerConfig.tunnel != null && tunnel == null) return false;
-        if (workerConfig.table == null && table != null) return false;
-        if (workerConfig.table != null && table == null) return false;
-        if (workerConfig.table == table && workerConfig.tunnel == tunnel) return true;
-        return workerConfig.tunnel.equals(tunnel) && workerConfig.table.equals(table);
+        return Objects.equals(workerConfig.table, table) && Objects.equals(workerConfig.tunnel, tunnel);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package xin.manong.weapon.base.common;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,8 +9,9 @@ import java.util.Map;
  * 上下文：用于流程中透传信息
  *
  * @author frankcl
- * @create 2019-10-09 16:49:17
+ * @date 2019-10-09 16:49:17
  */
+@Getter
 public class Context {
 
     public Map<String, Object> featureMap;
@@ -53,7 +56,7 @@ public class Context {
      * @param key feature key
      */
     public void remove(String key) {
-        if (featureMap.containsKey(key)) featureMap.remove(key);
+        featureMap.remove(key);
     }
 
     /**
@@ -64,12 +67,4 @@ public class Context {
         featureMap = new HashMap<>();
     }
 
-    /**
-     * 获取内部feature map
-     *
-     * @return feature map对象
-     */
-    public Map<String, Object> getFeatureMap() {
-        return featureMap;
-    }
 }

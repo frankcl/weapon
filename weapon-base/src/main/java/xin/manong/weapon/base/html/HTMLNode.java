@@ -45,11 +45,6 @@ public class HTMLNode {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
     public int hashCode() {
         return node.hashCode();
     }

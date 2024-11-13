@@ -38,8 +38,9 @@
         <module>weapon-base</module>
         <module>weapon-alarm</module>
         <module>weapon-aliyun</module>
-        <module>weapon-spring-boot-starter</module>
+        <module>weapon-spring-boot</module>
         <module>weapon-dynamic-secret-listener</module>
+        <module>weapon-jersey</module>
     </modules>
 
     <properties>
@@ -236,6 +237,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>

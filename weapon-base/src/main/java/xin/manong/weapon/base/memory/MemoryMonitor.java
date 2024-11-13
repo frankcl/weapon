@@ -14,7 +14,7 @@ public class MemoryMonitor {
     private final static Logger logger = LoggerFactory.getLogger(MemoryMonitor.class);
 
     private volatile long lastForceFullGCTime;
-    private MemoryMonitorConfig config;
+    private final MemoryMonitorConfig config;
 
     public MemoryMonitor(MemoryMonitorConfig config) {
         this.lastForceFullGCTime = 0L;

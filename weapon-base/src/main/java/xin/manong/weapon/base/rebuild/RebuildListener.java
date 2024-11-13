@@ -9,10 +9,10 @@ package xin.manong.weapon.base.rebuild;
 public interface RebuildListener {
 
     /**
-     * 通知监听对象重建事件
+     * 当监听对象发生重建时，回调该方法
      *
-     * @param rebuildObject 重建对象
+     * @param rebuildTarget 发生重建的对象
      */
-    default void notifyRebuildEvent(Rebuildable rebuildObject) {
+    default void onRebuild(Rebuildable rebuildTarget) {
     }
 }

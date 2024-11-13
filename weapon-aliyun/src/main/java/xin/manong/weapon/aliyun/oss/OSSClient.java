@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 import xin.manong.weapon.base.util.CommonUtil;
 
 import java.io.ByteArrayInputStream;
@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * OSS客户端
  *
  * @author frankcl
- * @create 2019-08-26 16:10:36
+ * @date 2019-08-26 16:10:36
  */
 public class OSSClient implements Rebuildable {
 
@@ -39,7 +40,7 @@ public class OSSClient implements Rebuildable {
     private final static int BUFFER_SIZE = 4096;
     private final static long EXPIRED_TIME_1H = 60 * 60 * 1000L;
 
-    private OSSClientConfig config;
+    private final OSSClientConfig config;
     private OSS instance;
 
     public OSSClient(OSSClientConfig config) {
@@ -96,11 +97,7 @@ public class OSSClient implements Rebuildable {
         ByteArrayOutputStream outputStream = null;
         try {
             OSSObject ossObject = instance.getObject(request);
-            if (ossObject == null || ossObject.getObjectContent() == null) {
-                logger.warn("oss object is not found for key[{}] and bucket[{}]",
-                        request.getKey(), request.getBucketName());
-                return null;
-            }
+            if (ossObject == null || ossObject.getObjectContent() == null) return null;
             int size;
             byte[] buffer = new byte[BUFFER_SIZE];
             inputStream = ossObject.getObjectContent();
@@ -125,8 +122,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 获取数据流
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @return 如果成功返回数据流，否则返回null
      */
     public InputStream getObjectStream(String bucket, String key) {
@@ -148,8 +145,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 获取数据
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @return 如果成功返回内容，否则返回null
      */
     public byte[] getObject(String bucket, String key) {
@@ -167,8 +164,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 上传数据
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @param content 内容
      * @return 成功返回true，否则返回false
      */
@@ -181,15 +178,14 @@ public class OSSClient implements Rebuildable {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
             if (putObject(bucket, key, inputStream)) return true;
         }
-        logger.error("put object failed for bucket[{}] and key[{}]", bucket, key);
         return false;
     }
 
     /**
      * 上传数据
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @param inputStream 输入流
      * @return 成功返回true，否则返回false
      */
@@ -223,8 +219,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 获取数据信息
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @return 成功返回数据信息，否则返回null
      */
     public ObjectMetadata getObjectMeta(String bucket, String key) {
@@ -240,7 +236,7 @@ public class OSSClient implements Rebuildable {
      * 列表目录文件
      * 最多不超过10000个文件
      *
-     * @param bucket
+     * @param bucket bucket
      * @param directory 目录
      * @return 成功返回key列表，否则返回null
      */
@@ -272,8 +268,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 数据加签，过期时间1小时
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @return 加签URL
      */
     public String sign(String bucket, String key) {
@@ -283,8 +279,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 数据加签
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @param ttl 过期时间（毫秒）
      * @return 加签URL
      */
@@ -298,8 +294,8 @@ public class OSSClient implements Rebuildable {
     /**
      * 数据是否存在
      *
-     * @param bucket
-     * @param key
+     * @param bucket bucket
+     * @param key key
      * @return 存在返回true，否则返回false
      */
     public boolean exist(String bucket, String key) {
@@ -392,9 +388,9 @@ public class OSSClient implements Rebuildable {
         }
         int index = ossURL.indexOf("/", from);
         String key = index == -1 ? "" : ossURL.substring(index + 1);
-        if (key.indexOf("?") != -1) key = key.substring(0, key.indexOf("?"));
+        if (key.contains("?")) key = key.substring(0, key.indexOf("?"));
         try {
-            key = URLDecoder.decode(key, "UTF-8");
+            key = URLDecoder.decode(key, StandardCharsets.UTF_8);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

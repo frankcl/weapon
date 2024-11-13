@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
  * 通用工具
  *
  * @author frankcl
- * @create 2020-01-08 15:36:09
+ * @date 2020-01-08 15:36:09
  */
 public class CommonUtil {
 
@@ -100,7 +101,7 @@ public class CommonUtil {
                 int j = i + len - 1;
                 if (j >= s.length()) continue;
                 int u = i + 1, v = j - 1;
-                if (!(s.charAt(i) == s.charAt(j) && (u >= v || (u < v && matrix[u][v])))) continue;
+                if (!(s.charAt(i) == s.charAt(j) && (u >= v || matrix[u][v]))) continue;
                 matrix[i][j] = true;
                 if (j - i + 1 <= maxLen) continue;
                 maxLen = j - i + 1;
@@ -159,7 +160,7 @@ public class CommonUtil {
             }
         }
         if (maxLen == 0) return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (d[m][n] > 0) {
             if (s1.charAt(m - 1) == s2.charAt(n - 1)) {
                 sb.append(s1.charAt(m - 1));
@@ -223,7 +224,7 @@ public class CommonUtil {
     public static double round(double v, int n) {
         if (n < 0) throw new IllegalArgumentException(String.format("n[%d] must be greater than 0", n));
         BigDecimal bigDecimal = new BigDecimal(v);
-        return bigDecimal.setScale(n, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return bigDecimal.setScale(n, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
@@ -244,7 +245,7 @@ public class CommonUtil {
     /**
      * 找到比n大的第一个质数
      *
-     * @param n
+     * @param n 当前数字
      * @return 比n大的第一个质数
      */
     public static int findNextPrime(int n) {
@@ -308,7 +309,6 @@ public class CommonUtil {
         if (object instanceof String) return true;
         if (object instanceof Boolean) return true;
         if (object instanceof Character) return true;
-        if (object instanceof Byte) return true;
-        return false;
+        return object instanceof Byte;
     }
 }

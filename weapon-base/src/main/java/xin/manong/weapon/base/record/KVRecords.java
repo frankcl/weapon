@@ -11,7 +11,7 @@ import java.util.List;
  * KV数据列表
  *
  * @author frankcl
- * @create 2019-05-27 13:23
+ * @date 2019-05-27 13:23
  */
 public class KVRecords implements Serializable {
 
@@ -105,11 +105,11 @@ public class KVRecords implements Serializable {
     @Override
     public String toString() {
         int count = getRecordCount();
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("record count[").append(count).append("]").append("\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("record count[").append(count).append("]").append("\n");
         for (int i = 0; i < count; i++) {
-            buffer.append(getRecord(i).toString()).append("\n");
+            builder.append(getRecord(i).toString()).append("\n");
         }
-        return buffer.toString();
+        return builder.toString();
     }
 }

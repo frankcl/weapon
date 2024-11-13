@@ -30,7 +30,7 @@ public class HttpRequest {
      * 请求构建器
      */
     public static class Builder {
-        private HttpRequest httpRequest;
+        private final HttpRequest httpRequest;
 
         public Builder() {
             httpRequest = new HttpRequest();

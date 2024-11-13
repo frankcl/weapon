@@ -16,7 +16,7 @@ import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.record.KVRecords;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +33,7 @@ public class LogClient implements Rebuildable {
 
     private static final Logger logger = LoggerFactory.getLogger(LogClient.class);
 
-    private LogClientConfig config;
+    private final LogClientConfig config;
     private Client client;
     private Producer producer;
     private Set<String> projects;
@@ -109,7 +109,7 @@ public class LogClient implements Rebuildable {
     /**
      * 构建project连接客户端
      *
-     * @param project
+     * @param project 项目
      */
     private void buildProjectClient(String project) {
         if (projects.contains(project)) return;
@@ -124,7 +124,7 @@ public class LogClient implements Rebuildable {
     /**
      * 转换KVRecord为LogItem
      *
-     * @param kvRecord
+     * @param kvRecord 数据
      * @return LogItem
      */
     private LogItem convert(KVRecord kvRecord) {

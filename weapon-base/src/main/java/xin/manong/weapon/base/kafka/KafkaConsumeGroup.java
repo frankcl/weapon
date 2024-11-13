@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.kafka;
 
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,9 @@ public class KafkaConsumeGroup {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumeGroup.class);
 
-    private KafkaConsumeConfig config;
+    private final KafkaConsumeConfig config;
     private KafkaConsumer[] consumers;
+    @Setter
     private KafkaRecordProcessor processor;
 
     public KafkaConsumeGroup(KafkaConsumeConfig config) {
@@ -63,14 +65,5 @@ public class KafkaConsumeGroup {
             consumers[i].stop();
         }
         logger.info("kafka consume group[{}] has been stopped", config.name);
-    }
-
-    /**
-     * 设置数据处理器
-     *
-     * @param processor 数据处理器
-     */
-    public void setProcessor(KafkaRecordProcessor processor) {
-        this.processor = processor;
     }
 }

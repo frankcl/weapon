@@ -22,8 +22,8 @@ public class DummyProxySelector extends ProxySelector {
 
     private static final Logger logger = LoggerFactory.getLogger(DummyProxySelector.class);
 
-    private Random random;
-    private List<Proxy> proxies;
+    private final Random random;
+    private final List<Proxy> proxies;
 
     public DummyProxySelector(List<Proxy> proxies) {
         this.random = new Random();

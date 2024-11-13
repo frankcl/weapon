@@ -4,6 +4,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import xin.manong.weapon.base.util.CommonUtil;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.io.IOException;
  */
 public class HostModifyInterceptor implements Interceptor {
 
+    @NotNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

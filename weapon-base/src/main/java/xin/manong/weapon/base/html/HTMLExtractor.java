@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.CommonUtil;
 
-import javax.swing.text.html.HTML;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,10 +70,6 @@ public class HTMLExtractor {
         Document document = StringUtils.isEmpty(url) ? Jsoup.parse(html) : Jsoup.parse(html, url);
         document.select(String.join(",", EXCLUDE_NODES)).remove();
         Element body = document.body();
-        if (body == null) {
-            logger.warn("page body is not found");
-            return null;
-        }
         HTMLNode bodyNode = new HTMLNode(body);
         computeScore(bodyNode);
         return selectMainElement(bodyNode);
@@ -103,11 +98,10 @@ public class HTMLExtractor {
                         matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4),
                         matcher.group(5)), "yyyy-MM-dd HH:mm");
             }
-            while (true) {
-                if (element.tag().equals(HTML.Tag.BODY)) return null;
+            do {
+                if (element.tag().getName().equalsIgnoreCase("body")) return null;
                 element = element.parent();
-                if (element == null || element.childNodeSize() != 1) break;
-            }
+            } while (element != null && element.childNodeSize() == 1);
         }
         return null;
     }
@@ -118,20 +112,13 @@ public class HTMLExtractor {
      *
      * @param html HTML内容
      * @param url 网页URL
-     * @return
+     * @return 格式化HTML内容
      */
     public static String formatHTML(String html, String url) {
-        if (StringUtils.isEmpty(html)) {
-            logger.error("page HTML is empty");
-            return "";
-        }
+        if (StringUtils.isEmpty(html)) return "";
         Document document = StringUtils.isEmpty(url) ? Jsoup.parse(html) : Jsoup.parse(html, url);
         document.select(String.join(",", EXCLUDE_NODES)).remove();
         Element body = document.body();
-        if (body == null) {
-            logger.warn("page body is not found");
-            return "";
-        }
         return formatHTMLElement(body);
     }
 
@@ -148,12 +135,12 @@ public class HTMLExtractor {
         for (Node childNode : htmlElement.childNodes()) {
             htmlElements.addAll(buildHTMLElements(childNode));
         }
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (Element element : htmlElements) {
-            if (buffer.length() > 0) buffer.append("\n");
-            buffer.append(element.outerHtml());
+            if (builder.length() > 0) builder.append("\n");
+            builder.append(element.outerHtml());
         }
-        return buffer.toString();
+        return builder.toString();
     }
 
     /**
@@ -169,8 +156,8 @@ public class HTMLExtractor {
             TextNode textNode = (TextNode) node;
             if (textNode.text().trim().isEmpty()) return htmlElements;
             Node parentNode = node.parent();
-            Boolean block = parentNode instanceof Element && ((Element) parentNode).isBlock() &&
-                    parentNode.childNodeSize() == 1 ? true : false;
+            boolean block = parentNode instanceof Element &&
+                    ((Element) parentNode).isBlock() && parentNode.childNodeSize() == 1;
             Element htmlElement = new Element(block ? TAG_NAME_PARAGRAPH : TAG_NAME_SPAN);
             htmlElement.appendChild(node.clone());
             htmlElements.add(htmlElement);
@@ -220,12 +207,7 @@ public class HTMLExtractor {
         String sourceURL = imageElement.attr(ATTR_NAME_ABS_SRC);
         if (StringUtils.isEmpty(sourceURL)) sourceURL = imageElement.attr(ATTR_NAME_ABS_DATA_SRC);
         if (StringUtils.isEmpty(sourceURL)) return null;
-        if (sourceURL.startsWith("//")) sourceURL = String.format(PROTOCOL_PREFIX_FORMAT, sourceURL);
-        htmlElement.attr(ATTR_NAME_SRC, sourceURL);
-        String width = imageElement.attr(ATTR_NAME_WIDTH);
-        if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
-        String height = imageElement.attr(ATTR_NAME_HEIGHT);
-        if (!StringUtils.isEmpty(height)) htmlElement.attr(ATTR_NAME_HEIGHT, height);
+        fillMediaElement(htmlElement, sourceURL, imageElement);
         return htmlElement;
     }
 
@@ -244,13 +226,25 @@ public class HTMLExtractor {
             sourceURL = sourceElement.attr(ATTR_NAME_ABS_SRC);
             if (StringUtils.isEmpty(sourceURL)) return null;
         }
-        if (sourceURL.startsWith("//")) sourceURL = String.format(PROTOCOL_PREFIX_FORMAT, sourceURL);
-        htmlElement.attr(ATTR_NAME_SRC, sourceURL);
-        String width = videoElement.attr(ATTR_NAME_WIDTH);
-        if (!StringUtils.isEmpty(width)) htmlElement.attr(ATTR_NAME_WIDTH, width);
-        String height = videoElement.attr(ATTR_NAME_HEIGHT);
-        if (!StringUtils.isEmpty(height)) htmlElement.attr(ATTR_NAME_HEIGHT, height);
+        fillMediaElement(htmlElement, sourceURL, videoElement);
         return htmlElement;
+    }
+
+    /**
+     * 填充媒体元素：video和image
+     *
+     * @param destElement 目标元素
+     * @param sourceURL URL
+     * @param sourceElement 来源元素
+     */
+    private static void fillMediaElement(Element destElement,
+                                         String sourceURL, Element sourceElement) {
+        if (sourceURL.startsWith("//")) sourceURL = String.format(PROTOCOL_PREFIX_FORMAT, sourceURL);
+        destElement.attr(ATTR_NAME_SRC, sourceURL);
+        String width = sourceElement.attr(ATTR_NAME_WIDTH);
+        if (!StringUtils.isEmpty(width)) destElement.attr(ATTR_NAME_WIDTH, width);
+        String height = sourceElement.attr(ATTR_NAME_HEIGHT);
+        if (!StringUtils.isEmpty(height)) destElement.attr(ATTR_NAME_HEIGHT, height);
     }
 
     /**
@@ -326,8 +320,8 @@ public class HTMLExtractor {
      */
     private static boolean isVisible(Element element) {
         String style = element.attr(ATTR_NAME_STYLE);
-        style = style == null ? "" : style.replaceAll("\\s", "");
-        return style.indexOf("display:none") == -1;
+        style = style.replaceAll("\\s", "");
+        return !style.contains("display:none");
     }
 
     /**
@@ -374,7 +368,7 @@ public class HTMLExtractor {
         List<HTMLNode> htmlNodes = new LinkedList<>();
         int heapSize = 3;
         PriorityQueue<HTMLNode> nodeQueue = new PriorityQueue<>(heapSize,
-                (n1, n2) -> n1.score > n2.score ? 1 : (n1.score < n2.score ? -1 : 0));
+                Comparator.comparingDouble(n -> n.score));
         htmlNodes.add(bodyNode);
         while (!htmlNodes.isEmpty()) {
             HTMLNode htmlNode = htmlNodes.remove(0);
@@ -386,9 +380,8 @@ public class HTMLExtractor {
             }
             if (htmlNode.childNodes != null) htmlNodes.addAll(htmlNode.childNodes);
         }
-        htmlNodes = new ArrayList<>();
-        htmlNodes.addAll(nodeQueue);
-        htmlNodes.sort((n1, n2) -> n1.score > n2.score ? -1 : (n1.score < n2.score ? 1 : 0));
+        htmlNodes = new ArrayList<>(nodeQueue);
+        htmlNodes.sort((n1, n2) -> Double.compare(n2.score, n1.score));
         if (htmlNodes.isEmpty()) return (Element) bodyNode.node;
         HTMLNode mainHTMLNode = selectMainHTMLNode(htmlNodes);
         return (Element) mainHTMLNode.node;

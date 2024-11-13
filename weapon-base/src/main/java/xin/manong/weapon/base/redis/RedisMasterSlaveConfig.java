@@ -4,7 +4,6 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
  * @date 2022-12-20 17:35:02
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.common.redis.client.master-slave")
 public class RedisMasterSlaveConfig extends RedisConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(RedisMasterSlaveConfig.class);

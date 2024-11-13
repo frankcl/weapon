@@ -14,7 +14,7 @@ public interface KafkaRecordProcessor {
      * 处理kafka数据，处理失败抛出异常
      *
      * @param consumerRecord 数据
-     * @throws Exception
+     * @throws Exception 异常
      */
     void process(ConsumerRecord<byte[], byte[]> consumerRecord) throws Exception;
 }

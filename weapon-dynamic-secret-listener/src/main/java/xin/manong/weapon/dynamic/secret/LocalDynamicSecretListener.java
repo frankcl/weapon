@@ -4,27 +4,25 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.aliyun.secret.AliyunSecret;
-import xin.manong.weapon.base.secret.DynamicSecret;
-import xin.manong.weapon.base.secret.DynamicSecretListener;
-import xin.manong.weapon.base.secret.Holder;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecretListener;
+import xin.manong.weapon.aliyun.secret.Holder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 /**
  * 通过本地资源文件监听加载秘钥
  * 不支持秘钥动态更新监听
  * 仅为通过本地资源文件统一配置AK/SK提供支持
- *
  * 秘钥配置文件格式
  * {
  *   "accessKey": "ak",
  *   "secretKey": "sk"
  * }
- *
  * 默认秘钥配置文件secret.json
  * 也可通过运行参数进行设置-DdynamicSecret=resourcePath
  *
@@ -85,7 +83,7 @@ public class LocalDynamicSecretListener implements DynamicSecretListener {
             while ((n = inputStream.read(buffer, 0, buffer.length)) != -1) {
                 outputStream.write(buffer, 0, n);
             }
-            String content = new String(outputStream.toByteArray(), Charset.forName("UTF-8"));
+            String content = outputStream.toString(StandardCharsets.UTF_8);
             outputStream.close();
             inputStream.close();
             AliyunSecret aliyunSecret = JSON.parseObject(content, AliyunSecret.class);

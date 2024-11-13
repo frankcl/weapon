@@ -18,10 +18,10 @@ public class MNSQueueHandler implements Runnable {
     private static final int WAIT_SECONDS = 3;
 
     private volatile boolean running;
-    private String name;
+    private final String name;
+    private final CloudQueue queue;
+    private final MessageProcessor processor;
     private Thread workThread;
-    private CloudQueue queue;
-    private MessageProcessor processor;
 
     public MNSQueueHandler(String name, CloudQueue queue, MessageProcessor processor) {
         this.running = false;

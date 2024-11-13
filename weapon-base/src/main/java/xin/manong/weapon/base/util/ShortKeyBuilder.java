@@ -32,7 +32,7 @@ public class ShortKeyBuilder {
      */
     public static String build(String text) {
         String md5 = DigestUtils.md5Hex(text == null ? "" : text);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         int[] codes = buildCodes(md5);
         for (int code : codes) buffer.append(ENCODE_CHARS[code % ENCODE_CHARS.length]);
         codes = buildCodes(new StringBuffer(md5).reverse().toString());
@@ -47,7 +47,7 @@ public class ShortKeyBuilder {
      * @return 编码表
      */
     private static int[] buildCodes(String md5) {
-        int codes[] = new int[6];
+        int[] codes = new int[6];
         for (int i = 0; i < 4; i++) {
             String segment = md5.substring(i * 8, (i + 1) * 8);
             long value = TWO_BYTE_MASK & Long.valueOf(segment, 16);

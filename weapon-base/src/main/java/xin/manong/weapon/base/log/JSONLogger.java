@@ -19,7 +19,7 @@ import java.util.Set;
  * JSON格式日志生成
  *
  * @author frankcl
- * @create 2019-10-10 14:49:02
+ * @date 2019-10-10 14:49:02
  */
 public class JSONLogger {
     private final static int MAX_BACKUP_INDEX = 10;
@@ -27,8 +27,8 @@ public class JSONLogger {
     private final static String KEY_LOGGER_TIME = "__LOGGER_TIME__";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
-    private Set<String> logKeys;
-    private Logger slf4jLogger;
+    private final Set<String> logKeys;
+    private final Logger slf4jLogger;
 
     public JSONLogger(String filename, Set<String> keys) {
         try {

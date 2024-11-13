@@ -24,26 +24,30 @@
   - [x] OTS支持：客户端封装及数据通道封装
   - [x] DataHub客户端封装
   - [x] SLS日志客户端封装
-### 3. weapon-spring-boot-starter: spring boot starter支持
+### 3. weapon-spring-boot: spring boot支持
   - [x] 阿里云工具spring boot starter支持：ONS生产及消费支持、OSS支持、OTS客户端及数据通道支持、DataHub客户端支持、SLS日志客户端支持
   - [x] Redis客户端spring boot starter支持
-  - [x] spring web层增强：web切面日志支持、web层异常处理、web层响应对象归一化
-### 4. weapon-dynamic-secret-listener 阿里云工具AK/SK加载实现
+  - [x] Etcd客户端spring boot starter支持
+  - [x] web日志切面支持
+### 4. weapon-jersey: jersey web service支持
+  - [x] jersey web层异常处理、web层响应对象归一化
+### 5. weapon-dynamic-secret-listener 阿里云工具AK/SK加载实现
   - [x] 通过加载本地配置文件实现AK/SK加载，不具备动态更新功能
-### 5. weapon-alarm 报警和监控规范及接口定义
+### 6. weapon-alarm 报警和监控规范及接口定义
 
 
 ## 使用
 
 如需使用，请引入对应工具包
 
-| 工件                             | 分组         | 最新版本  | 是否必须 | 说明                 |
-|:-------------------------------|:-----------|:------|:-----|:-------------------|
-| weapon-base                    | xin.manong | 0.2.0 | 否    | 基础开发工具             |
-| weapon-aliyun                  | xin.manong | 0.2.0 | 否    | 阿里云工具              |
-| weapon-spring-boot-starter     | xin.manong | 0.2.0 | 否    | spring boot增强工具    |
-| weapon-dynamic-secret-listener | xin.manong | 0.2.0 | 否    | 通过本地资源文件加载阿里云AK/SK |
-| weapon-alarm                   | xin.manong | 0.2.0 | 否    | 报警接口定义，引入使用实现自定义报警 |
+| 工件                             | 分组         | 最新版本  | 是否必须 | 说明                     |
+|:-------------------------------|:-----------|:------|:-----|:-----------------------|
+| weapon-base                    | xin.manong | 0.2.0 | 否    | 基础开发工具                 |
+| weapon-aliyun                  | xin.manong | 0.2.0 | 否    | 阿里云工具                  |
+| weapon-spring-boot             | xin.manong | 0.2.0 | 否    | spring boot增强工具        |
+| weapon-jersey                  | xin.manong | 0.2.0 | 否    | jersey web service增强工具 |
+| weapon-dynamic-secret-listener | xin.manong | 0.2.0 | 否    | 通过本地资源文件加载阿里云AK/SK     |
+| weapon-alarm                   | xin.manong | 0.2.0 | 否    | 报警接口定义，引入使用实现自定义报警     |
 
 ## 依赖三方库信息
 

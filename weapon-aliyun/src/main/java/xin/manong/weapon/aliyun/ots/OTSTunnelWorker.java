@@ -25,9 +25,9 @@ public class OTSTunnelWorker {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelWorker.class);
 
-    private OTSTunnelWorkerConfig config;
+    private final OTSTunnelWorkerConfig config;
     private TunnelWorkerConfig workerConfig;
-    private TunnelClient tunnelClient;
+    private final TunnelClient tunnelClient;
     private TunnelWorker worker;
 
     public OTSTunnelWorker(OTSTunnelWorkerConfig config,
@@ -98,8 +98,9 @@ public class OTSTunnelWorker {
     private ThreadPoolExecutor createThreadPoolExecutor(String name, int threadNum) {
         logger.info("create thread pool executor[{}:{}]", name, threadNum);
         return new ThreadPoolExecutor(threadNum, threadNum, 60L, TimeUnit.SECONDS,
-                new ArrayBlockingQueue(16), new ThreadFactory() {
+                new ArrayBlockingQueue<>(16), new ThreadFactory() {
             private final AtomicInteger counter = new AtomicInteger();
+            @SuppressWarnings("NullableProblems")
             public Thread newThread(Runnable task) {
                 String threadName = String.format("%s-%d", name, this.counter.getAndIncrement());
                 logger.info("create channel receiver thread[{}] success", threadName);

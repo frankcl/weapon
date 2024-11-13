@@ -4,18 +4,16 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
+import xin.manong.weapon.aliyun.secret.DynamicSecretSupport;
 
 /**
  * OTS客户端配置
  *
  * @author frankcl
- * @create 2019-05-28 20:30
+ * @date 2019-05-28 20:30
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.ots.client")
-public class OTSClientConfig extends DynamicSecretConfig {
+public class OTSClientConfig extends DynamicSecretSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSClientConfig.class);
 

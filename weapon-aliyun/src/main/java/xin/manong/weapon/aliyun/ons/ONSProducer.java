@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.Properties;
 
@@ -13,13 +13,13 @@ import java.util.Properties;
  * ONS消息发送
  *
  * @author frankcl
- * @create 2019-06-11 19:05
+ * @date 2019-06-11 19:05
  */
 public class ONSProducer implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSProducer.class);
 
-    private ONSProducerConfig config;
+    private final ONSProducerConfig config;
     private Producer producer;
 
     public ONSProducer(ONSProducerConfig config) {

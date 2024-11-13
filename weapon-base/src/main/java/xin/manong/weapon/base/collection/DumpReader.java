@@ -19,10 +19,10 @@ class DumpReader<T> implements RecordReader<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(DumpReader.class);
 
-    private String dumpFile;
-    private Class<T> recordClass;
+    private final String dumpFile;
+    private final Class<T> recordClass;
+    private final Kryo kryo;
     private Input input;
-    private Kryo kryo;
     private T record;
 
     public DumpReader(String dumpFile, Class<T> recordClass, Kryo kryo) {

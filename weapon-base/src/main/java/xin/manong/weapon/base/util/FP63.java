@@ -4,7 +4,7 @@ package xin.manong.weapon.base.util;
  * 将任意字符串映射为long值类型，保证很小的重复率
  *
  * @author frankcl
- * @create 2019-05-27 15:29
+ * @date 2019-05-27 15:29
  */
 public class FP63 {
 
@@ -85,19 +85,19 @@ public class FP63 {
      * @return long
      */
     public static long newFP63(byte[] byteArray, int pos, int length) {
-        return extendFP63(IRRED_POLY, byteArray, pos, length) << 1;
+        return extendFP63(byteArray, pos, length) << 1;
     }
 
     /**
      * 字节数组转换为long
      *
-     * @param fp 指纹种子
      * @param byteArray 需要转换的字节数组
      * @param pos 起始下标
      * @param length 转换字节数
      * @return long
      */
-    private static long extendFP63(long fp, byte[] byteArray, int pos, int length) {
+    private static long extendFP63(byte[] byteArray, int pos, int length) {
+        long fp = IRRED_POLY;
         int mask = 0xFF;
         int end = pos + length;
         for (int i = pos; i < end; i++) {

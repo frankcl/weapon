@@ -4,6 +4,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimeoutModifyInterceptor implements Interceptor {
 
+    @NotNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
@@ -37,12 +39,16 @@ public class TimeoutModifyInterceptor implements Interceptor {
         String value = request.header(timeoutHeader);
         if (StringUtils.isEmpty(value)) return chain;
         int timeout = Integer.parseInt(value);
-        if (timeoutHeader.equals(HttpClient.HEADER_READ_TIMEOUT_MS)) {
-            chain = chain.withReadTimeout(timeout, TimeUnit.MILLISECONDS);
-        } else if (timeoutHeader.equals(HttpClient.HEADER_WRITE_TIMEOUT_MS)) {
-            chain = chain.withWriteTimeout(timeout, TimeUnit.MILLISECONDS);
-        } else if (timeoutHeader.equals(HttpClient.HEADER_CONNECT_TIMEOUT_MS)) {
-            chain = chain.withConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+        switch (timeoutHeader) {
+            case HttpClient.HEADER_READ_TIMEOUT_MS:
+                chain = chain.withReadTimeout(timeout, TimeUnit.MILLISECONDS);
+                break;
+            case HttpClient.HEADER_WRITE_TIMEOUT_MS:
+                chain = chain.withWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+                break;
+            case HttpClient.HEADER_CONNECT_TIMEOUT_MS:
+                chain = chain.withConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+                break;
         }
         return chain;
     }

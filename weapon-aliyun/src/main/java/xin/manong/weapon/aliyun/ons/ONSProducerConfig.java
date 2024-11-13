@@ -4,18 +4,16 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
+import xin.manong.weapon.aliyun.secret.DynamicSecretSupport;
 
 /**
  * ONS消息生产配置
  *
  * @author frankcl
- * @create 2019-06-11 19:05
+ * @date 2019-06-11 19:05
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.ons.producer")
-public class ONSProducerConfig extends DynamicSecretConfig {
+public class ONSProducerConfig extends DynamicSecretSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(ONSProducerConfig.class);
 

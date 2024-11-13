@@ -3,7 +3,6 @@ package xin.manong.weapon.base.redis;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,7 +16,6 @@ import java.util.Set;
  * @date 2022-12-20 17:41:04
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.common.redis.client.cluster")
 public class RedisClusterConfig extends RedisConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(RedisClusterConfig.class);

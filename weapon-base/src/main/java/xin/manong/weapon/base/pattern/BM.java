@@ -25,7 +25,7 @@ public class BM {
     private int[] bmSL;
     /* 坏字符表 */
     private Map<Character, Integer> bmBC;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     public BM(String pattern) {
         build(pattern);
@@ -38,7 +38,7 @@ public class BM {
      * @param pattern 重建匹配模式
      */
     public void rebuild(String pattern) {
-        if (pattern == null || pattern.equals("")) {
+        if (pattern == null || pattern.isEmpty()) {
             logger.error("rebuild pattern is empty");
             throw new RuntimeException("重建匹配模式为空");
         }
@@ -51,8 +51,9 @@ public class BM {
      * @param text 待匹配文本
      * @return 匹配上返回匹配结果，否则返回null
      */
+    @SuppressWarnings("StatementWithEmptyBody")
     public MatchResult search(String text) {
-        if (text == null || text.equals("")) {
+        if (text == null || text.isEmpty()) {
             logger.warn("search text is empty");
             return null;
         }
@@ -84,7 +85,7 @@ public class BM {
      * @param pattern 模式串
      */
     private void build(String pattern) {
-        if (pattern == null || pattern.equals("")) {
+        if (pattern == null || pattern.isEmpty()) {
             logger.error("pattern is empty");
             throw new RuntimeException("匹配模式为空");
         }

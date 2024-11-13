@@ -1,6 +1,7 @@
 package xin.manong.weapon.base.redis;
 
 import com.alibaba.fastjson.JSON;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.*;
@@ -28,10 +29,10 @@ public class RedisClient {
     /**
      * redis客户端及连接缓存
      */
-    class CachedClientConnection {
-        private RedisMode redisMode;
+    static class CachedClientConnection {
+        private final RedisMode redisMode;
         private RedisConnection connection;
-        private RedissonClient redissonClient;
+        private final RedissonClient redissonClient;
         private org.redisson.client.RedisClient redisClient;
 
         public CachedClientConnection(RedissonClient redissonClient, RedisMode redisMode) {
@@ -77,7 +78,7 @@ public class RedisClient {
             } else if (redisMode == RedisMode.MASTER_SLAVE) {
                 redisURI = new RedisURI(redisson.getConfig().useMasterSlaveServers().getMasterAddress());
             }
-            if (redisURI == null) return redisClient;
+            if (redisURI == null) return null;
             redisClient = connectionManager.createClient(NodeType.MASTER, redisURI, null);
             return redisClient;
         }
@@ -87,7 +88,7 @@ public class RedisClient {
 
     private final static Long DEFAULT_LOCK_EXPIRED_SECONDS = 30L;
 
-    private RedisMode redisMode;
+    @Getter
     private RedissonClient redissonClient;
     private CachedClientConnection cachedClientConnection;
 
@@ -95,7 +96,6 @@ public class RedisClient {
     }
 
     private RedisClient(RedissonClient redissonClient, RedisMode redisMode) {
-        this.redisMode = redisMode;
         this.redissonClient = redissonClient;
         this.cachedClientConnection = new CachedClientConnection(redissonClient, redisMode);
     }
@@ -142,11 +142,7 @@ public class RedisClient {
         ClusterServersConfig serverConfig = redissonConfig.useClusterServers();
         if (config.timeout != null && config.timeout > 0) serverConfig.setTimeout(config.timeout);
         serverConfig.setNodeAddresses(config.nodeAddresses);
-        if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
-            serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
-            serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
-        }
-        if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
+        setBaseConfig(config, serverConfig);
         return new RedisClient(Redisson.create(redissonConfig), RedisMode.CLUSTER);
     }
 
@@ -165,11 +161,7 @@ public class RedisClient {
         serverConfig.setMasterAddress(config.masterAddress);
         serverConfig.setSlaveAddresses(new HashSet<>(config.slaveAddresses));
         serverConfig.setDatabase(config.db);
-        if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
-            serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
-            serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
-        }
-        if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
+        setBaseConfig(config, serverConfig);
         return new RedisClient(Redisson.create(redissonConfig), RedisMode.MASTER_SLAVE);
     }
 
@@ -188,12 +180,22 @@ public class RedisClient {
         serverConfig.setMasterName(config.masterName);
         serverConfig.setSentinelAddresses(config.sentinelAddresses);
         serverConfig.setDatabase(config.db);
-        if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
-            serverConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
-            serverConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
-        }
-        if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
+        setBaseConfig(config, serverConfig);
         return new RedisClient(Redisson.create(redissonConfig), RedisMode.SENTINEL);
+    }
+
+    /**
+     * 进行基础配置
+     *
+     * @param config 配置信息
+     * @param baseConfig MasterSlave基础配置
+     */
+    private static void setBaseConfig(RedisConfig config, BaseMasterSlaveServersConfig<?> baseConfig) {
+        if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
+            baseConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
+            baseConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
+        }
+        if (!StringUtils.isEmpty(config.password)) baseConfig.setPassword(config.password);
     }
 
     /**
@@ -330,14 +332,5 @@ public class RedisClient {
         if (connection == null) return null;
         Map<String, String> memoryInfo = connection.sync(StringCodec.INSTANCE, RedisCommands.INFO_MEMORY);
         return JSON.toJavaObject(JSON.parseObject(JSON.toJSONString(memoryInfo)), RedisMemory.class);
-    }
-
-    /**
-     * 获取RedissonClient
-     *
-     * @return RedissonClient实例
-     */
-    public RedissonClient getRedissonClient() {
-        return redissonClient;
     }
 }

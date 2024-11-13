@@ -1,9 +1,8 @@
 package xin.manong.weapon.base.collection;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 /**
  * B+树：阶数m平衡树实现(3<=m<=31，缺省m=13)
@@ -31,7 +30,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /* 排序比较器 */
     private final Comparator<? super K> comparator;
     /* 根结点 */
-    private Node<K> root;
+    private Node root;
 
     public BTree() {
         this(DEFAULT_MAX_M);
@@ -44,7 +43,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     public BTree(int m, Comparator<? super K> comparator) {
         if (m < 3) throw new IllegalArgumentException("m must be greater than 2");
         this.size = 0;
-        this.m = m > MAX_M ? MAX_M : m;
+        this.m = Math.min(m, MAX_M);
         this.n = (this.m - 1) / 2 + 1;
         this.comparator = comparator;
         this.root = null;
@@ -84,12 +83,12 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         if (key == null) throw new NullPointerException();
         if (value == null) throw new NullPointerException();
         if (root == null) {
-            Leaf<K, V> leaf = new Leaf<>(new Entry<>(key, value), comparator);
-            root = leaf;
+            root = new Leaf(new Entry<>(key, value), comparator);
             size++;
             return true;
         }
-        Leaf<K, V> leaf = findLeaf(key);
+        Leaf leaf = findLeaf(key);
+        assert leaf != null;
         K removedKey = compare(key, leaf.getMaxKey(), comparator) > 0 ? leaf.getMaxKey() : null;
         if (!leaf.add(key, value)) return false;
         postAdd(leaf, removedKey);
@@ -113,7 +112,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      */
     public V remove(K key) {
         if (key == null) throw new NullPointerException();
-        Leaf<K, V> leaf = findLeaf(key);
+        Leaf leaf = findLeaf(key);
         if (leaf == null) return null;
         V removedValue = leaf.remove(key);
         if (removedValue == null) return null;
@@ -128,7 +127,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @return 成功返回移除元素，否则返回null
      */
     public Entry<K, V> removeFirst() {
-        Leaf<K, V> firstLeaf = getFirstLeaf();
+        Leaf firstLeaf = getFirstLeaf();
         if (firstLeaf == null || firstLeaf.isEmpty()) return null;
         Entry<K, V> entry = firstLeaf.entries.remove(0);
         postRemove(firstLeaf, entry.getKey());
@@ -142,7 +141,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @return 成功返回移除元素，否则返回null
      */
     public Entry<K, V> removeLast() {
-        Leaf<K, V> lastLeaf = getLastLeaf();
+        Leaf lastLeaf = getLastLeaf();
         if (lastLeaf == null || lastLeaf.isEmpty()) return null;
         Entry<K, V> entry = lastLeaf.entries.remove(lastLeaf.entries.size() - 1);
         postRemove(lastLeaf, entry.getKey());
@@ -156,7 +155,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @return 存在返回第一个元素，否则返回null
      */
     public Entry<K, V> getFirst() {
-        Leaf<K, V> firstLeaf = getFirstLeaf();
+        Leaf firstLeaf = getFirstLeaf();
         if (firstLeaf == null || firstLeaf.isEmpty()) return null;
         return firstLeaf.entries.get(0);
     }
@@ -167,7 +166,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @return 存在返回最后一个元素，否则返回null
      */
     public Entry<K, V> getLast() {
-        Leaf<K, V> lastLeaf = getLastLeaf();
+        Leaf lastLeaf = getLastLeaf();
         if (lastLeaf == null || lastLeaf.isEmpty()) return null;
         return lastLeaf.entries.get(lastLeaf.entries.size() - 1);
     }
@@ -181,7 +180,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     public V search(K key) {
         if (key == null) throw new NullPointerException();
         if (root == null) return null;
-        Leaf<K, V> leaf = findLeaf(key);
+        Leaf leaf = findLeaf(key);
         if (leaf == null) return null;
         return leaf.search(key);
     }
@@ -203,7 +202,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         }
         List<V> values = new ArrayList<>();
         if (root == null) return values;
-        Leaf<K, V> leaf = findLeaf(startKey);
+        Leaf leaf = findLeaf(startKey);
         if (leaf == null) return values;
         while (leaf != null) {
             List<V> searchResults = leaf.search(startKey, endKey);
@@ -221,17 +220,17 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      */
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        Leaf<K, V> leaf = getFirstLeaf();
+        StringBuilder builder = new StringBuilder();
+        Leaf leaf = getFirstLeaf();
         while (leaf != null && leaf.entries != null) {
             for (Entry<K, V> entry : leaf.entries) {
-                if (buffer.length() > 0) buffer.append(",");
-                buffer.append(entry.getKey()).append("=").append(entry.getValue());
+                if (builder.length() > 0) builder.append(",");
+                builder.append(entry.getKey()).append("=").append(entry.getValue());
             }
             leaf = leaf.next;
         }
-        buffer.insert(0, "[").append("]");
-        return buffer.toString();
+        builder.insert(0, "[").append("]");
+        return builder.toString();
     }
 
     /**
@@ -239,6 +238,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *
      * @return 数据迭代器
      */
+    @NotNull
     @Override
     public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
@@ -262,9 +262,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *
      * @param node 添加数据的叶子节点
      */
-    private void postAdd(Node<K> node, K removedKey) {
+    private void postAdd(Node node, K removedKey) {
         while (node != null) {
-            Node<K> parent = node.parent;
+            Node parent = node.parent;
             boolean rebuild = rebuildNode(parent, node, removedKey);
             boolean split = splitNode(node);
             if (!rebuild && !split) break;
@@ -279,17 +279,17 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param node 节点
      * @return 分裂成功返回true，否则返回false
      */
-    private boolean splitNode(Node<K> node) {
+    private boolean splitNode(Node node) {
         if (node.getChildCount() <= m) return false;
-        Node<K> parent = node.parent;
+        Node parent = node.parent;
         if (parent == null) {
-            parent = new Node<>(comparator);
+            parent = new Node(comparator);
             root = parent;
         }
-        Node<K>[] nodes = node.split();
+        List<Node> nodes = node.split();
         parent.removeChild(node.getMaxKey());
-        parent.addChild(new Entry<>(nodes[0].getMaxKey(), nodes[0]));
-        parent.addChild(new Entry<>(nodes[1].getMaxKey(), nodes[1]));
+        parent.addChild(new Entry<>(nodes.get(0).getMaxKey(), nodes.get(0)));
+        parent.addChild(new Entry<>(nodes.get(1).getMaxKey(), nodes.get(1)));
         return true;
     }
 
@@ -303,9 +303,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param removedKey 移除key
      * @return 重建成功返回true，否则返回null
      */
-    private boolean rebuildNode(Node<K> parent, Node<K> node, K removedKey) {
+    private boolean rebuildNode(Node parent, Node node, K removedKey) {
         if (removedKey == null || parent == null) return false;
-        Entry<K, Node<K>> removedChild = parent.removeChild(removedKey);
+        Entry<K, Node> removedChild = parent.removeChild(removedKey);
         if (removedChild != null) parent.addChild(new Entry<>(node.getMaxKey(), node));
         return removedChild != null;
     }
@@ -317,9 +317,10 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param leaf 借取数据叶子节点
      * @param borrowedLeaf 被借邻居叶子
      */
-    private void borrowFromLeaf(Leaf<K, V> leaf, Leaf<K, V> borrowedLeaf) {
+    private void borrowFromLeaf(Leaf leaf, Leaf borrowedLeaf) {
         int c = borrowedLeaf.compareTo(leaf);
         Entry<K, V> borrowedEntry = c < 0 ? borrowedLeaf.removeLast() : borrowedLeaf.removeFirst();
+        assert borrowedEntry != null;
         K borrowedKey = borrowedEntry.getKey();
         K leafMaxKey = leaf.getMaxKey();
         if (!leaf.add(borrowedKey, borrowedEntry.getValue())) throw new RuntimeException("borrow leaf failed");
@@ -333,9 +334,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param node 借取数据中间节点
      * @param borrowedNode 被借邻居中间节点
      */
-    private void borrowFromNode(Node<K> node, Node<K> borrowedNode) {
+    private void borrowFromNode(Node node, Node borrowedNode) {
         int c = borrowedNode.compareTo(node);
-        Entry<K, Node<K>> borrowedEntry = c < 0 ? borrowedNode.removeLastChild() : borrowedNode.removeFirstChild();
+        Entry<K, Node> borrowedEntry = c < 0 ? borrowedNode.removeLastChild() : borrowedNode.removeFirstChild();
         K borrowedKey = borrowedEntry.getKey();
         K nodeMaxKey = node.getMaxKey();
         node.addChild(borrowedEntry);
@@ -353,9 +354,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param currentMaxKey 借取数据节点当前最大key
      * @param c 被借邻居节点与借取数据节点比较结果
      */
-    private void postBorrow(Node<K> borrowedNode, K borrowedKey,
-                            Node<K> currentNode, K currentMaxKey, int c) {
-        Node<K> parent = borrowedNode.parent;
+    private void postBorrow(Node borrowedNode, K borrowedKey,
+                            Node currentNode, K currentMaxKey, int c) {
+        Node parent = borrowedNode.parent;
         if (parent == null) return;
         if (c < 0) {
             parent.removeChild(borrowedKey);
@@ -374,21 +375,21 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param node 处理节点
      * @return 借用或合并成功返回true，否则返回false
      */
-    private boolean borrowMergeNode(Node<K> node) {
-        Node<K> parent = node.parent;
+    private boolean borrowMergeNode(Node node) {
+        Node parent = node.parent;
         if (node.getChildCount() >= n || parent == null) return false;
         K maxKey = node.getMaxKey();
-        Entry<K, Node<K>> siblingEntry = parent.getAvailableSibling(maxKey);
+        Entry<K, Node> siblingEntry = parent.getAvailableSibling(maxKey);
         if (siblingEntry == null) {
             throw new RuntimeException(String.format("sibling not found for key[%s]", maxKey.toString()));
         }
-        Node<K> sibling = siblingEntry.getValue();
+        Node sibling = siblingEntry.getValue();
         if (sibling.getChildCount() > n) {
-            if (node instanceof Leaf) borrowFromLeaf((Leaf<K, V>) node, (Leaf<K, V>) sibling);
+            if (node.isLeaf()) borrowFromLeaf((Leaf) node, (Leaf) sibling);
             else borrowFromNode(node, sibling);
             return true;
         }
-        Node<K> newNode = node.merge(sibling);
+        Node newNode = node.merge(sibling);
         parent.removeChild(sibling.getMaxKey());
         parent.removeChild(node.getMaxKey());
         parent.addChild(new Entry<>(newNode.getMaxKey(), newNode));
@@ -406,21 +407,21 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param node 删除叶子节点
      * @param removedKey 删除key
      */
-    private void postRemove(Node<K> node, K removedKey) {
+    private void postRemove(Node node, K removedKey) {
         while (node != null && node.parent != null) {
-            Node<K> parent = node.parent;
+            Node parent = node.parent;
             boolean rebuild = rebuildNode(parent, node, removedKey);
             boolean borrowMerge = borrowMergeNode(node);
             if (!rebuild && !borrowMerge) break;
             node = parent;
         }
-        /**
+        /*
          * 避免存在单孩子的非叶子根节点
          */
-        if (node != null && !(node instanceof Leaf) && node.getChildCount() == 1) {
+        if (node != null && !node.isLeaf() && node.getChildCount() == 1) {
             root = node.removeFirstChild().getValue();
         }
-        /**
+        /*
          * 如果根节点为没有数据的叶子节点，将根节点设置为null
          */
         if (root != null && root.isEmpty()) root = null;
@@ -434,11 +435,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param key 数据key
      * @return 存在返回叶子结点，否则返回null
      */
-    private Leaf<K, V> findLeaf(K key) {
+    private Leaf findLeaf(K key) {
         if (root == null) return null;
-        Node<K> node = root;
-        while (!(node instanceof Leaf)) node = node.findChild(key);
-        return (Leaf<K, V>) node;
+        Node node = root;
+        while (!node.isLeaf()) node = node.findChild(key);
+        return (Leaf) node;
     }
 
     /**
@@ -446,13 +447,13 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *
      * @return 第一个叶子节点
      */
-    private Leaf<K, V> getFirstLeaf() {
+    private Leaf getFirstLeaf() {
         if (root == null) return null;
-        Node<K> node = root;
-        while (!(node instanceof Leaf)) {
+        Node node = root;
+        while (!node.isLeaf()) {
             node = node.children.get(0).getValue();
         }
-        return (Leaf<K, V>) node;
+        return (Leaf) node;
     }
 
     /**
@@ -460,13 +461,13 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      *
      * @return 最后一个叶子节点
      */
-    private Leaf<K, V> getLastLeaf() {
+    private Leaf getLastLeaf() {
         if (root == null) return null;
-        Node<K> node = root;
-        while (!(node instanceof Leaf)) {
+        Node node = root;
+        while (!node.isLeaf()) {
             node = node.children.get(node.children.size() - 1).getValue();
         }
-        return (Leaf<K, V>) node;
+        return (Leaf) node;
     }
 
     /**
@@ -476,8 +477,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
      * @param key2 比较key
      * @param comparator 比较器
      * @return 大于返回正数，小于返回负数，等于返回0
-     * @param <K>
+     * @param <K> key类型
      */
+    @SuppressWarnings("unchecked")
     private static <K> int compare(K key1, K key2, Comparator<? super K> comparator) {
         return comparator == null ? ((Comparable<? super K>) key1).compareTo(key2) :
                 comparator.compare(key1, key2);
@@ -513,18 +515,18 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 数据迭代器
      */
-    final class EntryIterator implements Iterator<Entry<K, V>> {
+    class EntryIterator implements Iterator<Entry<K, V>> {
 
-        private int cursor;
-        private int currentPos;
-        private Leaf<K, V> leafCursor;
-        private Leaf<K, V> currentLeaf;
+        protected int cursor;
+        protected int prevCursor;
+        protected Leaf leafCursor;
+        protected Leaf prevLeafCursor;
 
         public EntryIterator() {
             cursor = 0;
-            currentPos = -1;
+            prevCursor = -1;
             leafCursor = getFirstLeaf();
-            currentLeaf = null;
+            prevLeafCursor = null;
         }
 
         @Override
@@ -535,8 +537,8 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         @Override
         public Entry<K, V> next() {
             if (leafCursor == null) return null;
-            currentPos = cursor;
-            currentLeaf = leafCursor;
+            prevCursor = cursor;
+            prevLeafCursor = leafCursor;
             Entry<K, V> entry = leafCursor.entries.get(cursor++);
             if (cursor >= leafCursor.entries.size()) {
                 leafCursor = leafCursor.next;
@@ -547,15 +549,16 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
 
         @Override
         public void remove() {
-            if (currentLeaf == null) return;
+            if (prevLeafCursor == null) return;
             Entry<K, V> nextEntry = leafCursor == null ? null : leafCursor.entries.get(cursor);
-            Entry<K, V> entry = currentLeaf.entries.get(currentPos);
-            currentLeaf.remove(entry.getKey());
-            postRemove(currentLeaf, entry.getKey());
-            currentLeaf = null;
+            Entry<K, V> entry = prevLeafCursor.entries.get(prevCursor);
+            prevLeafCursor.remove(entry.getKey());
+            postRemove(prevLeafCursor, entry.getKey());
+            prevLeafCursor = null;
             size--;
             if (nextEntry == null) return;
             leafCursor = findLeaf(nextEntry.getKey());
+            assert leafCursor != null;
             cursor = search(leafCursor.entries, nextEntry.getKey(), comparator);
         }
     }
@@ -563,30 +566,20 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     /**
      * 逆向数据迭代器
      */
-    final class ReversedEntryIterator implements Iterator<Entry<K, V>> {
-
-        private int cursor;
-        private int currentPos;
-        private Leaf<K, V> leafCursor;
-        private Leaf<K, V> currentLeaf;
+    final class ReversedEntryIterator extends EntryIterator {
 
         public ReversedEntryIterator() {
             leafCursor = getLastLeaf();
-            currentLeaf = null;
+            prevLeafCursor = null;
             cursor = leafCursor == null ? -1 : leafCursor.entries.size() - 1;
-            currentPos = -1;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return leafCursor != null;
+            prevCursor = -1;
         }
 
         @Override
         public Entry<K, V> next() {
             if (leafCursor == null) return null;
-            currentPos = cursor;
-            currentLeaf = leafCursor;
+            prevCursor = cursor;
+            prevLeafCursor = leafCursor;
             Entry<K, V> entry = leafCursor.entries.get(cursor--);
             if (cursor < 0) {
                 leafCursor = leafCursor.prev;
@@ -594,33 +587,17 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
             }
             return entry;
         }
-
-        @Override
-        public void remove() {
-            if (currentLeaf == null) return;
-            Entry<K, V> nextEntry = leafCursor == null ? null : leafCursor.entries.get(cursor);
-            Entry<K, V> entry = currentLeaf.entries.get(currentPos);
-            currentLeaf.remove(entry.getKey());
-            postRemove(currentLeaf, entry.getKey());
-            currentLeaf = null;
-            size--;
-            if (nextEntry == null) return;
-            leafCursor = findLeaf(nextEntry.getKey());
-            cursor = search(leafCursor.entries, nextEntry.getKey(), comparator);
-        }
     }
 
     /**
      * 非叶子节点
-     *
-     * @param <K> 数据key
      */
-    class Node<K> implements Comparable<Node<K>> {
+    class Node implements Comparable<Node> {
 
         /* 孩子节点 */
-        private List<Entry<K, Node<K>>> children;
+        private List<Entry<K, Node>> children;
         /* 父节点 */
-        protected Node<K> parent;
+        protected Node parent;
         /* 数据比较器 */
         protected Comparator<? super K> comparator;
 
@@ -628,7 +605,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
             this.comparator = comparator;
         }
 
-        public Node(List<Entry<K, Node<K>>> children, Comparator<? super K> comparator) {
+        public Node(List<Entry<K, Node>> children, Comparator<? super K> comparator) {
             this(comparator);
             assert children != null && !children.isEmpty();
             this.children = children;
@@ -671,25 +648,33 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         }
 
         /**
+         * 判断是否为叶子节点
+         *
+         * @return 叶子节点返回true，其他返回false
+         */
+        public boolean isLeaf() {
+            return false;
+        }
+
+        /**
          * 分裂节点
          * 一分为二，保证分裂后节点孩子数量相当
          *
          * @return 分裂后节点
          */
-        public Node<K>[] split() {
+        public List<Node> split() {
             if (children == null || children.size() < m) {
                 throw new RuntimeException(String.format("not allowed to be split for node[%d]",
                         children == null ? 0 : children.size()));
             }
             int pos = (int) Math.ceil(children.size() * 1.0 / 2);
-            Node[] nodes = new Node[2];
-            nodes[0] = new Node(comparator);
-            nodes[0].parent= parent;
-            for (int i = 0; i < pos; i++) nodes[0].addChild(children.get(i));
-            nodes[1] = new Node(comparator);
-            nodes[1].parent= parent;
-            for (int i = pos; i < children.size(); i++) nodes[1].addChild(children.get(i));
-            return nodes;
+            Node first = new Node(comparator);
+            first.parent= parent;
+            for (int i = 0; i < pos; i++) first.addChild(children.get(i));
+            Node second = new Node(comparator);
+            second.parent= parent;
+            for (int i = pos; i < children.size(); i++) second.addChild(children.get(i));
+            return Arrays.asList(first, second);
         }
 
         /**
@@ -698,20 +683,20 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param node 待合并节点，如果节点为null或节点孩子为空抛出异常NullPointerException
          * @return 合并结果
          */
-        public Node<K> merge(Node<K> node) {
+        public Node merge(Node node) {
             if (node == null) throw new NullPointerException();
             if (node.children == null || node.children.isEmpty()) {
                 throw new IllegalArgumentException("merged node is empty");
             }
             if (node.parent != parent) throw new IllegalArgumentException("parent of merged node is not valid");
             int c = compareTo(node);
-            Node<K> newNode = new Node<>(comparator);
+            Node newNode = new Node(comparator);
             if (c < 0) {
-                for (Entry<K, Node<K>> entry : children) newNode.addChild(entry);
-                for (Entry<K, Node<K>> entry : node.children) newNode.addChild(entry);
+                for (Entry<K, Node> entry : children) newNode.addChild(entry);
+                for (Entry<K, Node> entry : node.children) newNode.addChild(entry);
             } else {
-                for (Entry<K, Node<K>> entry : node.children) newNode.addChild(entry);
-                for (Entry<K, Node<K>> entry : children) newNode.addChild(entry);
+                for (Entry<K, Node> entry : node.children) newNode.addChild(entry);
+                for (Entry<K, Node> entry : children) newNode.addChild(entry);
             }
             newNode.parent = parent;
             return newNode;
@@ -725,9 +710,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param key 数据key
          * @return 合适容纳key的孩子节点
          */
-        public Node<K> findChild(K key) {
+        public Node findChild(K key) {
             if (children == null || children.isEmpty()) return null;
-            for (Entry<K, Node<K>> entry : children) {
+            for (Entry<K, Node> entry : children) {
                 if (compare(key, entry.getKey(), comparator) <= 0) return entry.getValue();
             }
             return children.get(children.size() - 1).getValue();
@@ -739,11 +724,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          *
          * @param child 孩子节点
          */
-        public void addChild(Entry<K, Node<K>> child) {
+        public void addChild(Entry<K, Node> child) {
             if (children == null) children = new ArrayList<>();
             int pos = children.size();
             for (int i = 0; i < children.size(); i++) {
-                Entry<K, Node<K>> entry = children.get(i);
+                Entry<K, Node> entry = children.get(i);
                 int c = compare(child.getKey(), entry.getKey(), comparator);
                 if (c == 0) throw new RuntimeException(String.format("child has existed for key[%s]", child.getKey()));
                 else if (c > 0) continue;
@@ -760,10 +745,10 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param key 数据key
          * @return 成功返回孩子节点，否则返回null
          */
-        public Entry<K, Node<K>> removeChild(K key) {
+        public Entry<K, Node> removeChild(K key) {
             int pos = BTree.search(children, key, comparator);
             if (pos == -1) return null;
-            Entry<K, Node<K>> child = children.remove(pos);
+            Entry<K, Node> child = children.remove(pos);
             child.getValue().parent = null;
             return child;
         }
@@ -773,9 +758,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          *
          * @return 成功返回孩子节点，否则返回null
          */
-        public Entry<K, Node<K>> removeFirstChild() {
+        public Entry<K, Node> removeFirstChild() {
             if (children == null || children.isEmpty()) return null;
-            Entry<K, Node<K>> child = children.remove(0);
+            Entry<K, Node> child = children.remove(0);
             child.getValue().parent = null;
             return child;
         }
@@ -785,9 +770,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          *
          * @return 成功返回孩子节点，否则返回null
          */
-        public Entry<K, Node<K>> removeLastChild() {
+        public Entry<K, Node> removeLastChild() {
             if (children == null || children.isEmpty()) return null;
-            Entry<K, Node<K>> child = children.remove(children.size() - 1);
+            Entry<K, Node> child = children.remove(children.size() - 1);
             child.getValue().parent = null;
             return child;
         }
@@ -801,8 +786,8 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param key 数据key
          * @return 存在返回邻居节点，否则返回null
          */
-        public Entry<K, Node<K>> getAvailableSibling(K key) {
-            Entry<K, Node<K>> sibling = getPrevSibling(key);
+        public Entry<K, Node> getAvailableSibling(K key) {
+            Entry<K, Node> sibling = getPrevSibling(key);
             return sibling == null ? getNextSibling(key) : sibling;
         }
 
@@ -812,9 +797,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param key 数据key
          * @return 存在返回邻居节点，否则返回null
          */
-        public Entry<K, Node<K>> getPrevSibling(K key) {
+        public Entry<K, Node> getPrevSibling(K key) {
             int pos = BTree.search(children, key, comparator);
-            if (pos == -1 || pos - 1 < 0) return null;
+            if (pos - 1 < 0) return null;
             return children.get(pos - 1);
         }
 
@@ -824,37 +809,32 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @param key 数据key
          * @return 存在返回邻居节点，否则返回null
          */
-        public Entry<K, Node<K>> getNextSibling(K key) {
+        public Entry<K, Node> getNextSibling(K key) {
             int pos = BTree.search(children, key, comparator);
             if (pos == -1 || pos + 1 >= children.size()) return null;
             return children.get(pos + 1);
         }
 
         @Override
-        public int compareTo(Node<K> node) {
-            if (node == null) throw new NullPointerException();
+        public int compareTo(Node node) {
             K maxKey = getMaxKey();
             K minKey = node.getMinKey();
-            int c = compare(maxKey, minKey, comparator);
-            if (c == 0) throw new RuntimeException("unexpected compared nodes");
-            return c;
+            return compare(maxKey, minKey, comparator);
         }
     }
 
     /**
      * 叶子结点
      *
-     * @param <K> 数据key
-     * @param <V> 数据值
      */
-    final class Leaf<K, V> extends Node<K> {
+    final class Leaf extends Node {
 
         /* 数据列表 */
-        private List<Entry<K, V>> entries;
+        private final List<Entry<K, V>> entries;
         /* 后序节点 */
-        private Leaf<K, V> next;
+        private Leaf next;
         /* 前序节点 */
-        private Leaf<K, V> prev;
+        private Leaf prev;
 
         public Leaf(Entry<K, V> entry, Comparator<? super K> comparator) {
             super(comparator);
@@ -909,6 +889,11 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
             return entries == null || entries.isEmpty();
         }
 
+        @Override
+        public boolean isLeaf() {
+            return true;
+        }
+
         /**
          * 合并叶子节点
          * 1. 保证数据排序
@@ -918,18 +903,18 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @return 合并结果
          */
         @Override
-        public Node<K> merge(Node<K> node) {
-            if (!(node instanceof Leaf)) throw new IllegalArgumentException("not leaf");
-            Leaf<K, V> leaf = (Leaf<K, V>) node;
+        public Node merge(Node node) {
+            if (!node.isLeaf()) throw new IllegalArgumentException("not leaf");
+            Leaf leaf = (Leaf) node;
             if (leaf.entries == null || leaf.entries.isEmpty()) {
                 throw new IllegalArgumentException("merged leaf is empty");
             }
             int c = compareTo(leaf);
-            Leaf<K, V> prevLeaf = c < 0 ? prev : leaf.prev;
-            Leaf<K, V> nextLeaf = c < 0 ? leaf.next : next;
+            Leaf prevLeaf = c < 0 ? prev : leaf.prev;
+            Leaf nextLeaf = c < 0 ? leaf.next : next;
             List<Entry<K, V>> newEntries = new ArrayList<>(c < 0 ? entries : leaf.entries);
             newEntries.addAll(c < 0 ? leaf.entries : entries);
-            Leaf<K, V> newLeaf = new Leaf<>(newEntries, comparator);
+            Leaf newLeaf = new Leaf(newEntries, comparator);
             newLeaf.prev = c < 0 ? prev : leaf.prev;
             newLeaf.next = c < 0 ? leaf.next : next;
             if (prevLeaf != null) prevLeaf.next = newLeaf;
@@ -946,24 +931,23 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          * @return 分裂后节点
          */
         @Override
-        public Node<K>[] split() {
+        public List<Node> split() {
             if (entries == null || entries.size() < m) {
-                throw new RuntimeException(String.format("not allowed to be split for leaf[%d]",
+                throw new IllegalStateException(String.format("not allowed to be split for leaf[%d]",
                         entries == null ? 0 : entries.size()));
             }
-            Leaf<K, V> prevLeaf = prev;
-            Leaf<K, V> nextLeaf = next;
+            Leaf prevLeaf = prev;
+            Leaf nextLeaf = next;
             int pos = (int) Math.ceil(entries.size() * 1.0 / 2);
-            Leaf<K, V>[] leaves = new Leaf[2];
-            leaves[0] = new Leaf<>(new ArrayList<>(entries.subList(0, pos)), comparator);
-            leaves[1] = new Leaf<>(new ArrayList<>(entries.subList(pos, entries.size())), comparator);
-            leaves[0].next = leaves[1];
-            leaves[0].prev = prev;
-            leaves[1].prev = leaves[0];
-            leaves[1].next = next;
-            if (prevLeaf != null) prevLeaf.next = leaves[0];
-            if (nextLeaf != null) nextLeaf.prev = leaves[1];
-            return leaves;
+            Leaf first = new Leaf(new ArrayList<>(entries.subList(0, pos)), comparator);
+            Leaf second = new Leaf(new ArrayList<>(entries.subList(pos, entries.size())), comparator);
+            first.next = second;
+            first.prev = prev;
+            second.prev = first;
+            second.next = next;
+            if (prevLeaf != null) prevLeaf.next = first;
+            if (nextLeaf != null) nextLeaf.prev = second;
+            return Arrays.asList(first, second);
         }
 
         /**
@@ -988,7 +972,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
                     return false;
                 }
             }
-            entries.add(pos, new Entry(key, value));
+            entries.add(pos, new Entry<>(key, value));
             return true;
         }
 
@@ -1052,8 +1036,8 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         }
 
         @Override
-        public int compareTo(Node<K> node) {
-            if (!(node instanceof Leaf)) throw new IllegalArgumentException("node is not leaf");
+        public int compareTo(Node node) {
+            if (!node.isLeaf()) throw new IllegalArgumentException("node is not leaf");
             return super.compareTo(node);
         }
     }

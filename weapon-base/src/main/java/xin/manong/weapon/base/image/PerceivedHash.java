@@ -15,12 +15,12 @@ public class PerceivedHash extends Hash {
     private static final int SIZE = 32;
     private static final int SAMPLE_SIZE = 8;
 
-    private static double[] coefficientsDCT = initCoefficientsDCT();
+    private static final double[] coefficientsDCT = initCoefficientsDCT();
 
     /**
      * 初始化DCT系数
      *
-     * @return
+     * @return DCT系数
      */
     private static double[] initCoefficientsDCT() {
         double[] coefficients = new double[SIZE];
@@ -75,7 +75,7 @@ public class PerceivedHash extends Hash {
             }
         }
         double[][] matrixDCT = applyDCT(matrix);
-        /**
+        /*
          * 保留左上角8*8矩阵，这部分表示图片的低频部分
          * 计算8*8矩阵平均值（排除矩阵第一个元素）
          */
@@ -88,7 +88,7 @@ public class PerceivedHash extends Hash {
         total -= matrixDCT[0][0];
         double mean = total / (double) (SAMPLE_SIZE * SAMPLE_SIZE - 1);
 
-        /**
+        /*
          * 8*8矩阵元素与平均值比较，大于平均值相应位设置1，否则设置0
          * 最终获得64位hash数组
          */

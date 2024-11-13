@@ -22,7 +22,7 @@ public abstract class AlarmProducer {
 
     BlockingQueue<Alarm> queue;
     protected AlarmConfig config;
-    private AlarmCombiner combiner;
+    private final AlarmCombiner combiner;
 
     public AlarmProducer(AlarmConfig config) {
         this.config = config;

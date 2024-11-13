@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
  * 读写文件工具类
  *
  * @author frankcl
- * @create 2019-05-28 10:34
+ * @date 2019-05-28 10:34
  */
 public class FileUtil {
 
@@ -69,9 +69,10 @@ public class FileUtil {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             int size;
-            FileInputStream inputStream = new FileInputStream(filePath);
-            while ((size = inputStream.read(readBuf, 0, BUFFER_SIZE)) != -1) {
-                output.write(readBuf, 0, size);
+            try (FileInputStream inputStream = new FileInputStream(filePath)) {
+                while ((size = inputStream.read(readBuf, 0, BUFFER_SIZE)) != -1) {
+                    output.write(readBuf, 0, size);
+                }
             }
             return output.toByteArray();
         } catch (Exception e) {
@@ -79,13 +80,11 @@ public class FileUtil {
             logger.error(e.getMessage(), e);
             return null;
         } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    logger.error("close output stream failed");
-                    logger.error(e.getMessage(), e);
-                }
+            try {
+                output.close();
+            } catch (IOException e) {
+                logger.error("close output stream failed");
+                logger.error(e.getMessage(), e);
             }
         }
     }

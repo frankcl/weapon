@@ -17,7 +17,7 @@ public class RebuildManager {
 
     private static final Logger logger = LoggerFactory.getLogger(RebuildManager.class);
 
-    private static List<Rebuildable> rebuildObjects;
+    private static final List<Rebuildable> rebuildObjects;
 
     static {
         rebuildObjects = new ArrayList<>();

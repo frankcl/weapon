@@ -1,5 +1,7 @@
 package xin.manong.weapon.base.collection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Random;
@@ -14,6 +16,7 @@ import java.util.Random;
  * @author frankcl
  * @date 2023-10-17 15:46:37
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     private static final int DEFAULT_MAX_LEVEL = 13;
@@ -51,7 +54,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
         this.level = 0;
         this.size = 0;
         this.random = new Random();
-        this.maxLevel = maxLevel > MAX_MAX_LEVEL ? MAX_MAX_LEVEL : maxLevel;
+        this.maxLevel = Math.min(maxLevel, MAX_MAX_LEVEL);
         this.comparator = comparator;
         headNode = new Node<>(null, this.maxLevel);
         tailNode = new Node<>(null, this.maxLevel);
@@ -90,7 +93,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
             nodeLevel = ++level;
             updateNodes[nodeLevel-1] = headNode;
         }
-        Node<K, V> newNode = new Node(new Entry(key, value), nodeLevel);
+        Node<K, V> newNode = new Node(new Entry<>(key, value), nodeLevel);
         for (int i = nodeLevel - 1; i >= 0; i--) {
             node = updateNodes[i];
             newNode.nextNodes[i] = node.nextNodes[i];
@@ -113,12 +116,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      * @return 成功返回数据值，否则返回null
      */
     public V remove(K key) {
-        if (key == null) throw new NullPointerException();
-        Node<K, V> node = headNode;
-        for (int i = level - 1; i >= 0; i--) {
-            while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
-        }
-        node = node.nextNodes[0];
+        Node<K, V> node = findLessEquals(key);
         if (compare(key, node) != 0) return null;
         V value = node.entry.getValue();
         removeNode(node);
@@ -132,12 +130,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      * @return 如果存在返回数据值，否则返回null
      */
     public V get(K key) {
-        if (key == null) throw new NullPointerException();
-        Node<K, V> node = headNode;
-        for (int i = level - 1; i >= 0; i--) {
-            while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
-        }
-        node = node.nextNodes[0];
+        Node<K, V> node = findLessEquals(key);
         if (compare(key, node) == 0) return node.entry.getValue();
         return null;
     }
@@ -214,15 +207,15 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         Node<K, V> node = headNode.nextNodes[0];
         while (node != tailNode) {
-            if (buffer.length() != 0) buffer.append(",");
-            buffer.append(node.entry);
+            if (builder.length() != 0) builder.append(",");
+            builder.append(node.entry);
             node = node.nextNodes[0];
         }
-        buffer.insert(0, "[").append("]");
-        return buffer.toString();
+        builder.insert(0, "[").append("]");
+        return builder.toString();
     }
 
     /**
@@ -230,6 +223,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      *
      * @return 数据迭代器
      */
+    @NotNull
     @Override
     public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
@@ -245,6 +239,21 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     /**
+     * 定位最接近key节点
+     *
+     * @param key 比较key
+     * @return 节点
+     */
+    private Node<K, V> findLessEquals(K key) {
+        if (key == null) throw new NullPointerException();
+        Node<K, V> node = headNode;
+        for (int i = level - 1; i >= 0; i--) {
+            while (compare(key, node.nextNodes[i]) > 0) node = node.nextNodes[i];
+        }
+        return node.nextNodes[0];
+    }
+
+    /**
      * 移除节点
      * 1. 移除节点
      * 2. 修改节点相关前后向节点的引用
@@ -255,7 +264,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     private void removeNode(Node<K, V> node) {
         if (node == null) return;
         Node[] updateNodes = new Node[node.level];
-        for (int i = 0; i < node.level; i++) updateNodes[i] = node.prevNodes[i];
+        System.arraycopy(node.prevNodes, 0, updateNodes, 0, node.level);
         for (int i = 0; i < node.level; i++) {
             node.nextNodes[i].prevNodes[i] = updateNodes[i];
             updateNodes[i].nextNodes[i] = node.nextNodes[i];
@@ -359,6 +368,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
      * @param <K> 数据key
      * @param <V> 数据值
      */
+    @SuppressWarnings("unchecked")
     static final class Node<K, V> {
         /* 层数 */
         private final int level;
@@ -379,8 +389,8 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
 
         @Override
         public boolean equals(Object o) {
-            if (o == null || !(o instanceof Node)) return false;
-            Node n = (Node) o;
+            if (!(o instanceof Node)) return false;
+            Node<K, V> n = (Node<K, V>) o;
             return entry.equals(n.entry);
         }
 

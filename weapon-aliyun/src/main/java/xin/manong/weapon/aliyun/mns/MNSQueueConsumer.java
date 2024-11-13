@@ -1,6 +1,7 @@
 package xin.manong.weapon.aliyun.mns;
 
 import com.aliyun.mns.client.CloudQueue;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildListener;
@@ -21,10 +22,10 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
 
     protected MNSQueueConsumerConfig config;
     protected MNSClient mnsClient;
+    @Setter
     protected MessageProcessor processor;
-    private CloudQueue queue;
     private List<MNSQueueHandler> handlers;
-    private List<RebuildListener> rebuildListeners;
+    private final List<RebuildListener> rebuildListeners;
 
     public MNSQueueConsumer(MNSQueueConsumerConfig config) {
         this.config = config;
@@ -61,10 +62,10 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
     }
 
     @Override
-    public void notifyRebuildEvent(Rebuildable rebuildObject) {
-        if (rebuildObject == null || rebuildObject != mnsClient) return;
+    public void onRebuild(Rebuildable rebuildTarget) {
+        if (rebuildTarget == null || rebuildTarget != mnsClient) return;
         for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.notifyRebuildEvent(this);
+            rebuildListener.onRebuild(this);
         }
         if (handlers != null) {
             for (MNSQueueHandler handler : handlers) handler.stop();
@@ -84,15 +85,6 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
     }
 
     /**
-     * 设置消息处理器
-     *
-     * @param processor 消息处理器
-     */
-    public void setProcessor(MessageProcessor processor) {
-        this.processor = processor;
-    }
-
-    /**
      * 设置MNS客户端
      *
      * @param mnsClient MNS客户端
@@ -105,7 +97,7 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
     /**
      * 构建消息处理器
      *
-     * @return
+     * @return 构建成功返回true，否则返回false
      */
     private boolean build() {
         if (mnsClient == null) {
@@ -116,7 +108,7 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
             logger.error("message processor is not set");
             return false;
         }
-        queue = mnsClient.getQueue(config.getQueueName());
+        CloudQueue queue = mnsClient.getQueue(config.getQueueName());
         handlers = new ArrayList<>();
         for (int i = 0; i < config.threadNum; i++) {
             String name = String.format("MNSQueueHandler-%d", i);

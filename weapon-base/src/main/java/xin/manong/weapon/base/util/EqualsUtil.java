@@ -13,6 +13,21 @@ import java.util.Map;
 public class EqualsUtil {
 
     /**
+     * 判断泛型值是否相等
+     *
+     * @param v1 比较值
+     * @param v2 比较值
+     * @return 相等返回true，否则返回false
+     * @param <V> 数据类型
+     */
+    private static <V> boolean valueEquals(V v1, V v2) {
+        boolean isArray1 = v1.getClass().isArray();
+        boolean isArray2 = v2.getClass().isArray();
+        if (isArray1 != isArray2) return false;
+        return isArray1 ? arrayEquals(v1, v2) : objectEquals(v1, v2);
+    }
+
+    /**
      * 判断列表是否相等
      * 1. 列表大小不相同则不相等
      * 2. 列表对应元素不相等则不相等
@@ -20,20 +35,15 @@ public class EqualsUtil {
      * @param list1 比较列表
      * @param list2 比较列表
      * @return 相等返回true，否则返回false
-     * @param <T>
+     * @param <T> 类型
      */
     public static <T> boolean listEquals(List<T> list1, List<T> list2) {
         if (list1 == list2) return true;
-        if (list1 == null && list2 != null) return false;
-        if (list1 != null && list2 == null) return false;
+        if (list1 == null || list2 == null) return false;
         if (list1.size() != list2.size()) return false;
         for (int i = 0; i < list1.size(); i++) {
             T v1 = list1.get(i), v2 = list2.get(i);
-            boolean isArray1 = v1.getClass().isArray();
-            boolean isArray2 = v2.getClass().isArray();
-            if (isArray1 != isArray2) return false;
-            if (!isArray1 && !objectEquals(v1, v2)) return false;
-            if (isArray1 && !arrayEquals(v1, v2)) return false;
+            if (!valueEquals(v1, v2)) return false;
         }
         return true;
     }
@@ -45,26 +55,21 @@ public class EqualsUtil {
      * 3. key对应值不相等则不相等
      *
      * @param map1 比较map
-     * @param map1 比较map
+     * @param map2 比较map
      * @return 相等返回true，否则返回false
-     * @param <K>
-     * @param <V>
+     * @param <K> key类型
+     * @param <V> value类型
      */
     public static <K, V> boolean mapEquals(Map<K, V> map1, Map<K, V> map2) {
         if (map1 == map2) return true;
-        if (map1 == null && map2 != null) return false;
-        if (map1 != null && map2 == null) return false;
+        if (map1 == null || map2 == null) return false;
         if (map1.size() != map2.size()) return false;
         for (Map.Entry<K, V> entry : map1.entrySet()) {
             K k = entry.getKey();
             V v1 = entry.getValue();
             if (!map2.containsKey(k)) return false;
             V v2 = map2.get(k);
-            boolean isArray1 = v1.getClass().isArray();
-            boolean isArray2 = v2.getClass().isArray();
-            if (isArray1 != isArray2) return false;
-            if (!isArray1 && !objectEquals(v1, v2)) return false;
-            if (isArray1 && !arrayEquals(v1, v2)) return false;
+            if (!valueEquals(v1, v2)) return false;
         }
         return true;
     }
@@ -81,8 +86,7 @@ public class EqualsUtil {
      */
     public static boolean arrayEquals(Object array1, Object array2) {
         if (array1 == array2) return true;
-        if (array1 == null && array2 != null) return false;
-        if (array1 != null && array2 == null) return false;
+        if (array1 == null || array2 == null) return false;
         if (!array1.getClass().isArray() || !array2.getClass().isArray()) return false;
         int len1 = Array.getLength(array1), len2 = Array.getLength(array2);
         if (len1 != len2) return false;
@@ -106,8 +110,7 @@ public class EqualsUtil {
      */
     public static boolean objectEquals(Object o1, Object o2) {
         if (o1 == o2) return true;
-        if (o1 == null && o2 != null) return false;
-        if (o1 != null && o2 == null) return false;
+        if (o1 == null || o2 == null) return false;
         if (o1.getClass() != o2.getClass()) return false;
         return o1.equals(o2);
     }

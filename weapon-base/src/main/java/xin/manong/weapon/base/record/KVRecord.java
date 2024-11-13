@@ -1,5 +1,7 @@
 package xin.manong.weapon.base.record;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.RandomID;
@@ -11,13 +13,15 @@ import java.util.*;
  * KV数据
  *
  * @author frankcl
- * @create 2019-05-27 13:23
+ * @date 2019-05-27 13:23
  */
+@Getter
 public class KVRecord implements Serializable {
 
     private final static Logger logger = LoggerFactory.getLogger(KVRecord.class);
 
-    private String id;
+    private final String id;
+    @Setter
     private RecordType recordType;
     private final Set<String> keys;
     private final Map<String, Object> fieldMap;
@@ -86,7 +90,7 @@ public class KVRecord implements Serializable {
     /**
      * 是否包含key
      *
-     * @param key
+     * @param key 键
      * @return 如果key为null返回false；如果包含返回true，否则返回false
      */
     public boolean has(String key) {
@@ -123,7 +127,7 @@ public class KVRecord implements Serializable {
      * @param key key
      * @param clazz 数据类型
      * @return 如果key存在返回值，不存在返回null，与指定类型不一致返回null
-     * @param <T>
+     * @param <T> 数据类型
      */
     public <T> T get(String key, Class<T> clazz) {
         if (clazz == null) throw new RuntimeException("convert class is null");
@@ -161,15 +165,6 @@ public class KVRecord implements Serializable {
     }
 
     /**
-     * 获取key集合
-     *
-     * @return key集合
-     */
-    public Set<String> getKeys() {
-        return keys;
-    }
-
-    /**
      * 设置key集合
      *
      * @param keys key集合
@@ -177,15 +172,6 @@ public class KVRecord implements Serializable {
     public void setKeys(Set<String> keys) {
         this.keys.clear();
         if (keys != null) this.keys.addAll(keys);
-    }
-
-    /**
-     * 获取数据
-     *
-     * @return 数据
-     */
-    public Map<String, Object> getFieldMap() {
-        return fieldMap;
     }
 
     /**
@@ -201,33 +187,6 @@ public class KVRecord implements Serializable {
             keyMap.put(key, fieldMap.get(key));
         }
         return keyMap;
-    }
-
-    /**
-     * 获取数据ID
-     *
-     * @return 数据ID
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * 获取数据类型
-     *
-     * @return 数据类型枚举
-     */
-    public RecordType getRecordType() {
-        return recordType;
-    }
-
-    /**
-     * 设置数据类型
-     *
-     * @param recordType 数据类型枚举
-     */
-    public void setRecordType(RecordType recordType) {
-        this.recordType = recordType;
     }
 
     /**
@@ -255,15 +214,15 @@ public class KVRecord implements Serializable {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("record[");
+        StringBuilder builder = new StringBuilder();
+        builder.append("record[");
         for (Map.Entry<String, Object> entry : fieldMap.entrySet()) {
-            if (buffer.length() != 7) buffer.append(", ");
-            buffer.append(entry.getKey());
-            buffer.append("=");
-            buffer.append(entry.getValue().toString());
+            if (builder.length() != 7) builder.append(", ");
+            builder.append(entry.getKey());
+            builder.append("=");
+            builder.append(entry.getValue().toString());
         }
-        buffer.append("]");
-        return buffer.toString();
+        builder.append("]");
+        return builder.toString();
     }
 }

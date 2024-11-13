@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class UnsafeHostnameVerifier implements HostnameVerifier {
 
-    private Set<String> verifiedHosts;
+    private final Set<String> verifiedHosts;
 
     public UnsafeHostnameVerifier() {
         this.verifiedHosts = new HashSet<>();

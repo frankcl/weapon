@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -20,7 +21,6 @@ public class WebHookHandler {
     private static final Logger logger = LoggerFactory.getLogger(WebHookHandler.class);
 
     private static final String SHA256 = "HmacSHA256";
-    private static final String CHARSET_UTF8 = "UTF-8";
     private static final String KEY_SIGN = "sign";
     private static final String KEY_TIMESTAMP = "timestamp";
 
@@ -41,9 +41,9 @@ public class WebHookHandler {
         Long timestamp = System.currentTimeMillis();
         try {
             Mac mac = Mac.getInstance(SHA256);
-            mac.init(new SecretKeySpec(webHookSecret.getBytes(CHARSET_UTF8), SHA256));
-            byte[] bytes = mac.doFinal(String.format("%d\n%s", timestamp, webHookSecret).getBytes(CHARSET_UTF8));
-            String sign = URLEncoder.encode(new String(Base64.getEncoder().encode(bytes)), CHARSET_UTF8);
+            mac.init(new SecretKeySpec(webHookSecret.getBytes(StandardCharsets.UTF_8), SHA256));
+            byte[] bytes = mac.doFinal(String.format("%d\n%s", timestamp, webHookSecret).getBytes(StandardCharsets.UTF_8));
+            String sign = URLEncoder.encode(new String(Base64.getEncoder().encode(bytes)), StandardCharsets.UTF_8);
             return String.format("%s&%s=%d&%s=%s", webHookURL, KEY_TIMESTAMP, timestamp, KEY_SIGN, sign);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

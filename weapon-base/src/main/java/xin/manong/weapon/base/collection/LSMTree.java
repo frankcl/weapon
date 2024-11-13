@@ -3,6 +3,7 @@ package xin.manong.weapon.base.collection;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.SerializerFactory;
 import com.esotericsoftware.kryo.io.Output;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +38,21 @@ public class LSMTree<T> {
 
     private int dumpFileIndex;
     /* 同时打开文件数量 */
+    @Setter
     private int maxOpenFileNum;
     /* 内存cache数据数量 */
+    @Setter
     private int maxCacheRecordNum;
     /* LSM Tree当前状态 */
     private State state;
     /* 临时文件目录 */
     private String tempDirectory;
     /* 数据类型 */
-    private Class<T> recordClass;
+    private final Class<T> recordClass;
     /* 数据比较器 */
-    private Comparator<? super T> comparator;
+    private final Comparator<? super T> comparator;
     /* 数据读取器比较器 */
-    private RecordReaderComparator<T> readerComparator;
+    private final RecordReaderComparator<T> readerComparator;
     /* 内存cache数据 */
     private List<T> memoryCachedRecords;
     /* dump文件列表 */
@@ -57,7 +60,7 @@ public class LSMTree<T> {
     /* 数据读取器堆 用于归并文件数据 */
     private PriorityQueue<RecordReader<T>> heap;
     /* kryo序列化 */
-    private Kryo kryo;
+    private final Kryo kryo;
 
     private LSMTree(Class<T> recordClass, Comparator<? super T> comparator) {
         this(recordClass, comparator, DEFAULT_TEMP_DIRECTORY);
@@ -81,7 +84,7 @@ public class LSMTree<T> {
      * 增加排序数据
      *
      * @param record 数据
-     * @throws IOException
+     * @throws IOException I/O异常
      */
     public void addRecord(T record) throws IOException {
         if (record == null) throw new NullPointerException();
@@ -105,14 +108,14 @@ public class LSMTree<T> {
      * 获取排序数据
      *
      * @return 有序数据，如果没有数据返回null
-     * @throws IOException
+     * @throws IOException I/O异常
      */
     public T getRecord() throws IOException {
         if (state == State.PREPARE) {
             mergeDumpFiles();
             heap = new PriorityQueue<>(dumpFiles.size() + 1, readerComparator);
             if (!memoryCachedRecords.isEmpty()) {
-                MemoryReader memoryReader = new MemoryReader(memoryCachedRecords, comparator);
+                MemoryReader<T> memoryReader = new MemoryReader<>(memoryCachedRecords, comparator);
                 if (!memoryReader.open()) throw new RuntimeException("open memory reader failed");
                 if (memoryReader.read() != null) heap.add(memoryReader);
                 else memoryReader.close();
@@ -149,6 +152,7 @@ public class LSMTree<T> {
     /**
      * 关闭清理资源
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void close() {
         sweepDumpFiles();
         new File(tempDirectory).delete();
@@ -163,7 +167,7 @@ public class LSMTree<T> {
      * 生成数据文件
      *
      * @param records 数据列表
-     * @throws IOException
+     * @throws IOException I/O异常
      */
     private void dumpRecords(List<T> records) throws IOException {
         String dumpFile = String.format("%s%s%d%s", tempDirectory, DUMP_FILE_PREFIX, dumpFileIndex, DUMP_FILE_SUFFIX);
@@ -177,8 +181,9 @@ public class LSMTree<T> {
     /**
      * 合并dump文件
      *
-     * @throws IOException
+     * @throws IOException I/O异常
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void mergeDumpFiles() throws IOException {
         while (dumpFiles.size() > maxOpenFileNum) {
             List<String> batchDumpFiles = new ArrayList<>();
@@ -205,12 +210,12 @@ public class LSMTree<T> {
     /**
      * 构建排序堆
      *
-     * @param dumpFiles
-     * @param priorityQueue
+     * @param dumpFiles dump文件
+     * @param priorityQueue 队列
      */
     private void buildHeap(List<String> dumpFiles, PriorityQueue<RecordReader<T>> priorityQueue) {
         for (String dumpFile : dumpFiles) {
-            DumpReader dumpReader = new DumpReader(dumpFile, recordClass, kryo);
+            DumpReader<T> dumpReader = new DumpReader<>(dumpFile, recordClass, kryo);
             if (!dumpReader.open()) throw new RuntimeException(String.format("open dump file[%s] failed", dumpFile));
             if (dumpReader.read() != null) priorityQueue.add(dumpReader);
             else dumpReader.close();
@@ -225,6 +230,7 @@ public class LSMTree<T> {
         File dumpDirectory = new File(tempDirectory);
         if (!dumpDirectory.exists() || !dumpDirectory.isDirectory()) return;
         File[] dumpFiles = dumpDirectory.listFiles();
+        if (dumpFiles == null) return;
         for (File dumpFile : dumpFiles) {
             String fileName = dumpFile.getName();
             if (dumpFile.isDirectory() || !fileName.startsWith(DUMP_FILE_PREFIX) ||
@@ -238,27 +244,10 @@ public class LSMTree<T> {
      *
      * @param tempDirectory 临时文件目录
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setTempDirectory(String tempDirectory) {
         this.tempDirectory = tempDirectory.endsWith("/") ? tempDirectory : tempDirectory + "/";
         File directory = new File(tempDirectory);
         if (!directory.exists() || !directory.isDirectory()) directory.mkdirs();
-    }
-
-    /**
-     * 设置最大打开合并文件数量
-     *
-     * @param maxOpenFileNum 最大打开合并文件数量
-     */
-    public void setMaxOpenFileNum(int maxOpenFileNum) {
-        this.maxOpenFileNum = maxOpenFileNum;
-    }
-
-    /**
-     * 设置内存最大缓存记录数量
-     *
-     * @param maxCacheRecordNum 内存最大缓存记录数量
-     */
-    public void setMaxCacheRecordNum(int maxCacheRecordNum) {
-        this.maxCacheRecordNum = maxCacheRecordNum;
     }
 }

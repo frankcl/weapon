@@ -4,7 +4,6 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * redis单点服务配置信息
@@ -13,7 +12,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @date 2022-12-20 17:20:08
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.common.redis.client.single")
 public class RedisSingleConfig extends RedisConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(RedisSingleConfig.class);

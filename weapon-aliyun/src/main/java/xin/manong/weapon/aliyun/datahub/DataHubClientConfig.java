@@ -4,8 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
+import xin.manong.weapon.aliyun.secret.DynamicSecretSupport;
 
 /**
  * DataHub客户端配置
@@ -14,8 +13,7 @@ import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
  * @date 2023-07-06 14:25:52
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.datahub.client")
-public class DataHubClientConfig extends DynamicSecretConfig {
+public class DataHubClientConfig extends DynamicSecretSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DataHubClientConfig.class);
 

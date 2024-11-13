@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class SimilarityUtil {
 
-    private static Segment segment = createSegment();
+    private static final Segment segment = createSegment();
 
     /**
      * 创建分词器
@@ -62,7 +62,7 @@ public class SimilarityUtil {
         boolean empty2 = StringUtils.isEmpty(s2);
         if (empty1 && empty2) return 1.0d;
         if (empty1 || empty2) return 0d;
-        int d[][] = new int[s1.length() + 1][s2.length() + 1];
+        int[][] d = new int[s1.length() + 1][s2.length() + 1];
         for (int i = 1; i <= s1.length(); i++) {
             for (int j = 1; j <= s2.length(); j++) {
                 if (s1.charAt(i - 1) == s2.charAt(j - 1)) d[i][j] = d[i - 1][j - 1] + 1;

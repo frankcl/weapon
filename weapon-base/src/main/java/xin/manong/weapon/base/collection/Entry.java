@@ -1,5 +1,8 @@
 package xin.manong.weapon.base.collection;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 
 /**
@@ -8,11 +11,13 @@ import java.util.Objects;
  * @author frankcl
  * @date 2023-10-25 15:37:12
  */
+@Getter
 public final class Entry<K, V> {
 
     /* 数据key，不可更改 */
     private final K key;
     /* 数据值 */
+    @Setter
     private V value;
 
     public Entry(K key, V value) {
@@ -29,7 +34,7 @@ public final class Entry<K, V> {
      */
     @Override
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof Entry)) return false;
+        if (!(o instanceof Entry)) return false;
         Entry<?, ?> e = (Entry<?, ?>) o;
         return Objects.equals(key, e.getKey()) && Objects.equals(value, e.getValue());
     }
@@ -56,30 +61,4 @@ public final class Entry<K, V> {
         return key + "=" + value;
     }
 
-    /**
-     * 获取数据key
-     *
-     * @return 数据key
-     */
-    public K getKey() {
-        return key;
-    }
-
-    /**
-     * 获取数据值
-     *
-     * @return 数据值
-     */
-    public V getValue() {
-        return value;
-    }
-
-    /**
-     * 设置数据值
-     *
-     * @param value 数据值
-     */
-    public void setValue(V value) {
-        this.value = value;
-    }
 }

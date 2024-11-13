@@ -20,7 +20,7 @@ public class KafkaProducer {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 
-    private KafkaProduceConfig config;
+    private final KafkaProduceConfig config;
     private org.apache.kafka.clients.producer.KafkaProducer<String, byte[]> producer;
 
     public KafkaProducer(KafkaProduceConfig config) {

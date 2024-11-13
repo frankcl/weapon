@@ -8,13 +8,13 @@ package xin.manong.weapon.base.util;
  */
 public class ReflectArgs {
 
-    public Class[] types;
+    public Class<?>[] types;
     public Object[] values;
 
     public ReflectArgs() {
     }
 
-    public ReflectArgs(Class[] types, Object[] values) {
+    public ReflectArgs(Class<?>[] types, Object[] values) {
         this.types = types;
         this.values = values;
         check();

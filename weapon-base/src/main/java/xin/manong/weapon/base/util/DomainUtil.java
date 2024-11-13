@@ -353,7 +353,7 @@ public class DomainUtil {
     public static String getDomain(String host) {
         if (StringUtils.isEmpty(host)) return host;
         boolean countryDomain = false;
-        StringBuffer domain = new StringBuffer();
+        StringBuilder domain = new StringBuilder();
         String[] segments = host.split("\\.");
         for (int i = segments.length - 1; i >= 0 && i >= segments.length - 3; i--) {
             String segment = segments[i];

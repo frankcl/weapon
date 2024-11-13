@@ -1,5 +1,7 @@
 package xin.manong.weapon.base.collection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,6 +15,7 @@ import java.util.Iterator;
  * @author frankcl
  * @date 2023-11-01 17:29:56
  */
+@SuppressWarnings("unchecked")
 public class Heap<E> implements Iterable<E> {
 
     private static final int DEFAULT_INIT_CAPACITY = 13;
@@ -22,7 +25,7 @@ public class Heap<E> implements Iterable<E> {
     /* 元素数组 */
     private Object[] elements;
     /* 比较器 */
-    private Comparator<? super E> comparator;
+    private final Comparator<? super E> comparator;
 
     public Heap() {
         this(DEFAULT_INIT_CAPACITY, null);
@@ -127,6 +130,7 @@ public class Heap<E> implements Iterable<E> {
      *
      * @return 数据迭代器
      */
+    @NotNull
     @Override
     public Iterator<E> iterator() {
         return new Itr();
@@ -134,13 +138,13 @@ public class Heap<E> implements Iterable<E> {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < size; i++) {
-            if (buffer.length() != 0) buffer.append(",");
-            buffer.append(elements[i].toString());
+            if (builder.length() != 0) builder.append(",");
+            builder.append(elements[i].toString());
         }
-        buffer.insert(0, "[").append("]");
-        return buffer.toString();
+        builder.insert(0, "[").append("]");
+        return builder.toString();
     }
 
     /**
@@ -199,7 +203,7 @@ public class Heap<E> implements Iterable<E> {
      * @param current 上移元素位置
      * @param e 上移元素
      * @param comparator 比较器
-     * @param <E>
+     * @param <E> 数据类型
      */
     private static <E> void moveUpElement(Object[] elements, int current, E e,
                                           Comparator<? super E> comparator) {
@@ -221,7 +225,7 @@ public class Heap<E> implements Iterable<E> {
      * @param e 下移元素
      * @param current 下移元素位置
      * @param comparator 比较器
-     * @param <E>
+     * @param <E> 数据类型
      */
     private static <E> void moveDownElement(Object[] elements, int size, E e, int current,
                                             Comparator<? super E> comparator) {
@@ -248,7 +252,7 @@ public class Heap<E> implements Iterable<E> {
      * @param e2 比较元素
      * @param comparator 比较器
      * @return e1小于e2返回负数，e1大于e2返回正数，相等返回0
-     * @param <E>
+     * @param <E> 数据类型
      */
     private static <E> int compare(E e1, E e2, Comparator<? super E> comparator) {
         return comparator == null ? ((Comparable<? super E>) e1).compareTo(e2) :
@@ -263,7 +267,7 @@ public class Heap<E> implements Iterable<E> {
 
         private int queueSize;
         private E lastElement;
-        private Object[] queue;
+        private final Object[] queue;
 
         public Itr() {
             lastElement = null;

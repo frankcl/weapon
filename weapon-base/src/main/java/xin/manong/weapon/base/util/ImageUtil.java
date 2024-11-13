@@ -30,10 +30,10 @@ public class ImageUtil {
 
     private static final String READER_SUFFIX_GIF = "GIF";
 
-    private static ColorConvertOp colorConverter = new ColorConvertOp(
+    private static final ColorConvertOp colorConverter = new ColorConvertOp(
             ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
 
-    /**
+    /*
      * 不使用ImageIO默认缓存
      */
     static { ImageIO.setUseCache(false); }
@@ -70,10 +70,7 @@ public class ImageUtil {
      * @return 如果成功返回图片信息，否则返回null
      */
     public static ImageMeta getImageMeta(byte[] byteArray) {
-        if (byteArray == null || byteArray.length == 0) {
-            logger.error("image content is empty");
-            return null;
-        }
+        if (byteArray == null || byteArray.length == 0) return null;
         ImageReader reader = getImageReader(byteArray, false);
         if (reader == null) return null;
         try {
@@ -129,10 +126,7 @@ public class ImageUtil {
      * @return 如果成功返回BufferedImage实例，否则返回null
      */
     public static BufferedImage read(byte[] byteArray) {
-        if (byteArray == null || byteArray.length == 0) {
-            logger.error("image content is empty");
-            return null;
-        }
+        if (byteArray == null || byteArray.length == 0) return null;
         ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
         try {
             return ImageIO.read(inputStream);
@@ -159,7 +153,7 @@ public class ImageUtil {
             return null;
         } finally {
             try {
-                if (inputStream != null) inputStream.close();
+                inputStream.close();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }

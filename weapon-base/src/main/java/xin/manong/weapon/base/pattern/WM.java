@@ -30,7 +30,7 @@ public class WM {
     private Map<String, Integer> shiftTable;
     private Map<String, Integer> auxShiftTable;
     private Map<String, Map<String, List<Integer>>> hashTable;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     public WM(List<String> patterns) {
         B = 2;
@@ -40,7 +40,7 @@ public class WM {
     }
 
     public WM(List<String> patterns, int B) {
-        this.B = B > 3 ? 3 : B;
+        this.B = Math.min(B, 3);
         this.p = 3;
         this.m = Integer.MAX_VALUE;
         build(patterns);
@@ -55,11 +55,7 @@ public class WM {
     private void build(List<String> patterns) {
         List<String> tempPatterns = new ArrayList<>();
         if (patterns != null) tempPatterns.addAll(patterns);
-        Iterator<String> iterator = tempPatterns.iterator();
-        while (iterator.hasNext()) {
-            String pattern = iterator.next();
-            if (pattern == null || pattern.equals("")) iterator.remove();
-        }
+        tempPatterns.removeIf(pattern -> pattern == null || pattern.isEmpty());
         if (tempPatterns.isEmpty()) {
             logger.error("match patterns are empty");
             throw new RuntimeException("匹配模式为空");
@@ -145,7 +141,7 @@ public class WM {
      */
     public List<MatchResult> search(String text) {
         Map<Integer, MatchResult> matchMap = new HashMap<>();
-        if (text == null || text.equals("")) {
+        if (text == null || text.isEmpty()) {
             logger.warn("search text is empty");
             return new ArrayList<>();
         }

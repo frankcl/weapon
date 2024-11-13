@@ -20,7 +20,7 @@ public class Collections {
      * @param e 查找元素
      * @param comparator 比较器
      * @return 成功返回下标，否则返回-1
-     * @param <E>
+     * @param <E> 数据类型
      */
     public static <E> int binarySearch(List<E> elements, E e, Comparator<E> comparator) {
         if (e == null) throw new NullPointerException();
@@ -50,7 +50,7 @@ public class Collections {
      *
      * @param elements 排序列表
      * @param comparator 比较器
-     * @param <E>
+     * @param <E> 数据类型
      */
     public static <E> void sortHeap(List<E> elements, Comparator<E> comparator) {
         Heap<E> heap = new Heap<>(elements, comparator);
@@ -64,7 +64,7 @@ public class Collections {
      *
      * @param elements 排序列表
      * @param comparator 比较器
-     * @param <E>
+     * @param <E> 数据类型
      */
     public static <E> void sortQuick(List<E> elements, Comparator<E> comparator) {
         if (elements == null || elements.isEmpty()) return;
@@ -78,7 +78,7 @@ public class Collections {
      * @param comparator 比较器
      * @param from 起始元素位置
      * @param to 结束元素位置
-     * @param <E>
+     * @param <E> 数据类型
      */
     private static <E> void sortQuick(List<E> elements, Comparator<E> comparator,
                                       int from, int to) {
@@ -117,8 +117,9 @@ public class Collections {
      * @param e2 数据
      * @param comparator 比较器
      * @return e1小于e2返回负数，e1大于e2返回正数，相等返回0
-     * @param <E>
+     * @param <E> 数据类型
      */
+    @SuppressWarnings("unchecked")
     private static <E> int compare(E e1, E e2, Comparator<? super E> comparator) {
         return comparator == null ? ((Comparable<? super E>) e1).compareTo(e2) : comparator.compare(e1, e2);
     }
@@ -129,7 +130,7 @@ public class Collections {
      * @param elements 元素列表
      * @param m 选择数量
      * @return 组合结果
-     * @param <V>
+     * @param <V> 数据类型
      */
     public static <V> List<List<V>> combination(List<V> elements, int m) {
         if (elements == null || m <= 0 || m > elements.size()) return new ArrayList<>();
@@ -143,7 +144,7 @@ public class Collections {
      * @param from 起始下标
      * @param m 选择数量
      * @return 组合结果
-     * @param <V>
+     * @param <V> 数据类型
      */
     private static <V> List<List<V>> combination(List<V> elements, int from, int m) {
         List<List<V>> results = new ArrayList<>();
@@ -167,7 +168,7 @@ public class Collections {
      * @param elements 元素列表
      * @param m 选择数量
      * @return 排列结果
-     * @param <V>
+     * @param <V> 数据类型
      */
     public static <V> List<List<V>> permutation(List<V> elements, int m) {
         List<List<V>> results = new ArrayList<>();
@@ -183,7 +184,7 @@ public class Collections {
      * @param m 选择数量
      * @param selects 当前选择结果
      * @param results 排列结果
-     * @param <V>
+     * @param <V> 数据类型
      */
     private static <V> void permutation(List<V> elements, int m,
                                         List<V> selects, List<List<V>> results) {
@@ -192,7 +193,7 @@ public class Collections {
             return;
         }
         for (V element : elements) {
-            if (selects.indexOf(element) != -1) continue;
+            if (selects.contains(element)) continue;
             selects.add(element);
             permutation(elements, m, selects, results);
             selects.remove(selects.size() - 1);

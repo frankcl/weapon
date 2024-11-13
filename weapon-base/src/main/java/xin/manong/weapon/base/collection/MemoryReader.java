@@ -18,8 +18,8 @@ class MemoryReader<T> implements RecordReader<T> {
 
     private int cursor;
     private T record;
-    private Comparator<? super T> comparator;
-    private List<T> memoryCachedRecords;
+    private final Comparator<? super T> comparator;
+    private final List<T> memoryCachedRecords;
 
     public MemoryReader(List<T> memoryCachedRecords, Comparator<? super T> comparator) {
         if (memoryCachedRecords == null) throw new NullPointerException();

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.util.CommonUtil;
 import xin.manong.weapon.base.util.JSONUtil;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,9 +44,7 @@ public class KVRecordConverter {
     public static JSONObject convertToJSON(KVRecord kvRecord, Set<String> fields, Boolean jsonParse) {
         JSONObject json = new JSONObject();
         if (kvRecord == null) return json;
-        Iterator<Map.Entry<String, Object>> iterator = kvRecord.getFieldMap().entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Object> entry = iterator.next();
+        for (Map.Entry<String, Object> entry : kvRecord.getFieldMap().entrySet()) {
             String key = entry.getKey();
             if (fields != null && !fields.contains(key)) continue;
             Object value = entry.getValue();

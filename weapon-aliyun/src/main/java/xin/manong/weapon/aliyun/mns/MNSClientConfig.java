@@ -4,8 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
+import xin.manong.weapon.aliyun.secret.DynamicSecretSupport;
 
 /**
  * 阿里云MNS客户端配置
@@ -14,8 +13,7 @@ import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
  * @date 2024-01-12 10:27:46
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.mns.client")
-public class MNSClientConfig extends DynamicSecretConfig {
+public class MNSClientConfig extends DynamicSecretSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(MNSClientConfig.class);
 

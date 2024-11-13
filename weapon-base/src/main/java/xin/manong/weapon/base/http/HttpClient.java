@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -37,15 +38,14 @@ public class HttpClient {
     public static final String HEADER_CONNECT_TIMEOUT_MS = "__CONNECT_TIMEOUT_MS__";
 
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
-    private static final String CHARSET_UTF8 = "UTF-8";
     private static final String ACCEPT_ALL = "*/*";
     private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 
-    private HttpClientConfig config;
+    private final HttpClientConfig config;
     private Proxy proxy;
     private ProxySelector proxySelector;
-    private Authenticator authenticator;
+    private final Authenticator authenticator;
     private OkHttpClient okHttpClient;
 
     /**
@@ -158,20 +158,20 @@ public class HttpClient {
      *
      * @param httpRequest HTTP请求
      * @return 编码URL
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException 不支持编码异常
      */
     private String encodeGetURL(HttpRequest httpRequest) throws UnsupportedEncodingException {
         String requestURL = httpRequest.requestURL;
         if (httpRequest.params == null || httpRequest.params.isEmpty()) return requestURL;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
-            if (buffer.length() > 0) buffer.append("&");
-            buffer.append(entry.getKey()).append("=").append(
-                    URLEncoder.encode(entry.getValue().toString(), CHARSET_UTF8));
+            if (builder.length() > 0) builder.append("&");
+            builder.append(entry.getKey()).append("=").append(
+                    URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
         }
         int pos = requestURL.indexOf("?");
-        return pos == -1 ? String.format("%s?%s", requestURL, buffer) : (requestURL.endsWith("&") ?
-               String.format("%s%s", requestURL, buffer) : String.format("%s&%s", requestURL, buffer));
+        return pos == -1 ? String.format("%s?%s", requestURL, builder) : (requestURL.endsWith("&") ?
+               String.format("%s%s", requestURL, builder) : String.format("%s&%s", requestURL, builder));
     }
 
     /**

@@ -4,7 +4,6 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * MNS队列消费配置
@@ -13,7 +12,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @date 2024-01-12 11:10:29
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.mns.consumer")
 public class MNSQueueConsumerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(MNSQueueConsumerConfig.class);

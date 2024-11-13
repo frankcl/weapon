@@ -1,6 +1,7 @@
 package xin.manong.weapon.aliyun.ots;
 
 import com.alicloud.openservices.tablestore.TunnelClient;
+import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -9,7 +10,7 @@ import xin.manong.weapon.alarm.AlarmProducer;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +27,14 @@ public class OTSTunnel implements Rebuildable {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnel.class);
 
-    /* 所属应用名 */
+    @Setter
     protected String appName;
     protected OTSTunnelConfig config;
     protected OTSTunnelMonitor monitor;
     protected TunnelClient tunnelClient;
     protected Map<String, OTSTunnelWorker> workerMap;
     protected List<RebuildListener> rebuildListeners;
+    @Setter
     protected AlarmProducer alarmProducer;
 
     public OTSTunnel(OTSTunnelConfig config) {
@@ -58,7 +60,7 @@ public class OTSTunnel implements Rebuildable {
         }
         monitor = new OTSTunnelMonitor(config, tunnelClient);
         monitor.setAppName(appName);
-        monitor.setAlarmSender(alarmProducer);
+        monitor.setAlarmProducer(alarmProducer);
         monitor.start();
         return true;
     }
@@ -80,7 +82,7 @@ public class OTSTunnel implements Rebuildable {
         workerMap.clear();
         if (prevClient != null) prevClient.shutdown();
         for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.notifyRebuildEvent(this);
+            rebuildListener.onRebuild(this);
         }
         if (!build()) throw new RuntimeException("rebuild OTS tunnel failed");
         logger.info("OTS tunnel rebuild success");
@@ -176,23 +178,5 @@ public class OTSTunnel implements Rebuildable {
         }
         worker.stop();
         config.removeTunnelWorkerConfig(workerConfig);
-    }
-
-    /**
-     * 设置报警发送器
-     *
-     * @param alarmProducer 报警发送器
-     */
-    public void setAlarmProducer(AlarmProducer alarmProducer) {
-        this.alarmProducer = alarmProducer;
-    }
-
-    /**
-     * 设置所属应用名
-     *
-     * @param appName 所属应用名
-     */
-    public void setAppName(String appName) {
-        this.appName = appName;
     }
 }

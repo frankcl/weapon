@@ -2,8 +2,6 @@ package xin.manong.weapon.base.http;
 
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,18 +13,12 @@ import java.io.IOException;
  */
 public class HttpProxyAuthenticator implements Authenticator {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpProxyAuthenticator.class);
-
     private static final String HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization";
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
         if (response.request().header(HEADER_PROXY_AUTHORIZATION) != null) return null;
         HttpProxy proxy = (HttpProxy) route.proxy();
-        if (proxy == null) {
-            logger.warn("not http proxy[{}]", route.proxy() == null ? null : route.proxy().getClass().getName());
-            return null;
-        }
         if (StringUtils.isEmpty(proxy.username) || StringUtils.isEmpty(proxy.password)) return null;
         if (response.code() == 407) {
             String credential = Credentials.basic(proxy.username, proxy.password);

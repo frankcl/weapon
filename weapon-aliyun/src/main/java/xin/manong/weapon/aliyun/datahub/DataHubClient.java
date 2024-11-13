@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class DataHubClient implements Rebuildable {
 
     private static final Logger logger = LoggerFactory.getLogger(DataHubClient.class);
 
-    private DataHubClientConfig config;
+    private final DataHubClientConfig config;
     private DatahubClient client;
 
     public DataHubClient(DataHubClientConfig config) {
@@ -99,18 +99,11 @@ public class DataHubClient implements Rebuildable {
      * @param project 项目名称
      * @param topic 专题名称
      * @return 专题信息
-     * @throws DatahubClientException
+     * @throws DatahubClientException 异常
      */
     public GetTopicResult getTopicInfo(String project, String topic) throws DatahubClientException {
-        if (StringUtils.isEmpty(project)) {
-            logger.error("project is empty");
-            throw new DatahubClientException("project is empty");
-        }
-
-        if (StringUtils.isEmpty(topic)) {
-            logger.error("topic is empty");
-            throw new DatahubClientException("topic is empty");
-        }
+        if (StringUtils.isEmpty(project)) throw new DatahubClientException("project is empty");
+        if (StringUtils.isEmpty(topic)) throw new DatahubClientException("topic is empty");
         return client.getTopic(project, topic);
     }
 }

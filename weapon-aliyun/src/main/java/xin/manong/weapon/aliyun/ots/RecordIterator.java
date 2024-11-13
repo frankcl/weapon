@@ -14,7 +14,7 @@ import java.util.Iterator;
  */
 public class RecordIterator {
 
-    private Iterator<Row> iterator;
+    private final Iterator<Row> iterator;
 
     public RecordIterator(Iterator<Row> iterator) {
         this.iterator = iterator;

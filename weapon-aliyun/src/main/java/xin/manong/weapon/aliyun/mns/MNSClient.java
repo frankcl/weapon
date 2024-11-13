@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,10 @@ public class MNSClient implements Rebuildable {
 
     private static final Logger logger = LoggerFactory.getLogger(MNSClient.class);
 
-    private MNSClientConfig config;
+    private final MNSClientConfig config;
     private com.aliyun.mns.client.MNSClient client;
     private Map<String, CloudQueue> queueMap;
-    private List<RebuildListener> rebuildListeners;
+    private final List<RebuildListener> rebuildListeners;
 
     public MNSClient(MNSClientConfig config) {
         if (config == null || !config.check()) throw new IllegalArgumentException("MNS client config is invalid");
@@ -65,7 +65,7 @@ public class MNSClient implements Rebuildable {
         build();
         if (prevClient != null) prevClient.close();
         for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.notifyRebuildEvent(this);
+            rebuildListener.onRebuild(this);
         }
         logger.info("MNS client rebuild success");
     }

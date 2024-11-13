@@ -9,7 +9,6 @@ import xin.manong.weapon.base.util.ReflectArgs;
 import xin.manong.weapon.base.util.ReflectUtil;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -71,12 +70,11 @@ public class RedisConfig {
      */
     protected List<String> fillAddress(List<String> addresses) {
         if (addresses == null) return null;
-        List<String> addressWithRedis = new ArrayList<>();
-        Iterator<String> iterator = addresses.iterator();
-        while (iterator.hasNext()) {
-            String address = fillAddress(iterator.next());
-            if (!StringUtils.isEmpty(address)) addressWithRedis.add(address);
+        List<String> entireAddresses = new ArrayList<>();
+        for (String address : addresses) {
+            String entireAddress = fillAddress(address);
+            if (!StringUtils.isEmpty(entireAddress)) entireAddresses.add(entireAddress);
         }
-        return addressWithRedis;
+        return entireAddresses;
     }
 }

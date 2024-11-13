@@ -22,10 +22,10 @@ public class AlarmCombiner implements Runnable {
     private final static String NAME = "AlarmCombiner";
 
     private volatile boolean running = false;
-    private AlarmConfig config;
-    private AlarmProducer producer;
+    private final AlarmConfig config;
+    private final AlarmProducer producer;
     private Thread thread;
-    private BlockingQueue<Alarm> queue;
+    private final BlockingQueue<Alarm> queue;
 
     public AlarmCombiner(AlarmProducer producer) {
         this.config = producer.config;
@@ -58,7 +58,7 @@ public class AlarmCombiner implements Runnable {
             return;
         }
         running = false;
-        if (thread != null && thread.isAlive()) thread.interrupt();
+        thread.interrupt();
         try {
             if (thread != null) thread.join();
         } catch (InterruptedException e) {
@@ -67,6 +67,7 @@ public class AlarmCombiner implements Runnable {
         logger.info("alarm combiner has been stopped");
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public final void run() {
         while (running) {

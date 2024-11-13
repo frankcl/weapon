@@ -9,7 +9,7 @@ import java.util.List;
  * 字节数组工具
  *
  * @author frankcl
- * @create 2019-10-09 16:03:41
+ * @date 2019-10-09 16:03:41
  */
 public class ByteArrayUtil {
 
@@ -21,7 +21,7 @@ public class ByteArrayUtil {
      * @return 二进制字符串
      */
     public static String byteArrayToBinary(byte[] byteArray) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (byte b : byteArray) {
             int s = b & 0xff;
             for (int i = 7; i >= 0; i--) {
@@ -46,7 +46,7 @@ public class ByteArrayUtil {
      *
      * @param hex 十六进制字符串
      * @return 字节数组
-     * @throws Exception
+     * @throws Exception 异常
      */
     public static byte[] hexToByteArray(String hex) throws Exception {
         return Hex.decodeHex(hex.toCharArray());
@@ -108,8 +108,8 @@ public class ByteArrayUtil {
     /**
      * 计算字节海明距离
      *
-     * @param byte1
-     * @param byte2
+     * @param byte1 字节
+     * @param byte2 字节
      * @return 距离
      */
     public static int distance(byte byte1, byte byte2) {
@@ -125,8 +125,8 @@ public class ByteArrayUtil {
     /**
      * 计算字节数组海明距离
      *
-     * @param byteArray1
-     * @param byteArray2
+     * @param byteArray1 字节数组
+     * @param byteArray2 字节数组
      * @return 距离
      */
     public static int distance(byte[] byteArray1, byte[] byteArray2) {

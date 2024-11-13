@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.base.record.KVRecords;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 import xin.manong.weapon.base.record.KVRecord;
 import xin.manong.weapon.base.util.EqualsUtil;
 
@@ -24,7 +24,7 @@ import java.util.*;
  * OTS客户端
  *
  * @author frankcl
- * @create 2019-05-28 20:29
+ * @date 2019-05-28 20:29
  */
 public class OTSClient implements Rebuildable {
 
@@ -32,12 +32,12 @@ public class OTSClient implements Rebuildable {
 
     private final static String ERR_CODE_CONDITION_CHECK_FAIL = "OTSConditionCheckFail";
 
-    private OTSClientConfig config;
+    private final OTSClientConfig config;
     private SyncClient syncClient;
 
     public OTSClient(OTSClientConfig config) {
         this.config = config;
-        if (!this.config.check()) throw new RuntimeException("ots client config is invalid");
+        if (!this.config.check()) throw new IllegalArgumentException("ots client config is invalid");
         build();
         if (this.config.dynamic) RebuildManager.register(this);
     }
@@ -90,12 +90,12 @@ public class OTSClient implements Rebuildable {
      */
     public RecordIterator rangeIterator(String tableName, Map<String, Object> startKeyMap,
                                         Map<String, Object> endKeyMap) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
         PrimaryKey startPrimaryKey = OTSConverter.convertPrimaryKey(startKeyMap);
         PrimaryKey endPrimaryKey = OTSConverter.convertPrimaryKey(endKeyMap);
         if (startKeyMap.size() != endKeyMap.size() ||
                 !startKeyMap.keySet().containsAll(endKeyMap.keySet())) {
-            throw new RuntimeException("start keys and end keys are not consistent");
+            throw new IllegalArgumentException("start keys and end keys are not consistent");
         }
         RangeIteratorParameter rangeIteratorParameter = new RangeIteratorParameter(tableName);
         rangeIteratorParameter.setInclusiveStartPrimaryKey(startPrimaryKey);
@@ -115,12 +115,12 @@ public class OTSClient implements Rebuildable {
      */
     public List<KVRecord> getRange(String tableName, Map<String, Object> startKeyMap,
                                    Map<String, Object> endKeyMap) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
         PrimaryKey startPrimaryKey = OTSConverter.convertPrimaryKey(startKeyMap);
         PrimaryKey endPrimaryKey = OTSConverter.convertPrimaryKey(endKeyMap);
         if (startKeyMap.size() != endKeyMap.size() ||
                 !startKeyMap.keySet().containsAll(endKeyMap.keySet())) {
-            throw new RuntimeException("start keys and end keys are not consistent");
+            throw new IllegalArgumentException("start keys and end keys are not consistent");
         }
         RangeRowQueryCriteria rangeRowQueryCriteria = new RangeRowQueryCriteria(tableName);
         rangeRowQueryCriteria.setInclusiveStartPrimaryKey(startPrimaryKey);
@@ -149,7 +149,7 @@ public class OTSClient implements Rebuildable {
      * @return 如果存在返回数据，否则返回null
      */
     public KVRecord get(String tableName, Map<String, Object> keyMap) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
         PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
         SingleRowQueryCriteria criteria = new SingleRowQueryCriteria(tableName, primaryKey);
         criteria.setMaxVersions(1);
@@ -176,7 +176,7 @@ public class OTSClient implements Rebuildable {
      * @return OTS状态
      */
     public OTSStatus delete(String tableName, Map<String, Object> keyMap, Condition condition) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
         PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
         RowDeleteChange change = new RowDeleteChange(tableName, primaryKey);
         if (condition != null) change.setCondition(condition);
@@ -205,7 +205,7 @@ public class OTSClient implements Rebuildable {
      * @return OTS状态
      */
     public OTSStatus put(String tableName, KVRecord kvRecord, Condition condition) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table name is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table name is empty");
         Row record = OTSConverter.convertRecord(kvRecord);
         RowPutChange change = new RowPutChange(tableName, record.getPrimaryKey());
         change.addColumns(record.getColumns());
@@ -238,7 +238,7 @@ public class OTSClient implements Rebuildable {
      * @return OTS状态
      */
     public OTSStatus update(String tableName, KVRecord kvRecord, Condition condition) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
         Row record = OTSConverter.convertRecord(kvRecord);
         RowUpdateChange change = new RowUpdateChange(tableName, record.getPrimaryKey());
         change.put(Arrays.asList(record.getColumns()));
@@ -270,8 +270,8 @@ public class OTSClient implements Rebuildable {
      * @return 批处理响应
      */
     public BatchResponse batchGet(String tableName, List<Map<String, Object>> keyMaps) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
-        if (keyMaps == null || keyMaps.isEmpty()) throw new RuntimeException("key map list are empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
+        if (keyMaps == null || keyMaps.isEmpty()) throw new IllegalArgumentException("key map list are empty");
         MultiRowQueryCriteria multiRowQueryCriteria = new MultiRowQueryCriteria(tableName);
         for (Map<String, Object> keyMap : keyMaps) {
             PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);
@@ -315,8 +315,8 @@ public class OTSClient implements Rebuildable {
      * @return 批处理响应
      */
     public BatchResponse batchPut(String tableName, List<KVRecord> kvRecords) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
-        if (kvRecords == null || kvRecords.isEmpty()) throw new RuntimeException("put records are empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
+        if (kvRecords == null || kvRecords.isEmpty()) throw new IllegalArgumentException("put records are empty");
         List<Row> records = new ArrayList<>();
         for (KVRecord kvRecord : kvRecords) records.add(OTSConverter.convertRecord(kvRecord));
         BatchWriteRowRequest request = new BatchWriteRowRequest();
@@ -358,8 +358,8 @@ public class OTSClient implements Rebuildable {
      * @return 批处理响应
      */
     public BatchResponse batchUpdate(String tableName, List<KVRecord> kvRecords) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
-        if (kvRecords == null || kvRecords.isEmpty()) throw new RuntimeException("update records are empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
+        if (kvRecords == null || kvRecords.isEmpty()) throw new IllegalArgumentException("update records are empty");
         List<Row> records = new ArrayList<>();
         for (KVRecord kvRecord : kvRecords) records.add(OTSConverter.convertRecord(kvRecord));
         BatchWriteRowRequest request = new BatchWriteRowRequest();
@@ -401,8 +401,8 @@ public class OTSClient implements Rebuildable {
      * @return 批处理响应
      */
     public BatchResponse batchDelete(String tableName, List<Map<String, Object>> keyMaps) {
-        if (StringUtils.isEmpty(tableName)) throw new RuntimeException("table is empty");
-        if (keyMaps == null || keyMaps.isEmpty()) throw new RuntimeException("delete key map list are empty");
+        if (StringUtils.isEmpty(tableName)) throw new IllegalArgumentException("table is empty");
+        if (keyMaps == null || keyMaps.isEmpty()) throw new IllegalArgumentException("delete key map list are empty");
         BatchWriteRowRequest request = new BatchWriteRowRequest();
         for (Map<String, Object> keyMap : keyMaps) {
             PrimaryKey primaryKey = OTSConverter.convertPrimaryKey(keyMap);

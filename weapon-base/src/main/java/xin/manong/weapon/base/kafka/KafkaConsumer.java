@@ -22,10 +22,10 @@ public class KafkaConsumer implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
     private volatile boolean running;
-    private String name;
+    private final String name;
     private org.apache.kafka.clients.consumer.KafkaConsumer<byte[], byte[]> consumer;
-    private KafkaRecordProcessor processor;
-    private KafkaConsumeConfig config;
+    private final KafkaRecordProcessor processor;
+    private final KafkaConsumeConfig config;
     private Thread consumeThread;
 
     public KafkaConsumer(String name, KafkaConsumeConfig config,

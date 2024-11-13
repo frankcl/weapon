@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.rebuild.RebuildListener;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
-import xin.manong.weapon.base.secret.DynamicSecret;
+import xin.manong.weapon.aliyun.secret.DynamicSecret;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +37,7 @@ public class ONSConsumer implements Rebuildable {
      * @return 构建成功返回true，否则返回false
      */
     private boolean build() {
-        Properties properties = new Properties();
-        properties.put(PropertyKeyConst.NAMESRV_ADDR, config.serverURL);
-        properties.put(PropertyKeyConst.GROUP_ID, config.consumeId);
-        properties.put(PropertyKeyConst.AccessKey, config.aliyunSecret.accessKey);
-        properties.put(PropertyKeyConst.SecretKey, config.aliyunSecret.secretKey);
-        properties.put(PropertyKeyConst.ConsumeThreadNums, config.consumeThreadNum);
-        properties.put(PropertyKeyConst.MaxCachedMessageAmount, config.maxCachedMessageNum);
-        properties.put(PropertyKeyConst.MessageModel, PropertyValueConst.CLUSTERING);
+        Properties properties = createProperties();
         try {
             consumer = ONSFactory.createConsumer(properties);
             for (Subscribe subscribe : config.subscribes) {
@@ -60,6 +53,23 @@ public class ONSConsumer implements Rebuildable {
         }
     }
 
+    /**
+     * 创建properties
+     *
+     * @return 消息消费properties
+     */
+    private Properties createProperties() {
+        Properties properties = new Properties();
+        properties.put(PropertyKeyConst.NAMESRV_ADDR, config.serverURL);
+        properties.put(PropertyKeyConst.GROUP_ID, config.consumeId);
+        properties.put(PropertyKeyConst.AccessKey, config.aliyunSecret.accessKey);
+        properties.put(PropertyKeyConst.SecretKey, config.aliyunSecret.secretKey);
+        properties.put(PropertyKeyConst.ConsumeThreadNums, config.consumeThreadNum);
+        properties.put(PropertyKeyConst.MaxCachedMessageAmount, config.maxCachedMessageNum);
+        properties.put(PropertyKeyConst.MessageModel, PropertyValueConst.CLUSTERING);
+        return properties;
+    }
+
     @Override
     public void rebuild() {
         logger.info("ONS consumer is rebuilding ...");
@@ -73,7 +83,7 @@ public class ONSConsumer implements Rebuildable {
         Consumer prevConsumer = consumer;
         if (prevConsumer != null) prevConsumer.shutdown();
         for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.notifyRebuildEvent(this);
+            rebuildListener.onRebuild(this);
         }
         if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         logger.info("ONS consumer rebuild success");

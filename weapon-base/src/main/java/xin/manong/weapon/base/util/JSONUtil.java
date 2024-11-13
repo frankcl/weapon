@@ -13,7 +13,7 @@ import java.util.*;
  * JSON工具类
  *
  * @author frankcl
- * @create 2019-06-02 00:12
+ * @date 2019-06-02 00:12
  */
 public class JSONUtil {
 
@@ -174,13 +174,12 @@ public class JSONUtil {
     /**
      * 深度拷贝JSON数组
      *
-     * @param array
+     * @param array 数组
      * @return 数据拷贝
      */
     public static JSONArray deepCopy(JSONArray array) {
         JSONArray replica = new JSONArray();
-        for (int i = 0; i < array.size(); i++) {
-            Object o = array.get(i);
+        for (Object o : array) {
             if (o instanceof JSONObject) {
                 replica.add(deepCopy((JSONObject) o));
             } else if (o instanceof JSONArray) {
@@ -195,7 +194,7 @@ public class JSONUtil {
     /**
      * 深度拷贝JSON对象
      *
-     * @param object
+     * @param object 对象
      * @return 数据拷贝
      */
     public static JSONObject deepCopy(JSONObject object) {
@@ -264,16 +263,15 @@ public class JSONUtil {
      * @param keys key数组
      * @return 如果找到返回值列表，否则返回null
      */
+    @SuppressWarnings("unchecked")
     private static List<Object> get(JSONArray array, String[] keys) {
         if (array == null || array.isEmpty() || keys.length == 0) return null;
         List<Object> objects = new ArrayList<>();
-        for (int i = 0; i < array.size(); i++) {
-            Object object = array.get(i);
+        for (Object object : array) {
             if (object instanceof JSONObject) {
                 Object o = get((JSONObject) object, keys);
-                if (o == null) continue;
-                else if (o instanceof List) objects.addAll((List) o);
-                else objects.add(o);
+                if (o instanceof List) objects.addAll((List<Object>) o);
+                else if (o != null) objects.add(o);
             } else if (object instanceof JSONArray) {
                 List<Object> o = get((JSONArray) object, keys);
                 if (o != null) objects.addAll(o);

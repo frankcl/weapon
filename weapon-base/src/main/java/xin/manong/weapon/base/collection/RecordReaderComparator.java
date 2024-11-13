@@ -10,7 +10,7 @@ import java.util.Comparator;
  */
 class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
 
-    private Comparator<? super T> comparator;
+    private final Comparator<? super T> comparator;
 
     public RecordReaderComparator(Comparator<? super T> comparator) {
         this.comparator = comparator;
@@ -32,6 +32,7 @@ class RecordReaderComparator<T> implements Comparator<RecordReader<T>> {
      * @param comparator 比较器
      * @return 比较结果
      */
+    @SuppressWarnings("unchecked")
     private int compare(T e1, T e2, Comparator<? super T> comparator) {
         return comparator == null ? ((Comparable<? super T>) e1).compareTo(e2) : comparator.compare(e1, e2);
     }

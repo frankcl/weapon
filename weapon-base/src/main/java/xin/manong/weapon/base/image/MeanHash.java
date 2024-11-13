@@ -22,7 +22,7 @@ public class MeanHash extends Hash {
         long sum = 0;
         for (byte b : bytes) sum += (long) b & 0xff;
         int mean = Math.round((float) sum / bytes.length);
-        /**
+        /*
          * 计算均值hash（24字节，192位）
          */
         byte[] hash = new byte[bytes.length / 8];

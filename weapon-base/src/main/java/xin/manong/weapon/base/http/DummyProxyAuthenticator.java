@@ -19,8 +19,8 @@ public class DummyProxyAuthenticator implements Authenticator {
 
     private static final String HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization";
 
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public DummyProxyAuthenticator(String username, String password) {
         if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("username is empty");

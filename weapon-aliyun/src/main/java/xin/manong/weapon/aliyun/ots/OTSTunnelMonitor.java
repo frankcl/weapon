@@ -4,6 +4,7 @@ import com.alicloud.openservices.tablestore.TunnelClient;
 import com.alicloud.openservices.tablestore.model.tunnel.ChannelInfo;
 import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelRequest;
 import com.alicloud.openservices.tablestore.model.tunnel.DescribeTunnelResponse;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.alarm.Alarm;
@@ -16,19 +17,21 @@ import java.util.List;
  * OTS通道消费监控器
  *
  * @author frankcl
- * @create 2019-06-19 16:30
+ * @date 2019-06-19 16:30
  */
 public class OTSTunnelMonitor implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelMonitor.class);
 
-    private final static long DEFAULT_CHECK_TIME_INTERVAL_MS = 600000;
+    private final static long CHECK_TIME_INTERVAL_MS = 600000;
 
     private volatile boolean running = false;
-    private long checkTimeIntervalMs = DEFAULT_CHECK_TIME_INTERVAL_MS;
+
+    @Setter
     private String appName;
-    private OTSTunnelConfig tunnelConfig;
-    private TunnelClient tunnelClient;
+    private final OTSTunnelConfig tunnelConfig;
+    private final TunnelClient tunnelClient;
+    @Setter
     private AlarmProducer alarmProducer;
     private Thread workThread;
 
@@ -63,13 +66,14 @@ public class OTSTunnelMonitor implements Runnable {
         logger.info("tunnel monitor has been stopped");
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void run() {
         while (running) {
             for (OTSTunnelWorkerConfig workerConfig : tunnelConfig.workerConfigs) check(workerConfig);
-            logger.info("tunnel monitor is running, sleep {} ms", checkTimeIntervalMs);
+            logger.info("tunnel monitor is running, sleep {} ms", CHECK_TIME_INTERVAL_MS);
             try {
-                Thread.sleep(checkTimeIntervalMs);
+                Thread.sleep(CHECK_TIME_INTERVAL_MS);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -93,7 +97,7 @@ public class OTSTunnelMonitor implements Runnable {
             long timeInterval = currentTimestamp - consumeTimestamp;
             if (timeInterval < workerConfig.maxConsumeDelayMs) continue;
             logger.warn("consume delay[{}] for channel[{}] in tunnel[{}] of table[{}]", timeInterval,
-                    channel.getChannelId(), workerConfig.tunnel, workerConfig.table, timeInterval);
+                    channel.getChannelId(), workerConfig.tunnel, workerConfig.table);
             delayChannelNum++;
         }
         if (delayChannelNum > 0) {
@@ -102,23 +106,5 @@ public class OTSTunnelMonitor implements Runnable {
                     AlarmLevel.ERROR).setAppName(appName).setTitle("OTS通道数据堆积报警");
             if (alarmProducer != null) alarmProducer.send(alarm);
         }
-    }
-
-    /**
-     * 设置报警发送器
-     *
-     * @param alarmProducer 报警发送器
-     */
-    public void setAlarmSender(AlarmProducer alarmProducer) {
-        this.alarmProducer = alarmProducer;
-    }
-
-    /**
-     * 设置所属应用名
-     *
-     * @param appName 所属应用名
-     */
-    public void setAppName(String appName) {
-        this.appName = appName;
     }
 }

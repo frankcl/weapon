@@ -4,8 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import xin.manong.weapon.aliyun.secret.DynamicSecretConfig;
+import xin.manong.weapon.aliyun.secret.DynamicSecretSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,7 @@ import java.util.List;
  * @date 2022-08-04 23:08:14
  */
 @Data
-@ConfigurationProperties(prefix = "weapon.aliyun.ots.tunnel")
-public class OTSTunnelConfig extends DynamicSecretConfig {
+public class OTSTunnelConfig extends DynamicSecretSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSTunnelConfig.class);
 

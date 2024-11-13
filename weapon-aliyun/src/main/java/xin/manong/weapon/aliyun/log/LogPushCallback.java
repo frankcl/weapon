@@ -16,9 +16,9 @@ public class LogPushCallback implements Callback {
 
     private static final Logger logger = LoggerFactory.getLogger(LogPushCallback.class);
 
-    private String project;
-    private String logStore;
-    private LogItem logItem;
+    private final String project;
+    private final String logStore;
+    private final LogItem logItem;
 
     public LogPushCallback(String project, String logStore, LogItem logItem) {
         this.project = project;
