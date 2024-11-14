@@ -39,33 +39,33 @@
         <module>weapon-alarm</module>
         <module>weapon-aliyun</module>
         <module>weapon-spring-boot</module>
-        <module>weapon-dynamic-secret-listener</module>
+        <module>weapon-listener</module>
         <module>weapon-jersey</module>
     </modules>
 
     <properties>
-        <jdk.version>11</jdk.version>
-        <java-servlet.version>3.1.0</java-servlet.version>
-        <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
+        <jdk.version>17</jdk.version>
+        <java-servlet.version>6.1.0</java-servlet.version>
+        <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
         <jackson.version>2.13.3</jackson.version>
-        <slf4j-log4j.version>1.7.25</slf4j-log4j.version>
+        <slf4j-reload4j.version>2.0.16</slf4j-reload4j.version>
         <junit.version>4.13.2</junit.version>
         <lombok.version>1.18.24</lombok.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-codec.version>1.15</commons-codec.version>
         <jsoup.version>1.15.3</jsoup.version>
-        <okhttp3.version>4.9.3</okhttp3.version>
+        <okhttp3.version>4.12.0</okhttp3.version>
         <hanlp.version>portable-1.7.8</hanlp.version>
         <kryo.version>5.6.2</kryo.version>
         <imageio-webp.version>3.12.0</imageio-webp.version>
-        <spring.version>5.3.31</spring.version>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <kafka.version>3.3.1</kafka.version>
+        <spring.version>6.1.14</spring.version>
+        <spring-boot.version>3.3.5</spring-boot.version>
+        <kafka.version>3.9.0</kafka.version>
         <fastjson.version>2.0.35</fastjson.version>
         <redisson.version>3.38.1</redisson.version>
         <jetcd.version>0.8.3</jetcd.version>
-        <oss.version>3.15.0</oss.version>
+        <oss.version>3.18.1</oss.version>
         <ons-client.version>1.8.0.Final</ons-client.version>
         <tablestore.version>5.13.10</tablestore.version>
         <datahub.version>2.3.0-public</datahub.version>
@@ -168,15 +168,15 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
                 <version>${java-servlet.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j-log4j.version}</version>
+                <artifactId>slf4j-reload4j</artifactId>
+                <version>${slf4j-reload4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>

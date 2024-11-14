@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.lang.NonNull;
 import xin.manong.weapon.aliyun.mns.MNSClient;
 import xin.manong.weapon.aliyun.mns.MNSClientConfig;
-import xin.manong.weapon.aliyun.secret.AliyunSecret;
 import xin.manong.weapon.spring.boot.configuration.MNSClientMapConfig;
 
 import java.util.HashMap;

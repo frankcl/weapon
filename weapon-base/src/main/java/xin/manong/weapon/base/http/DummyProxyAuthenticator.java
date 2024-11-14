@@ -2,8 +2,6 @@ package xin.manong.weapon.base.http;
 
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -14,8 +12,6 @@ import java.io.IOException;
  * @date 2023-12-12 16:13:15
  */
 public class DummyProxyAuthenticator implements Authenticator {
-
-    private static final Logger logger = LoggerFactory.getLogger(DummyProxyAuthenticator.class);
 
     private static final String HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization";
 

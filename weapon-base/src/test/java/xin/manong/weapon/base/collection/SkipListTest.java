@@ -2,6 +2,8 @@ package xin.manong.weapon.base.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Random;
@@ -11,6 +13,8 @@ import java.util.Random;
  * @date 2023-10-19 15:29:38
  */
 public class SkipListTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(SkipListTest.class);
 
     @Test
     public void testCompress() {
@@ -23,9 +27,9 @@ public class SkipListTest {
             skipList.add(key, key);
             totalTime += System.currentTimeMillis() - startTime;
         }
-        System.out.println("TotalTime: " + totalTime);
+        logger.info("build skip list success, spend time[{}]", totalTime);
         for (Entry<Integer, Integer> entry : skipList) {
-            System.out.println(entry);
+            logger.info("entry: {}", entry);
         }
     }
 

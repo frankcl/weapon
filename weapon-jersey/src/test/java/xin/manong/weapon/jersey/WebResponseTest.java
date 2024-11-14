@@ -1,9 +1,8 @@
 package xin.manong.weapon.jersey;
 
+import jakarta.ws.rs.core.Response;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 
 /**
  * @author frankcl

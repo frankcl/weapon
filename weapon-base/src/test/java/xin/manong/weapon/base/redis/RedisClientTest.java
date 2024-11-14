@@ -2,12 +2,16 @@ package xin.manong.weapon.base.redis;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author frankcl
  * @date 2022-12-20 17:02:39
  */
 public class RedisClientTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(RedisClientTest.class);
 
     private final String nodeAddress = "127.0.0.1:6379";
     private final String password = "";
@@ -74,7 +78,7 @@ public class RedisClientTest {
             redisClient.unLockWrite("test_write_aaa");
             redisClient.unLockWrite("test_write_aaa");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         } finally {
             redisClient.close();
         }

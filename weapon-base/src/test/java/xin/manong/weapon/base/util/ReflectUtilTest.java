@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,13 +18,14 @@ public class ReflectUtilTest {
     @Test
     public void testFieldOperation() {
         JSONObject object = new JSONObject();
-        Map<String, Object> map = (Map<String, Object>) ReflectUtil.getFieldValue(object, "map");
-        Assert.assertNotNull(map);
-
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", "abc");
         String string = "test";
-        ReflectUtil.setFieldValue(string, "hash", 10086);
-        int hash = (int) ReflectUtil.getFieldValue(string, "hash");
-        Assert.assertEquals(10086, hash);
+        ReflectUtil.setFieldValue(object, "map", map);
+        Map<String, Object> jsonMap = (Map<String, Object>) ReflectUtil.getFieldValue(object, "map");
+        Assert.assertNotNull(map);
+        Assert.assertTrue(jsonMap == map);
+        Assert.assertEquals("abc", jsonMap.get("key"));
     }
 
     @SuppressWarnings("unchecked")
@@ -59,7 +61,7 @@ public class ReflectUtilTest {
         {
             String str = "abc";
             Field[] fields = ReflectUtil.getFields(str);
-            Assert.assertEquals(9, fields.length);
+            Assert.assertEquals(11, fields.length);
         }
         {
             Object object = new Object();

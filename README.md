@@ -57,7 +57,7 @@
 | aliyun-log-producer  | com.aliyun.openservices    |     0.3.12     |   true   |
 | aliyun-sdk-datahub   | com.aliyun.datahub         |  2.3.0-public  |   true   |
 | aliyun-sdk-mns       | com.aliyun.mns             |    1.1.9.2     |   true   |
-| aliyun-sdk-oss       | com.aliyun.oss             |     3.15.0     |   true   |
+| aliyun-sdk-oss       | com.aliyun.oss             |     3.18.1     |   true   |
 | commons-codec        | commons-codec              |      1.15      |  false   |
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
 | commons-lang3        | org.apache.commons         |      3.8       |  false   |
@@ -67,16 +67,16 @@
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
 | jakarta.ws.rs-api    | jakarta.ws.rs              |     3.0.0      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
-| kafka-clients        | org.apache.kafka           |     3.3.1      |   true   |
+| kafka-clients        | org.apache.kafka           |     3.9.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
-| okhttp3              | com.squareup.okhttp3       |     4.9.3      |   true   |
+| okhttp3              | com.squareup.okhttp3       |     4.12.0     |   true   |
 | ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
 | redisson             | org.redisson               |     3.38.1     |   true   | 
-| slf4j-log4j12        | org.slf4j                  |     1.7.25     |   true   |
-| spring-aspects       | org.springframework        |     5.3.31     |   true   |
-| spring-boot          | org.springframework.boot   |     2.7.18     |   true   |
-| spring-boot-starter  | org.springframework.boot   |     2.7.18     |   true   |
-| spring-web           | org.springframework        |     5.3.31     |   true   |
+| slf4j-log4j12        | org.slf4j                  |     2.0.16     |   true   |
+| spring-aspects       | org.springframework        |     6.1.14     |   true   |
+| spring-boot          | org.springframework.boot   |     3.3.5      |   true   |
+| spring-boot-starter  | org.springframework.boot   |     3.3.5      |   true   |
+| spring-web           | org.springframework        |     6.1.14     |   true   |
 | tablestore           | com.aliyun.openservices    |    5.13.10     |   true   |
 
 

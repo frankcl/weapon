@@ -2,6 +2,8 @@ package xin.manong.weapon.base.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Random;
@@ -11,6 +13,8 @@ import java.util.Random;
  * @date 2023-11-02 16:51:50
  */
 public class HeapTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(HeapTest.class);
 
     @Test
     public void testCompress() {
@@ -78,7 +82,7 @@ public class HeapTest {
                 continue;
             }
             if (prev != null) Assert.assertTrue(prev < v);
-            System.out.println(v + " ");
+            logger.info("entry: {}", v);
             prev = v;
         }
         Assert.assertFalse(heap.isEmpty());

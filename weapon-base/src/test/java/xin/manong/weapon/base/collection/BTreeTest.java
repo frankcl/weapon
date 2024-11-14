@@ -2,6 +2,8 @@ package xin.manong.weapon.base.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.Random;
  * @date 2023-10-30 16:18:27
  */
 public class BTreeTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(BTreeTest.class);
 
     @Test
     public void testCompress() {
@@ -24,8 +28,7 @@ public class BTreeTest {
             bTree.add(v, v);
             totalTime += System.currentTimeMillis() - startTime;
         }
-        System.out.println(bTree.size());
-        System.out.println("TotalTime: " + totalTime);
+        logger.info("build btree success for size[{}], spend time[{}]", bTree.size(), totalTime);
         Entry<Integer, Integer> prevEntry = null;
         for (Entry<Integer, Integer> entry : bTree) {
             if (prevEntry != null) {
@@ -33,7 +36,6 @@ public class BTreeTest {
                 Assert.assertTrue(prevEntry.getValue() < entry.getValue());
             }
             prevEntry = entry;
-            System.out.println(entry);
         }
     }
 
@@ -87,28 +89,28 @@ public class BTreeTest {
         Assert.assertEquals(6, bTree.size());
 
         Iterator<Entry<Integer, Integer>> iterator = bTree.iterator();
-        System.out.println("iterator: ");
+        logger.info("begin iterate");
         while (iterator.hasNext()) {
             Entry<Integer, Integer> entry = iterator.next();
             if (entry.getKey() == 8) {
                 iterator.remove();
                 continue;
             }
-            System.out.print(entry + " ");
+            logger.info("entry:[{}]", entry);
         }
-        System.out.println();
+        logger.info("finish iterate");
 
         Iterator<Entry<Integer, Integer>> reversedIterator = bTree.reversedIterator();
-        System.out.println("reversed iterator: ");
+        logger.info("begin reversed iterate");
         while (reversedIterator.hasNext()) {
             Entry<Integer, Integer> entry = reversedIterator.next();
             if (entry.getKey() == 9) {
                 reversedIterator.remove();
                 continue;
             }
-            System.out.print(entry + " ");
+            logger.info("reversed entry:[{}]", entry);
         }
-        System.out.println();
+        logger.info("finish reversed iterate");
 
         Assert.assertTrue(bTree.add(1, 1));
         Assert.assertTrue(bTree.add(15, 15));

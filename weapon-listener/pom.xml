@@ -9,8 +9,8 @@
     </parent>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <name>weapon-dynamic-secret-listener</name>
-    <description>default dynamic secret listener implementation which load ak/sk with resource file</description>
+    <name>weapon-listener</name>
+    <description>dynamic secret listener implementation which load ak/sk with resource file</description>
     <url>https://github.com/frankcl/weapon</url>
 
     <licenses>
@@ -29,7 +29,7 @@
         </developer>
     </developers>
 
-    <artifactId>weapon-dynamic-secret-listener</artifactId>
+    <artifactId>weapon-listener</artifactId>
 
     <dependencies>
         <dependency>
@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>slf4j-reload4j</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>

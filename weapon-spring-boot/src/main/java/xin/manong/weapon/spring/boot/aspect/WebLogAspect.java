@@ -1,6 +1,9 @@
 package xin.manong.weapon.spring.boot.aspect;
 
 import com.alibaba.fastjson.JSON;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -19,17 +22,12 @@ import xin.manong.weapon.base.common.ThreadContext;
 import xin.manong.weapon.base.log.JSONLogger;
 import xin.manong.weapon.base.util.CommonUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Web日志切面
@@ -139,15 +137,15 @@ public class WebLogAspect {
         Path path = method.getAnnotation(Path.class);
         if (path != null) return path.value();
         GetMapping getMapping = method.getAnnotation(GetMapping.class);
-        if (getMapping != null) return getMapping.value().length == 0 ? "" : getMapping.value()[0];
+        if (getMapping != null) return String.join(",", getMapping.value());
         PutMapping putMapping = method.getAnnotation(PutMapping.class);
-        if (putMapping != null) return putMapping.value().length == 0 ? "" : putMapping.value()[0];
+        if (putMapping != null) return String.join(",", putMapping.value());
         PostMapping postMapping = method.getAnnotation(PostMapping.class);
-        if (postMapping != null) return postMapping.value().length == 0 ? "" : postMapping.value()[0];
+        if (postMapping != null) return String.join(",", postMapping.value());
         DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
-        if (deleteMapping != null) return deleteMapping.value().length == 0 ? "" : deleteMapping.value()[0];
+        if (deleteMapping != null) return String.join(",", deleteMapping.value());
         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-        if (requestMapping != null) return requestMapping.value().length == 0 ? "" : requestMapping.value()[0];
+        if (requestMapping != null) return String.join(",", requestMapping.value());
         return "";
     }
 
@@ -168,7 +166,10 @@ public class WebLogAspect {
         else if (method.getAnnotation(PutMapping.class) != null) return RequestMethod.PUT.name();
         else if (method.getAnnotation(DeleteMapping.class) != null) return RequestMethod.DELETE.name();
         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-        if (requestMapping != null && requestMapping.method().length > 0) return requestMapping.method()[0].name();
+        if (requestMapping != null && requestMapping.method().length > 0) {
+            return Arrays.stream(requestMapping.method()).map(Enum::name).
+                    collect(Collectors.joining(","));
+        }
         return null;
     }
 
