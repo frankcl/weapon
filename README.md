@@ -31,7 +31,7 @@
   - [x] web日志切面支持
 ### 4. weapon-jersey: jersey web service支持
   - [x] jersey web层异常处理、web层响应对象归一化
-### 5. weapon-dynamic-secret-listener 阿里云工具AK/SK加载实现
+### 5. weapon-listener 阿里云工具AK/SK加载实现
   - [x] 通过加载本地配置文件实现AK/SK加载，不具备动态更新功能
 ### 6. weapon-alarm 报警和监控规范及接口定义
 
@@ -40,14 +40,14 @@
 
 如需使用，请引入对应工具包
 
-| 工件                             | 分组         | 最新版本  | 是否必须 | 说明                     |
-|:-------------------------------|:-----------|:------|:-----|:-----------------------|
-| weapon-base                    | xin.manong | 0.2.0 | 否    | 基础开发工具                 |
-| weapon-aliyun                  | xin.manong | 0.2.0 | 否    | 阿里云工具                  |
-| weapon-spring-boot             | xin.manong | 0.2.0 | 否    | spring boot增强工具        |
-| weapon-jersey                  | xin.manong | 0.2.0 | 否    | jersey web service增强工具 |
-| weapon-dynamic-secret-listener | xin.manong | 0.2.0 | 否    | 通过本地资源文件加载阿里云AK/SK     |
-| weapon-alarm                   | xin.manong | 0.2.0 | 否    | 报警接口定义，引入使用实现自定义报警     |
+| 工件                 | 分组         | 最新版本  | 是否必须 | 说明                     |
+|:-------------------|:-----------|:------|:-----|:-----------------------|
+| weapon-base        | xin.manong | 0.2.0 | 否    | 基础开发工具                 |
+| weapon-aliyun      | xin.manong | 0.2.0 | 否    | 阿里云工具                  |
+| weapon-spring-boot | xin.manong | 0.2.0 | 否    | spring boot增强工具        |
+| weapon-jersey      | xin.manong | 0.2.0 | 否    | jersey web service增强工具 |
+| weapon-listener    | xin.manong | 0.2.0 | 否    | 通过本地资源文件加载阿里云AK/SK     |
+| weapon-alarm       | xin.manong | 0.2.0 | 否    | 报警接口定义，引入使用实现自定义报警     |
 
 ## 依赖三方库信息
 
@@ -65,14 +65,14 @@
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
 | imageio-webp         | com.twelvemonkeys.imageio  |     3.12.0     |  false   |
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
-| jakarta.ws.rs-api    | jakarta.ws.rs              |     3.0.0      |   true   |
+| jakarta.ws.rs-api    | jakarta.ws.rs              |     4.0.0      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
 | kafka-clients        | org.apache.kafka           |     3.9.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
 | okhttp3              | com.squareup.okhttp3       |     4.12.0     |   true   |
 | ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
 | redisson             | org.redisson               |     3.38.1     |   true   | 
-| slf4j-log4j12        | org.slf4j                  |     2.0.16     |   true   |
+| slf4j-reload4j       | org.slf4j                  |     2.0.16     |   true   |
 | spring-aspects       | org.springframework        |     6.1.14     |   true   |
 | spring-boot          | org.springframework.boot   |     3.3.5      |   true   |
 | spring-boot-starter  | org.springframework.boot   |     3.3.5      |   true   |
