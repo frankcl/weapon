@@ -1,4 +1,4 @@
-package xin.manong.weapon.aliyun.secret;
+package xin.manong.weapon.base.listen;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

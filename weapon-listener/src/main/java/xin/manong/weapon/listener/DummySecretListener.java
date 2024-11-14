@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.aliyun.secret.*;
+import xin.manong.weapon.base.listen.ChangeEvent;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.Priority;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
