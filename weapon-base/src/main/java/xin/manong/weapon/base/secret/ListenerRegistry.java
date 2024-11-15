@@ -1,7 +1,9 @@
-package xin.manong.weapon.base.listen;
+package xin.manong.weapon.base.secret;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.Priority;
 
 /**
  * 动态秘钥监听器注册
@@ -32,6 +34,7 @@ public class ListenerRegistry {
         synchronized (ListenerRegistry.class) {
             if (currentListener != null && priority >= currentPriority) return;
             if (currentListener != null) {
+                currentListener.destroy();
                 logger.info("unregister dynamic secret listener: {}", currentListener.getClass().getName());
             }
             currentPriority = priority;
@@ -46,12 +49,20 @@ public class ListenerRegistry {
     static void start() {
         if (currentListener == null) return;
         try {
-            currentListener.start();
+            currentListener.init();
             logger.info("start dynamic secret listener success: {}", currentListener.getClass().getName());
         } catch (Exception e) {
             logger.error("start dynamic secret listener failed: {}", currentListener.getClass().getName());
             logger.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 停止动态秘钥监听器
+     */
+    static void stop() {
+        if (currentListener == null) return;
+        currentListener.destroy();
     }
 
     /**

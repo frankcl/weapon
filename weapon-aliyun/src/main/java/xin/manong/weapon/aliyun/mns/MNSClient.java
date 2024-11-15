@@ -8,7 +8,8 @@ import com.aliyun.mns.model.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.rebuild.RebuildListener;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.RebuildEvent;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.aliyun.secret.DynamicSecret;
@@ -31,13 +32,13 @@ public class MNSClient implements Rebuildable {
     private final MNSClientConfig config;
     private com.aliyun.mns.client.MNSClient client;
     private Map<String, CloudQueue> queueMap;
-    private final List<RebuildListener> rebuildListeners;
+    private final List<Listener> listeners;
 
     public MNSClient(MNSClientConfig config) {
         if (config == null || !config.check()) throw new IllegalArgumentException("MNS client config is invalid");
         this.config = config;
         build();
-        this.rebuildListeners = new ArrayList<>();
+        this.listeners = new ArrayList<>();
         if (this.config.dynamic) RebuildManager.register(this);
     }
 
@@ -64,8 +65,8 @@ public class MNSClient implements Rebuildable {
         com.aliyun.mns.client.MNSClient prevClient = client;
         build();
         if (prevClient != null) prevClient.close();
-        for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.onRebuild(this);
+        for (Listener listener : listeners) {
+            listener.onRebuild(new RebuildEvent(this));
         }
         logger.info("MNS client rebuild success");
     }
@@ -123,9 +124,9 @@ public class MNSClient implements Rebuildable {
      *
      * @param listener 重建监听器
      */
-    public void addRebuildListener(RebuildListener listener) {
+    public void addRebuildListener(Listener listener) {
         if (listener == null) return;
-        rebuildListeners.add(listener);
+        listeners.add(listener);
     }
 
     /**

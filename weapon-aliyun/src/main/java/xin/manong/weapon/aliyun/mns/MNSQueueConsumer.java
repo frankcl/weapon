@@ -2,9 +2,11 @@ package xin.manong.weapon.aliyun.mns;
 
 import com.aliyun.mns.client.CloudQueue;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.rebuild.RebuildListener;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.RebuildEvent;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import java.util.List;
  * @author frankcl
  * @date 2024-01-12 11:10:15
  */
-public class MNSQueueConsumer implements RebuildListener, Rebuildable {
+public class MNSQueueConsumer implements Rebuildable, Listener {
 
     private static final Logger logger = LoggerFactory.getLogger(MNSQueueConsumer.class);
 
@@ -25,11 +27,11 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
     @Setter
     protected MessageProcessor processor;
     private List<MNSQueueHandler> handlers;
-    private final List<RebuildListener> rebuildListeners;
+    private final List<Listener> listeners;
 
     public MNSQueueConsumer(MNSQueueConsumerConfig config) {
         this.config = config;
-        this.rebuildListeners = new ArrayList<>();
+        this.listeners = new ArrayList<>();
     }
 
     /**
@@ -62,10 +64,10 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
     }
 
     @Override
-    public void onRebuild(Rebuildable rebuildTarget) {
-        if (rebuildTarget == null || rebuildTarget != mnsClient) return;
-        for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.onRebuild(this);
+    public void onRebuild(@NotNull RebuildEvent rebuildEvent) {
+        if (rebuildEvent.target == null || rebuildEvent.target != mnsClient) return;
+        for (Listener listener : listeners) {
+            listener.onRebuild(new RebuildEvent(this));
         }
         if (handlers != null) {
             for (MNSQueueHandler handler : handlers) handler.stop();
@@ -79,9 +81,9 @@ public class MNSQueueConsumer implements RebuildListener, Rebuildable {
      *
      * @param listener 重建监听器
      */
-    public void addRebuildListener(RebuildListener listener) {
+    public void addRebuildListener(Listener listener) {
         if (listener == null) return;
-        rebuildListeners.add(listener);
+        listeners.add(listener);
     }
 
     /**

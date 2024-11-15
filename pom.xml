@@ -51,6 +51,7 @@
         <slf4j-reload4j.version>2.0.16</slf4j-reload4j.version>
         <junit.version>4.13.2</junit.version>
         <lombok.version>1.18.24</lombok.version>
+        <annotations.version>13.0</annotations.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-codec.version>1.15</commons-codec.version>
@@ -177,6 +178,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-reload4j</artifactId>
                 <version>${slf4j-reload4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>

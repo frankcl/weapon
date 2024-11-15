@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.alarm.AlarmProducer;
-import xin.manong.weapon.base.rebuild.RebuildListener;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.RebuildEvent;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.aliyun.secret.DynamicSecret;
@@ -33,14 +34,14 @@ public class OTSTunnel implements Rebuildable {
     protected OTSTunnelMonitor monitor;
     protected TunnelClient tunnelClient;
     protected Map<String, OTSTunnelWorker> workerMap;
-    protected List<RebuildListener> rebuildListeners;
+    protected List<Listener> listeners;
     @Setter
     protected AlarmProducer alarmProducer;
 
     public OTSTunnel(OTSTunnelConfig config) {
         this.config = config;
         this.workerMap = new ConcurrentHashMap<>();
-        this.rebuildListeners = new ArrayList<>();
+        this.listeners = new ArrayList<>();
     }
 
     /**
@@ -81,8 +82,8 @@ public class OTSTunnel implements Rebuildable {
         for (OTSTunnelWorker worker : workerMap.values()) worker.stop();
         workerMap.clear();
         if (prevClient != null) prevClient.shutdown();
-        for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.onRebuild(this);
+        for (Listener listener : listeners) {
+            listener.onRebuild(new RebuildEvent(this));
         }
         if (!build()) throw new RuntimeException("rebuild OTS tunnel failed");
         logger.info("OTS tunnel rebuild success");
@@ -124,9 +125,9 @@ public class OTSTunnel implements Rebuildable {
      *
      * @param listener 重建监听器
      */
-    public void addRebuildListener(RebuildListener listener) {
+    public void addRebuildListener(Listener listener) {
         if (listener == null) return;
-        rebuildListeners.add(listener);
+        listeners.add(listener);
     }
 
     /**

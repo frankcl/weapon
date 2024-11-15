@@ -1,4 +1,6 @@
-package xin.manong.weapon.base.listen;
+package xin.manong.weapon.base.secret;
+
+import xin.manong.weapon.base.listen.Listener;
 
 import java.util.ServiceLoader;
 
@@ -17,5 +19,12 @@ public class ListenerScanner {
         ServiceLoader<Listener> listeners = ServiceLoader.load(Listener.class);
         for (Listener listener : listeners) ListenerRegistry.register(listener);
         ListenerRegistry.start();
+    }
+
+    /**
+     * 注销动态秘钥监听器
+     */
+    public static void unregister() {
+        ListenerRegistry.stop();
     }
 }

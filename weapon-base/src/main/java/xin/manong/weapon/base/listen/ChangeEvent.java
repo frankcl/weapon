@@ -6,7 +6,7 @@ package xin.manong.weapon.base.listen;
  * @author frankcl
  * @date 2024-11-14 14:35:08
  */
-public class ChangeEvent {
+public class ChangeEvent extends Event {
 
     /**
      * 以前值
@@ -16,4 +16,9 @@ public class ChangeEvent {
      * 当前值
      */
     public String current;
+
+    public ChangeEvent(String prev, String current) {
+        this.prev = prev;
+        this.current = current;
+    }
 }

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.aliyun.secret.*;
-import xin.manong.weapon.base.listen.ChangeEvent;
 import xin.manong.weapon.base.listen.Listener;
 import xin.manong.weapon.base.listen.Priority;
 
@@ -42,7 +41,7 @@ public class DummySecretListener implements Listener {
     }
 
     @Override
-    public void start() throws Exception {
+    public void init() throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = System.getProperty(JVM_PARAM_SECRET_PATH, DEFAULT_SECRET_PATH);
         Enumeration<URL> enumeration = classLoader == null ?
@@ -67,9 +66,5 @@ public class DummySecretListener implements Listener {
                 break;
             }
         }
-    }
-
-    @Override
-    public void onChange(ChangeEvent event) {
     }
 }

@@ -3,7 +3,8 @@ package xin.manong.weapon.aliyun.ons;
 import com.aliyun.openservices.ons.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.rebuild.RebuildListener;
+import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.listen.RebuildEvent;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.aliyun.secret.DynamicSecret;
@@ -23,12 +24,12 @@ public class ONSConsumer implements Rebuildable {
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
     protected ONSConsumerConfig config;
-    protected List<RebuildListener> rebuildListeners;
+    protected List<Listener> listeners;
     protected Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config) {
         this.config = config;
-        this.rebuildListeners = new ArrayList<>();
+        this.listeners = new ArrayList<>();
     }
 
     /**
@@ -82,8 +83,8 @@ public class ONSConsumer implements Rebuildable {
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Consumer prevConsumer = consumer;
         if (prevConsumer != null) prevConsumer.shutdown();
-        for (RebuildListener rebuildListener : rebuildListeners) {
-            rebuildListener.onRebuild(this);
+        for (Listener listener : listeners) {
+            listener.onRebuild(new RebuildEvent(this));
         }
         if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         logger.info("ONS consumer rebuild success");
@@ -128,8 +129,8 @@ public class ONSConsumer implements Rebuildable {
      *
      * @param listener 重建监听器
      */
-    public void addRebuildListener(RebuildListener listener) {
+    public void addRebuildListener(Listener listener) {
         if (listener == null) return;
-        rebuildListeners.add(listener);
+        listeners.add(listener);
     }
 }
