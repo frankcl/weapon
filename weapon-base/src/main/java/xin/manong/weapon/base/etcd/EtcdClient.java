@@ -2,10 +2,7 @@ package xin.manong.weapon.base.etcd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import io.etcd.jetcd.ByteSequence;
-import io.etcd.jetcd.Client;
-import io.etcd.jetcd.ClientBuilder;
-import io.etcd.jetcd.Watch;
+import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.watch.WatchResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +34,7 @@ public class EtcdClient {
         ClientBuilder builder = Client.builder().endpoints(config.endpoints.toArray(new String[0])).
                 user(ByteSequence.from(config.username, StandardCharsets.UTF_8)).
                 password(ByteSequence.from(config.password, StandardCharsets.UTF_8)).
+                keepaliveWithoutCalls(config.keepaliveWithoutCalls).
                 connectTimeout(Duration.ofMillis(config.connectTimeoutMs));
         client = builder.build();
         watcherMap = new HashMap<>();
@@ -63,7 +61,9 @@ public class EtcdClient {
                 return null;
             }
             GetResponse response = client.getKVClient().get(ByteSequence.from(key, StandardCharsets.UTF_8)).get();
-            return response.getKvs().get(0).getValue().toString(StandardCharsets.UTF_8);
+            List<KeyValue> kvs = response.getKvs();
+            if (kvs == null || kvs.isEmpty()) return null;
+            return kvs.get(0).getValue().toString(StandardCharsets.UTF_8);
         } catch (ExecutionException | InterruptedException e) {
             logger.error("get key[{}] failed", key);
             logger.error(e.getMessage(), e);
@@ -204,6 +204,7 @@ public class EtcdClient {
      * @param <T> 数据类型
      */
     public static <T> T transform(String v, Class<T> recordType) {
+        if (v == null) return null;
         if (recordType == String.class) return recordType.cast(v);
         if (recordType == Integer.class) return recordType.cast(Integer.valueOf(v));
         if (recordType == Long.class) return recordType.cast(Long.valueOf(v));
@@ -227,6 +228,7 @@ public class EtcdClient {
      */
     public static <K, V> Map<K, V> transformMap(String v, Class<K> keyType, Class<V> valueType) {
         assert keyType != null && valueType != null;
+        if (v == null) return null;
         return JSON.parseObject(v, new TypeReference<>(keyType, valueType) {});
     }
 
@@ -240,6 +242,7 @@ public class EtcdClient {
      */
     public static <T> List<T> transformList(String v, Class<T> recordType) {
         assert recordType != null;
+        if (v == null) return null;
         return JSON.parseObject(v, new TypeReference<>(recordType) {});
     }
 

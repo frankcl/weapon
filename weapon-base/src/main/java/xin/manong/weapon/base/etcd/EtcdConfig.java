@@ -18,6 +18,7 @@ public class EtcdConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(EtcdConfig.class);
 
+    public boolean keepaliveWithoutCalls = false;
     public long connectTimeoutMs = 5000L;
     public List<String> endpoints;
     public String username;
