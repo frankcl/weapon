@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.secret;
+package xin.manong.weapon.aliyun.secret;
 
 import xin.manong.weapon.base.listen.Listener;
 

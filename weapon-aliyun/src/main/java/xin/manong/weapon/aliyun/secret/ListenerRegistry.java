@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.secret;
+package xin.manong.weapon.aliyun.secret;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
