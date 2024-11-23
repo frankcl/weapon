@@ -17,7 +17,7 @@ public class MapUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(MapUtil.class);
 
-    private static final Pattern pattern = Pattern.compile("(.+?)\\[\\d+]");
+    private static final Pattern pattern = Pattern.compile("(.+?)\\[(\\d+)]");
 
     /**
      * 用replaceMap内容安全替换targetMap内容
@@ -81,20 +81,29 @@ public class MapUtil {
     @SuppressWarnings("unchecked")
     private static void flattenValueToMultiValue(Map<String, Object> multiMap, String[] multiKeys, Object value) {
         if (multiKeys.length < 1) return;
+        Matcher matcher = pattern.matcher(multiKeys[0]);
+        boolean isArray = matcher.matches();
+        String key = isArray ? matcher.group(1) : multiKeys[0];
         if (multiKeys.length > 1) {
-            if (!multiMap.containsKey(multiKeys[0])) multiMap.put(multiKeys[0], new HashMap<>());
-            Map<String, Object> innerMap = (Map<String, Object>) multiMap.get(multiKeys[0]);
+            if (!multiMap.containsKey(key)) multiMap.put(key, isArray ? new ArrayList<>() : new HashMap<>());
+            Map<String, Object> innerMap;
+            if (isArray) {
+                int index = Integer.parseInt(matcher.group(2));
+                List<Map<String, Object>> innerList = (List<Map<String, Object>>) multiMap.get(key);
+                if (index >= innerList.size()) innerList.add(new HashMap<>());
+                innerMap = innerList.get(index);
+            } else {
+                innerMap = (Map<String, Object>) multiMap.get(multiKeys[0]);
+            }
             flattenValueToMultiValue(innerMap, Arrays.copyOfRange(multiKeys, 1, multiKeys.length), value);
             return;
         }
-        Matcher matcher = pattern.matcher(multiKeys[0]);
-        if (matcher.matches()) {
-            String key = matcher.group(1);
+        if (isArray) {
             if (!multiMap.containsKey(key)) multiMap.put(key, new ArrayList<>());
             List<Object> innerList = (List<Object>) multiMap.get(key);
             innerList.add(value);
         } else {
-            multiMap.put(multiKeys[0], value);
+            multiMap.put(key, value);
         }
     }
 }

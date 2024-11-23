@@ -46,12 +46,16 @@ public class MapUtilTest {
         flattenMap.put("weapon.aliyun.secretKey", "456");
         flattenMap.put("weapon.list[1]", 123);
         flattenMap.put("weapon.list[0]", 333);
+        flattenMap.put("weapon.array[1].id", "frank");
+        flattenMap.put("weapon.array[0].id", "lay");
+        flattenMap.put("weapon.array[1].name", "chen");
+        flattenMap.put("weapon.array[0].name", "li");
         flattenMap.put("weapon.file", "path");
         Map<String, Object> multiMap = MapUtil.flattenMapToMultiMap(flattenMap);
         Assert.assertEquals(1, multiMap.size());
 
         Map<String, Object> weaponMap = (Map<String, Object>) multiMap.get("weapon");
-        Assert.assertEquals(3, weaponMap.size());
+        Assert.assertEquals(4, weaponMap.size());
         Assert.assertTrue(weaponMap.containsKey("aliyun"));
         Assert.assertTrue(weaponMap.containsKey("list"));
         Assert.assertTrue(weaponMap.containsKey("file"));
@@ -67,5 +71,12 @@ public class MapUtilTest {
         Assert.assertEquals(2, list.size());
         Assert.assertEquals(333, list.get(0).intValue());
         Assert.assertEquals(123, list.get(1).intValue());
+
+        List<Map<String, Object>> array = (List<Map<String, Object>>) weaponMap.get("array");
+        Assert.assertEquals(2, array.size());
+        Assert.assertEquals("li", array.get(0).get("name"));
+        Assert.assertEquals("lay", array.get(0).get("id"));
+        Assert.assertEquals("chen", array.get(1).get("name"));
+        Assert.assertEquals("frank", array.get(1).get("id"));
     }
 }
