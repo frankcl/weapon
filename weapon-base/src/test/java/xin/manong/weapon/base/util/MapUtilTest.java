@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,5 +36,36 @@ public class MapUtilTest {
         Assert.assertEquals("v1", MapUtil.getValue(configMap, "k1", String.class));
         Assert.assertNull(MapUtil.getValue(configMap, "k2", String.class));
         Assert.assertNull(MapUtil.getValue(configMap, "k1", Integer.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testFlattenMapToMultiMap() {
+        Map<String, Object> flattenMap = new HashMap<>();
+        flattenMap.put("weapon.aliyun.accessKey", "123");
+        flattenMap.put("weapon.aliyun.secretKey", "456");
+        flattenMap.put("weapon.list[1]", 123);
+        flattenMap.put("weapon.list[0]", 333);
+        flattenMap.put("weapon.file", "path");
+        Map<String, Object> multiMap = MapUtil.flattenMapToMultiMap(flattenMap);
+        Assert.assertEquals(1, multiMap.size());
+
+        Map<String, Object> weaponMap = (Map<String, Object>) multiMap.get("weapon");
+        Assert.assertEquals(3, weaponMap.size());
+        Assert.assertTrue(weaponMap.containsKey("aliyun"));
+        Assert.assertTrue(weaponMap.containsKey("list"));
+        Assert.assertTrue(weaponMap.containsKey("file"));
+
+        Assert.assertEquals("path", weaponMap.get("file"));
+
+        Map<String, Object> aliyunMap = (Map<String, Object>) weaponMap.get("aliyun");
+        Assert.assertEquals(2, aliyunMap.size());
+        Assert.assertEquals("123", aliyunMap.get("accessKey"));
+        Assert.assertEquals("456", aliyunMap.get("secretKey"));
+
+        List<Integer> list = (List<Integer>) weaponMap.get("list");
+        Assert.assertEquals(2, list.size());
+        Assert.assertEquals(333, list.get(0).intValue());
+        Assert.assertEquals(123, list.get(1).intValue());
     }
 }
