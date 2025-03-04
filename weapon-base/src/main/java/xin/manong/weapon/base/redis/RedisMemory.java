@@ -28,4 +28,7 @@ public class RedisMemory {
     @JSONField(name = "maxmemory")
     @JsonProperty("maxmemory")
     public Long maxMemoryBytes = 0L;
+    @JSONField(name = "total_system_memory")
+    @JsonProperty("total_system_memory")
+    public Long totalSystemMemoryBytes = 0L;
 }
