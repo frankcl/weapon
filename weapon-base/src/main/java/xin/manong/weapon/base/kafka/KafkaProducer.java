@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +72,10 @@ public class KafkaProducer {
      *
      * @param key 消息key
      * @param message 消息内容
-     * @param topic kafka topic
+     * @param topic kafka主题
      * @return 发送成功返回kafka元信息，否则返回null
      */
-    public RecordMetadata send(String key, byte[] message, String topic) {
+    public RecordMetadata send(String key, byte[] message, String topic, RecordHeaders headers) {
         if (StringUtils.isEmpty(topic)) {
             logger.error("send kafka topic is empty");
             return null;
@@ -83,8 +84,8 @@ public class KafkaProducer {
             logger.error("send message is empty, ignore it");
             return null;
         }
-        ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic,
-                key.getBytes(StandardCharsets.UTF_8), message);
+        ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic, null, null,
+                key.getBytes(StandardCharsets.UTF_8), message, headers);
         Future<RecordMetadata> future = producer.send(record);
         try {
             return future.get();
@@ -98,8 +99,20 @@ public class KafkaProducer {
     /**
      * 发送消息
      *
+     * @param key 消息key
      * @param message 消息内容
-     * @param topic kafka topic
+     * @param topic 主题
+     * @return 发送成功返回kafka元信息，否则返回null
+     */
+    public RecordMetadata send(String key, byte[] message, String topic) {
+        return send(key, message, topic, null);
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param message 消息内容
+     * @param topic kafka主题
      * @return 发送成功返回kafka元信息，否则返回null
      */
     public RecordMetadata send(byte[] message, String topic) {
