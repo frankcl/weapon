@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -22,7 +23,8 @@ import java.util.Map;
  * @author frankcl
  * @date 2022-12-21 10:32:05
  */
-public class RedisClientDefinitionRegistry extends AliyunBeanDefinitionRegistry {
+public class RedisClientDefinitionRegistry extends ApplicationContextEnvironmentAware
+        implements BeanDefinitionRegistryPostProcessor {
 
     private final static Logger logger = LoggerFactory.getLogger(RedisClientDefinitionRegistry.class);
 

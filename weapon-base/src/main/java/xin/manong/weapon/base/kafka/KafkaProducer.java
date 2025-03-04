@@ -7,6 +7,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -21,7 +22,7 @@ public class KafkaProducer {
     private final static Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 
     private final KafkaProduceConfig config;
-    private org.apache.kafka.clients.producer.KafkaProducer<String, byte[]> producer;
+    private org.apache.kafka.clients.producer.KafkaProducer<byte[], byte[]> producer;
 
     public KafkaProducer(KafkaProduceConfig config) {
         this.config = config;
@@ -43,7 +44,7 @@ public class KafkaProducer {
         properties.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, String.valueOf(config.requestTimeoutMs));
         properties.put(ProducerConfig.RETRIES_CONFIG, String.valueOf(config.retryCnt));
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringSerializer");
+                "org.apache.kafka.common.serialization.ByteArraySerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.ByteArraySerializer");
         if (config.authConfig != null) {
@@ -82,7 +83,8 @@ public class KafkaProducer {
             logger.error("send message is empty, ignore it");
             return null;
         }
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, message);
+        ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic,
+                key.getBytes(StandardCharsets.UTF_8), message);
         Future<RecordMetadata> future = producer.send(record);
         try {
             return future.get();

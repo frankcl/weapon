@@ -27,6 +27,7 @@ public class KafkaConsumeConfig {
     public String name;
     public String servers;
     public String groupId;
+    public String processorName;
     public List<String> topics;
     public KafkaAuthConfig authConfig;
 

@@ -19,13 +19,18 @@ public class KafkaAuthConfig {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaAuthConfig.class);
 
-    private final static Set<String> SECURITY_PROTOCOLS = new HashSet<String>() {{
-        add("PLAINTEXT"); add("SSL"); add("SASL_PLAINTEXT"); add("SASL_SSL");
+    private final static Set<String> SECURITY_PROTOCOLS = new HashSet<>() {{
+        add(PROTOCOL_PLAINTEXT); add(PROTOCOL_SSL); add(PROTOCOL_SASL_PLAINTEXT); add(PROTOCOL_SASL_SSL);
     }};
 
-    public final static String SECURITY_PROTOCOL = "security.protocol";
-    public final static String SASL_MECHANISM = "sasl.mechanism";
-    public final static String SASL_JAAS_CONFIG = "sasl.jaas.config";
+    public static final String PROTOCOL_PLAINTEXT = "PLAINTEXT";
+    public static final String PROTOCOL_SSL = "SSL";
+    public static final String PROTOCOL_SASL_PLAINTEXT = "SASL_PLAINTEXT";
+    public static final String PROTOCOL_SASL_SSL = "SASL_SSL";
+
+    public static final String SECURITY_PROTOCOL = "security.protocol";
+    public static final String SASL_MECHANISM = "sasl.mechanism";
+    public static final String SASL_JAAS_CONFIG = "sasl.jaas.config";
 
     public String securityProtocol;
     public String saslMechanism;

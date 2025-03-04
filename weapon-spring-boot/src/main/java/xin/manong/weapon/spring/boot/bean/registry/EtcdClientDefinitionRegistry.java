@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -21,7 +22,8 @@ import java.util.Map;
  * @author frankcl
  * @date 2024-11-12 13:38:19
  */
-public class EtcdClientDefinitionRegistry extends AliyunBeanDefinitionRegistry {
+public class EtcdClientDefinitionRegistry extends ApplicationContextEnvironmentAware
+        implements BeanDefinitionRegistryPostProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(EtcdClientDefinitionRegistry.class);
     private static final String BINDING_KEY = "weapon.common.etcd.client";

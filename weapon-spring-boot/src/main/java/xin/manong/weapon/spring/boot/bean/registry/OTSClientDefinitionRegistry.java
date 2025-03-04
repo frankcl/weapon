@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -21,7 +22,8 @@ import java.util.Map;
  * @author frankcl
  * @date 2022-08-26 11:25:16
  */
-public class OTSClientDefinitionRegistry extends AliyunBeanDefinitionRegistry {
+public class OTSClientDefinitionRegistry extends AliyunBeanDefinitionRegistry
+        implements BeanDefinitionRegistryPostProcessor {
 
     private final static Logger logger = LoggerFactory.getLogger(OTSClientDefinitionRegistry.class);
 
@@ -44,7 +46,7 @@ public class OTSClientDefinitionRegistry extends AliyunBeanDefinitionRegistry {
         for (Map.Entry<String, OTSClientConfig> entry : configMap.entrySet()) {
             String name = String.format("%sOTSClient", entry.getKey());
             OTSClientConfig config = entry.getValue();
-            fillAliyunSecret(config);
+            fillSecret(config);
             RootBeanDefinition beanDefinition = new RootBeanDefinition(OTSClient.class, () -> new OTSClient(config));
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);

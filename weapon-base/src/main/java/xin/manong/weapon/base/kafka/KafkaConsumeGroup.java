@@ -14,7 +14,7 @@ public class KafkaConsumeGroup {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumeGroup.class);
 
-    private final KafkaConsumeConfig config;
+    protected final KafkaConsumeConfig config;
     private KafkaConsumer[] consumers;
     @Setter
     private KafkaRecordProcessor processor;
