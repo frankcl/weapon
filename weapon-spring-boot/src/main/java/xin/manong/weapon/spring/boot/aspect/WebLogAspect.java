@@ -12,6 +12,7 @@ import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,7 @@ public class WebLogAspect {
 
     protected final JSONLogger webAspectLogger;
 
-    public WebLogAspect(JSONLogger webAspectLogger) {
+    public WebLogAspect(@Qualifier("webAspectLogger") JSONLogger webAspectLogger) {
         this.webAspectLogger = webAspectLogger;
     }
 
