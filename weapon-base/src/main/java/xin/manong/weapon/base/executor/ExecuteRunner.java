@@ -37,6 +37,7 @@ public abstract class ExecuteRunner implements Runnable {
      * @return 成功返回true，否则返回false
      */
     public boolean start() {
+        if (thread != null && thread.isAlive()) stop();
         logger.info("{} is starting ...", name);
         running = true;
         thread = new Thread(this, name);
@@ -51,7 +52,7 @@ public abstract class ExecuteRunner implements Runnable {
     public void stop() {
         logger.info("{} is stopping", name);
         running = false;
-        if (thread.isAlive()) {
+        if (thread != null && thread.isAlive()) {
             thread.interrupt();
             try {
                 thread.join();
