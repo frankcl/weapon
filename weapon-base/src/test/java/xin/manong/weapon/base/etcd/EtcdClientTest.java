@@ -40,6 +40,32 @@ public class EtcdClientTest {
     }
 
     @Test
+    public void testLock() throws InterruptedException {
+        String key = "test/lock";
+        new Thread(() -> {
+            EtcdLock etcdLock = client.lock(key, 30);
+            logger.info(etcdLock.getLockPath());
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            client.unlock(etcdLock);
+        }).start();
+        new Thread(() -> {
+            EtcdLock etcdLock = client.lock(key, 30);
+            logger.info(etcdLock.getLockPath());
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            client.unlock(etcdLock);
+        }).start();
+        Thread.sleep(100000);
+    }
+
+    @Test
     public void testOperations() {
         Assert.assertTrue(client.put("k1", "1"));
         Assert.assertEquals("1", client.get("k1"));
