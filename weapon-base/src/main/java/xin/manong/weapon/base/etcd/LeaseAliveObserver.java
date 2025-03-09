@@ -15,7 +15,7 @@ public class LeaseAliveObserver implements StreamObserver<LeaseKeepAliveResponse
 
     private static final Logger logger = LoggerFactory.getLogger(LeaseAliveObserver.class);
 
-    private final Long leaseID;
+    protected final Long leaseID;
 
     public LeaseAliveObserver(Long leaseID) {
         this.leaseID = leaseID;
