@@ -4,10 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
-import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.lock.LockResponse;
 import io.etcd.jetcd.watch.WatchResponse;
-import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +57,13 @@ public class EtcdClient {
      * @param lockKey 锁key
      * @param leaseTTL 租约生命周期，单位秒
      * @param timeout 加锁超时时间，单位秒
+     * @param observer 租约活性观察者
      * @return 成功返回ETCD锁，否则返回null
      */
-    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout) {
+    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout, LeaseAliveObserver observer) {
         assert leaseTTL > 0;
         EtcdLock etcdLock = new EtcdLock(lockKey, leaseTTL);
-        Long leaseId = createLease(leaseTTL);
+        Long leaseId = createLease(leaseTTL, observer);
         if (leaseId == null) return null;
         etcdLock.setLeaseId(leaseId);
         String lockPath = createLock(lockKey, leaseId, timeout);
@@ -79,10 +78,11 @@ public class EtcdClient {
      *
      * @param lockKey 锁key
      * @param leaseTTL 租约生命周期，单位秒
+     * @param observer 租约活性观察者
      * @return 成功返回ETCD锁，否则返回null
      */
-    public EtcdLock lock(String lockKey, long leaseTTL) {
-        return lock(lockKey, leaseTTL, null);
+    public EtcdLock lock(String lockKey, long leaseTTL, LeaseAliveObserver observer) {
+        return lock(lockKey, leaseTTL, null, observer);
     }
 
     /**
@@ -144,28 +144,11 @@ public class EtcdClient {
      * @param leaseTTL 租约生命周期
      * @return 成功返回租约ID，否则返回null
      */
-    private Long createLease(long leaseTTL) {
+    private Long createLease(long leaseTTL, LeaseAliveObserver observer) {
         try {
             Lease leaseClient = client.getLeaseClient();
             long leaseId = leaseClient.grant(leaseTTL).get().getID();
-            StreamObserver<LeaseKeepAliveResponse> observer = new StreamObserver<>() {
-                @Override
-                public void onNext(LeaseKeepAliveResponse leaseKeepAliveResponse) {
-                    logger.info("lease[{}] remains TTL[{}]", leaseKeepAliveResponse.getID(),
-                            leaseKeepAliveResponse.getTTL());
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    logger.error("lease[{}] keep alive failed, cause[{}]", leaseId, throwable.getMessage());
-                }
-
-                @Override
-                public void onCompleted() {
-                    logger.info("lease[{}] keep alive completed", leaseId);
-                }
-            };
-            leaseClient.keepAlive(leaseId, observer);
+            leaseClient.keepAlive(leaseId, observer == null ? new LeaseAliveObserver(leaseId) : observer);
             return leaseId;
         } catch (InterruptedException | ExecutionException e) {
             logger.error("create lease failed");
