@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.lock.LockResponse;
 import io.etcd.jetcd.watch.WatchResponse;
+import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +62,7 @@ public class EtcdClient {
      * @param observer 租约活性观察者
      * @return 成功返回ETCD锁，否则返回null
      */
-    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout, LeaseAliveObserver observer) {
+    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout, StreamObserver<LeaseKeepAliveResponse> observer) {
         assert leaseTTL > 0;
         EtcdLock etcdLock = new EtcdLock(lockKey, leaseTTL);
         Long leaseId = createLease(leaseTTL, observer);
@@ -144,7 +146,7 @@ public class EtcdClient {
      * @param leaseTTL 租约生命周期
      * @return 成功返回租约ID，否则返回null
      */
-    private Long createLease(long leaseTTL, LeaseAliveObserver observer) {
+    private Long createLease(long leaseTTL, StreamObserver<LeaseKeepAliveResponse> observer) {
         try {
             Lease leaseClient = client.getLeaseClient();
             long leaseId = leaseClient.grant(leaseTTL).get().getID();
