@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.executor;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public abstract class ExecuteRunner implements Runnable {
 
     protected volatile boolean running;
     private final long executeTimeIntervalMs;
+    @Getter
     private final String name;
     private Thread thread;
 
