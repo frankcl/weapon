@@ -43,7 +43,7 @@ public class EtcdClientTest {
     public void testLock() throws InterruptedException {
         String key = "test/lock";
         new Thread(() -> {
-            EtcdLock etcdLock = client.lock(key, 30);
+            EtcdLock etcdLock = client.lock(key, 30, null);
             logger.info(etcdLock.getLockPath());
             try {
                 Thread.sleep(10000);
@@ -53,7 +53,7 @@ public class EtcdClientTest {
             client.unlock(etcdLock);
         }).start();
         new Thread(() -> {
-            EtcdLock etcdLock = client.lock(key, 30);
+            EtcdLock etcdLock = client.lock(key, 30, null);
             logger.info(etcdLock.getLockPath());
             try {
                 Thread.sleep(3000);
