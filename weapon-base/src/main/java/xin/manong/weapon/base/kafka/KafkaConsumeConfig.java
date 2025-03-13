@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2023-01-05 16:15:45
  */
 @Data
-public class KafkaConsumeConfig {
+public class KafkaConsumeConfig extends KafkaAuthSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumeConfig.class);
 
@@ -29,7 +29,6 @@ public class KafkaConsumeConfig {
     public String groupId;
     public String processorName;
     public List<String> topics;
-    public KafkaAuthConfig authConfig;
 
     /**
      * 检测配置有效性
@@ -37,6 +36,7 @@ public class KafkaConsumeConfig {
      * @return 有效返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (topics == null || topics.isEmpty()) {
             logger.error("consume topics are empty");
             return false;
@@ -49,7 +49,6 @@ public class KafkaConsumeConfig {
             logger.error("subscribe group id is empty");
             return false;
         }
-        if (authConfig != null && !authConfig.check()) return false;
         if (StringUtils.isEmpty(name)) name = "unknown_consumer";
         if (consumeThreadNum == null || consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
         topics = new ArrayList<>(new HashSet<>(topics));

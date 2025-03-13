@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * @date 2023-01-05 18:05:41
  */
 @Data
-public class KafkaProduceConfig {
+public class KafkaProduceConfig extends KafkaAuthSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaProduceConfig.class);
 
@@ -22,7 +22,6 @@ public class KafkaProduceConfig {
     public int retryCnt = DEFAULT_RETRY_CNT;
     public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String servers;
-    public KafkaAuthConfig authConfig;
 
     /**
      * 检测配置有效性
@@ -30,11 +29,11 @@ public class KafkaProduceConfig {
      * @return 有效返回true，否则返回false
      */
     public boolean check() {
+        if (!super.check()) return false;
         if (StringUtils.isEmpty(servers)) {
             logger.error("kafka servers are empty");
             return false;
         }
-        if (authConfig != null && !authConfig.check()) return false;
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;
         if (requestTimeoutMs <= 0) requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
         return true;

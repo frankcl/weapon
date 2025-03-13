@@ -22,7 +22,7 @@ import java.util.Map;
  * @author frankcl
  * @date 2025-03-04 11:25:16
  */
-public class KafkaConsumerDefinitionRegistry extends ApplicationContextEnvironmentAware
+public class KafkaConsumerDefinitionRegistry extends KafkaBeanDefinitionRegistry
         implements BeanDefinitionRegistryPostProcessor {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumerDefinitionRegistry.class);
@@ -46,6 +46,7 @@ public class KafkaConsumerDefinitionRegistry extends ApplicationContextEnvironme
         for (Map.Entry<String, KafkaConsumeConfig> entry : configMap.entrySet()) {
             String name = String.format("%sKafkaConsumer", entry.getKey());
             KafkaConsumeConfig config = entry.getValue();
+            fillAuthConfig(config);
             RootBeanDefinition beanDefinition = new RootBeanDefinition(
                     KafkaConsumerBean.class, () -> new KafkaConsumerBean(config));
             beanDefinition.setInitMethodName("start");

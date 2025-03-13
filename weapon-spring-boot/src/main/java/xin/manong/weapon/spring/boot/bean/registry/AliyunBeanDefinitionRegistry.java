@@ -27,6 +27,7 @@ public abstract class AliyunBeanDefinitionRegistry extends ApplicationContextEnv
      */
     private void bindSecret() {
         try {
+            if (aliyunSecret != null) return;
             aliyunSecret = Binder.get(environment).bind(BINDING_KEY, Bindable.of(AliyunSecret.class)).get();
         } catch (Exception e) {
             logger.warn("bind aliyun secret failed");
