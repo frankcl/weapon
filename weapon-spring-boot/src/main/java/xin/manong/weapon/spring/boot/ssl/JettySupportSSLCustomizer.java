@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("server")
 public class JettySupportSSLCustomizer implements WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> {
 
-    private boolean forceRedirect = false;
+    private boolean forceSecureRedirect = false;
     private int insecurePort = 80;
     private int port = 443;
 
@@ -39,7 +39,7 @@ public class JettySupportSSLCustomizer implements WebServerFactoryCustomizer<Con
             connector.addConnectionFactory(new HttpConnectionFactory(httpConfiguration));
             connector.setPort(insecurePort);
             server.addConnector(connector);
-            if (forceRedirect) {
+            if (forceSecureRedirect) {
                 SecuredRedirectHandler redirectHandler = new SecuredRedirectHandler();
                 ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
                 for (Handler handler : server.getHandlers()) handlerCollection.addHandler(handler);
