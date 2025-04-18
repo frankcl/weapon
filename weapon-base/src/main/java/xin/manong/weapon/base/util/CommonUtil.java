@@ -1,6 +1,7 @@
 package xin.manong.weapon.base.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 /**
  * 通用工具
@@ -22,7 +22,6 @@ public class CommonUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
-    private final static Pattern IP_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");
     private final static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
@@ -209,9 +208,10 @@ public class CommonUtil {
      * @param str 字符串
      * @return 符合IP规范返回true，否则返回false
      */
-    public static boolean isIP(String str) {
+    public static boolean isValidIP(String str) {
         if (StringUtils.isEmpty(str)) return false;
-        return IP_PATTERN.matcher(str).matches();
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        return validator.isValidInet4Address(str) || validator.isValidInet6Address(str);
     }
 
     /**

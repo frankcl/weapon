@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.etcd;
 
+import io.etcd.jetcd.support.CloseableClient;
 import lombok.Data;
 
 /**
@@ -19,6 +20,8 @@ public class EtcdLock {
     private long leaseId;
     /* 租约生命周期，单位秒 */
     private long leaseTTL;
+    /* 关闭租约观察者 */
+    private CloseableClient closeObserver;
 
     public EtcdLock(String lockKey, long leaseTTL) {
         this.lockKey = lockKey;

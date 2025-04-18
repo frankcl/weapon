@@ -102,11 +102,11 @@ public class CommonUtilTest {
 
     @Test
     public void testIsIP() {
-        Assert.assertFalse(CommonUtil.isIP(null));
-        Assert.assertFalse(CommonUtil.isIP(""));
-        Assert.assertFalse(CommonUtil.isIP("123.345"));
-        Assert.assertFalse(CommonUtil.isIP("www.sina.com.cn"));
-        Assert.assertTrue(CommonUtil.isIP("123.345.56.12"));
+        Assert.assertFalse(CommonUtil.isValidIP(null));
+        Assert.assertFalse(CommonUtil.isValidIP(""));
+        Assert.assertFalse(CommonUtil.isValidIP("123.345"));
+        Assert.assertFalse(CommonUtil.isValidIP("www.sina.com.cn"));
+        Assert.assertTrue(CommonUtil.isValidIP("127.0.56.12"));
     }
 
     @Test

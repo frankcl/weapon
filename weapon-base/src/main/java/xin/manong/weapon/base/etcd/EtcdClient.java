@@ -6,6 +6,7 @@ import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.lock.LockResponse;
+import io.etcd.jetcd.support.CloseableClient;
 import io.etcd.jetcd.watch.WatchResponse;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +72,8 @@ public class EtcdClient {
         String lockPath = createLock(lockKey, leaseId, timeout);
         if (lockPath == null) return null;
         etcdLock.setLockPath(lockPath);
+        etcdLock.setCloseObserver(client.getLeaseClient().keepAlive(leaseId,
+                observer == null ? new LeaseAliveObserver(leaseId) : observer));
         logger.info("lock[{}] success", lockKey);
         return etcdLock;
     }
@@ -99,8 +102,9 @@ public class EtcdClient {
                         etcdLock.getLockPath().getBytes(StandardCharsets.UTF_8))).get();
                 logger.info("unlock[{}] success", etcdLock.getLockKey());
             }
+            if (etcdLock != null && etcdLock.getCloseObserver() != null) etcdLock.getCloseObserver().close();
             if (etcdLock != null && etcdLock.getLeaseId() != 0L) {
-                client.getLeaseClient().revoke(etcdLock.getLeaseId());
+                client.getLeaseClient().revoke(etcdLock.getLeaseId()).get();
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("unlock[{}] failed", etcdLock.getLockKey());
@@ -149,9 +153,7 @@ public class EtcdClient {
     private Long createLease(long leaseTTL, StreamObserver<LeaseKeepAliveResponse> observer) {
         try {
             Lease leaseClient = client.getLeaseClient();
-            long leaseId = leaseClient.grant(leaseTTL).get().getID();
-            leaseClient.keepAlive(leaseId, observer == null ? new LeaseAliveObserver(leaseId) : observer);
-            return leaseId;
+            return leaseClient.grant(leaseTTL).get().getID();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("create lease failed");
             logger.error(e.getMessage(), e);

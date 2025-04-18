@@ -24,7 +24,8 @@ public class HostModifyInterceptor implements Interceptor {
         Request request = chain.request();
         String requestHost = request.url().url().getHost();
         String headerHost = request.header(HttpClient.HEADER_HOST);
-        if (StringUtils.isNotEmpty(headerHost) && !headerHost.equals(requestHost) && !CommonUtil.isIP(requestHost)) {
+        if (StringUtils.isNotEmpty(headerHost) && !headerHost.equals(requestHost) &&
+                !CommonUtil.isValidIP(requestHost)) {
             request = request.newBuilder().header(HttpClient.HEADER_HOST, requestHost).build();
         }
         return chain.proceed(request);
