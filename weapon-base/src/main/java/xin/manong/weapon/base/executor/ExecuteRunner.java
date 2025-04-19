@@ -23,6 +23,7 @@ public abstract class ExecuteRunner implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ExecuteRunner.class);
     private static final String DEFAULT_NAME = "ExecuteRunner";
 
+    @Getter
     protected volatile boolean running;
     private final long executeTimeIntervalMs;
     @Getter
