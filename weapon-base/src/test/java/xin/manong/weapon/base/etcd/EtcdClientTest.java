@@ -30,7 +30,7 @@ public class EtcdClientTest {
         config.endpoints = new ArrayList<>();
         config.endpoints.add("http://127.0.0.1:2379");
         config.username = "root";
-        config.password = "";
+        config.password = "xmjjyhy28p";
         client = new EtcdClient(config);
     }
 
@@ -41,28 +41,28 @@ public class EtcdClientTest {
 
     @Test
     public void testLock() throws InterruptedException {
-        String key = "test/lock";
+        LockRequest request = new LockRequest("test/lock", 30L);
         new Thread(() -> {
-            EtcdLock etcdLock = client.lock(key, 30, null);
-            logger.info(etcdLock.getLockPath());
+            LockApproval approval = client.applyLock(request);
+            logger.info(approval.getPath());
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            client.unlock(etcdLock);
+            client.releaseLock(approval);
         }).start();
         new Thread(() -> {
-            EtcdLock etcdLock = client.lock(key, 30, null);
-            logger.info(etcdLock.getLockPath());
+            LockApproval approval = client.applyLock(request);
+            logger.info(approval.getPath());
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            client.unlock(etcdLock);
+            client.releaseLock(approval);
         }).start();
-        Thread.sleep(100000);
+        Thread.sleep(15000);
     }
 
     @Test
