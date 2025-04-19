@@ -30,7 +30,7 @@ public class EtcdClientTest {
         config.endpoints = new ArrayList<>();
         config.endpoints.add("http://127.0.0.1:2379");
         config.username = "root";
-        config.password = "xmjjyhy28p";
+        config.password = "";
         client = new EtcdClient(config);
     }
 
@@ -63,6 +63,21 @@ public class EtcdClientTest {
             client.releaseLock(approval);
         }).start();
         Thread.sleep(15000);
+    }
+
+    @Test
+    public void testGetKeysWithPrefix() {
+        Assert.assertTrue(client.put("prefix/k1", "1"));
+        Assert.assertTrue(client.put("prefix/k3", "1"));
+        Assert.assertTrue(client.put("prefix/k2", "1"));
+        List<String> keys = client.getKeysWithPrefix("prefix");
+        Assert.assertEquals(3, keys.size());
+        Assert.assertEquals("prefix/k1", keys.get(0));
+        Assert.assertEquals("prefix/k2", keys.get(1));
+        Assert.assertEquals("prefix/k3", keys.get(2));
+        Assert.assertTrue(client.delete("prefix/k1"));
+        Assert.assertTrue(client.delete("prefix/k2"));
+        Assert.assertTrue(client.delete("prefix/k3"));
     }
 
     @Test

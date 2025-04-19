@@ -6,6 +6,8 @@ import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.lease.LeaseGrantResponse;
 import io.etcd.jetcd.lock.LockResponse;
+import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.OptionsUtil;
 import io.etcd.jetcd.support.CloseableClient;
 import io.etcd.jetcd.watch.WatchResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -153,6 +155,26 @@ public class EtcdClient {
             logger.error("acquire lock:{} failed", request.getKey());
             logger.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    /**
+     * 获取前缀为prefix的key列表
+     *
+     * @param prefix 前缀
+     * @return key列表
+     */
+    public List<String> getKeysWithPrefix(String prefix) {
+        try {
+            ByteSequence byteSequence = ByteSequence.from(prefix, StandardCharsets.UTF_8);
+            ByteSequence prefixEnd = OptionsUtil.prefixEndOf(byteSequence);
+            GetOption getOption = GetOption.builder().withRange(prefixEnd).build();
+            List<KeyValue> keys = client.getKVClient().get(byteSequence, getOption).get().getKvs();
+            return keys.stream().map(keyValue -> keyValue.getKey().toString(StandardCharsets.UTF_8)).sorted().toList();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("get keys with prefix:{} failed", prefix);
+            logger.error(e.getMessage(), e);
+            return new ArrayList<>();
         }
     }
 
