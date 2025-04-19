@@ -10,29 +10,26 @@ import lombok.Setter;
  * @author frankcl
  * @date 2025-04-19 20:00:18
  */
+@Getter
 public class LockApproval {
 
     /**
      * 锁key
      */
-    @Getter
     private final String key;
     /**
      * 批准后锁路径
      */
-    @Getter
     @Setter
     private String path;
     /**
      * 租约ID
      */
-    @Getter
     @Setter
     private Long leaseId;
     /**
      * 租约保持观察者移除
      */
-    @Getter
     @Setter
     private CloseableClient observerRemove;
 
