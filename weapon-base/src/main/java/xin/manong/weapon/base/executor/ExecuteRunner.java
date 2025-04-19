@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.event.ErrorEvent;
 import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.util.RandomID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,31 +22,40 @@ import java.util.List;
 public abstract class ExecuteRunner implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecuteRunner.class);
-    private static final String DEFAULT_NAME = "ExecuteRunner";
+    private static final String KEY_PREFIX = "ExecuteRunner_";
 
     @Getter
     protected volatile boolean running;
     private final long executeTimeIntervalMs;
     @Getter
-    private final String name;
+    private final String key;
     @Getter
     @Setter
-    protected String chineseName;
+    private String name;
     @Getter
     @Setter
-    protected String description;
+    private String description;
     protected final List<EventListener> eventListeners;
     private Thread thread;
 
     public ExecuteRunner(long executeTimeIntervalMs) {
-        this(DEFAULT_NAME, executeTimeIntervalMs);
+        this(buildRandomKey(), executeTimeIntervalMs);
     }
 
-    public ExecuteRunner(String name, long executeTimeIntervalMs) {
-        this.name = StringUtils.isEmpty(name) ? DEFAULT_NAME : name;
+    public ExecuteRunner(String key, long executeTimeIntervalMs) {
+        this.key = StringUtils.isEmpty(key) ? buildRandomKey() : key;
         this.running = false;
         this.executeTimeIntervalMs = Math.max(1000L, executeTimeIntervalMs);
         this.eventListeners = new ArrayList<>();
+    }
+
+    /**
+     * 构建随机key
+     *
+     * @return 随机key
+     */
+    private static String buildRandomKey() {
+        return String.format("%s%s", KEY_PREFIX, RandomID.build());
     }
 
     /**
@@ -55,11 +65,11 @@ public abstract class ExecuteRunner implements Runnable {
      */
     public boolean start() {
         if (thread != null && thread.isAlive()) stop();
-        logger.info("{} is starting ...", name);
+        logger.info("{} is starting ...", key);
         running = true;
-        thread = new Thread(this, name);
+        thread = new Thread(this, key);
         thread.start();
-        logger.info("{} has been started", name);
+        logger.info("{} has been started", key);
         return true;
     }
 
@@ -67,7 +77,7 @@ public abstract class ExecuteRunner implements Runnable {
      * 停止执行
      */
     public void stop() {
-        logger.info("{} is stopping", name);
+        logger.info("{} is stopping", key);
         running = false;
         if (thread != null && thread.isAlive()) {
             thread.interrupt();
@@ -77,7 +87,7 @@ public abstract class ExecuteRunner implements Runnable {
                 logger.error(e.getMessage(), e);
             }
         }
-        logger.info("{} has been stopped", name);
+        logger.info("{} has been stopped", key);
     }
 
     @SuppressWarnings("BusyWait")
