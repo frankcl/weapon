@@ -5,8 +5,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.listen.Listener;
-import xin.manong.weapon.base.listen.RebuildEvent;
+import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.RebuildEvent;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author frankcl
  * @date 2024-01-12 11:10:15
  */
-public class MNSQueueConsumer implements Rebuildable, Listener {
+public class MNSQueueConsumer implements Rebuildable, EventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MNSQueueConsumer.class);
 
@@ -27,11 +27,11 @@ public class MNSQueueConsumer implements Rebuildable, Listener {
     @Setter
     protected MessageProcessor processor;
     private List<MNSQueueHandler> handlers;
-    private final List<Listener> listeners;
+    private final List<EventListener> eventListeners;
 
     public MNSQueueConsumer(MNSQueueConsumerConfig config) {
         this.config = config;
-        this.listeners = new ArrayList<>();
+        this.eventListeners = new ArrayList<>();
     }
 
     /**
@@ -64,10 +64,10 @@ public class MNSQueueConsumer implements Rebuildable, Listener {
     }
 
     @Override
-    public void onRebuild(@NotNull RebuildEvent rebuildEvent) {
-        if (rebuildEvent.target == null || rebuildEvent.target != mnsClient) return;
-        for (Listener listener : listeners) {
-            listener.onRebuild(new RebuildEvent(this));
+    public void onRebuild(@NotNull RebuildEvent<?> rebuildEvent) {
+        if (rebuildEvent.getBuildTarget() == null || rebuildEvent.getBuildTarget() != mnsClient) return;
+        for (EventListener eventListener : eventListeners) {
+            eventListener.onRebuild(new RebuildEvent<>(this));
         }
         if (handlers != null) {
             for (MNSQueueHandler handler : handlers) handler.stop();
@@ -79,11 +79,11 @@ public class MNSQueueConsumer implements Rebuildable, Listener {
     /**
      * 添加重建监听器
      *
-     * @param listener 重建监听器
+     * @param eventListener 重建监听器
      */
-    public void addRebuildListener(Listener listener) {
-        if (listener == null) return;
-        listeners.add(listener);
+    public void addRebuildListener(EventListener eventListener) {
+        if (eventListener == null) return;
+        eventListeners.add(eventListener);
     }
 
     /**

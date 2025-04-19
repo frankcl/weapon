@@ -1,6 +1,6 @@
 package xin.manong.weapon.aliyun.secret;
 
-import xin.manong.weapon.base.listen.Listener;
+import xin.manong.weapon.base.event.EventListener;
 
 import java.util.ServiceLoader;
 
@@ -16,8 +16,8 @@ public class ListenerScanner {
      * 扫描并注册动态秘钥监听器
      */
     public static void scanRegister() {
-        ServiceLoader<Listener> listeners = ServiceLoader.load(Listener.class);
-        for (Listener listener : listeners) ListenerRegistry.register(listener);
+        ServiceLoader<EventListener> listeners = ServiceLoader.load(EventListener.class);
+        for (EventListener eventListener : listeners) ListenerRegistry.register(eventListener);
         ListenerRegistry.start();
     }
 

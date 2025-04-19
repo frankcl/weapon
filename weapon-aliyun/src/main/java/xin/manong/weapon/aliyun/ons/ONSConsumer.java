@@ -3,8 +3,8 @@ package xin.manong.weapon.aliyun.ons;
 import com.aliyun.openservices.ons.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.listen.Listener;
-import xin.manong.weapon.base.listen.RebuildEvent;
+import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.RebuildEvent;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.aliyun.secret.DynamicSecret;
@@ -24,12 +24,12 @@ public class ONSConsumer implements Rebuildable {
     private final static Logger logger = LoggerFactory.getLogger(ONSConsumer.class);
 
     protected ONSConsumerConfig config;
-    protected List<Listener> listeners;
+    protected List<EventListener> eventListeners;
     protected Consumer consumer;
 
     public ONSConsumer(ONSConsumerConfig config) {
         this.config = config;
-        this.listeners = new ArrayList<>();
+        this.eventListeners = new ArrayList<>();
     }
 
     /**
@@ -83,8 +83,8 @@ public class ONSConsumer implements Rebuildable {
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Consumer prevConsumer = consumer;
         if (prevConsumer != null) prevConsumer.shutdown();
-        for (Listener listener : listeners) {
-            listener.onRebuild(new RebuildEvent(this));
+        for (EventListener eventListener : eventListeners) {
+            eventListener.onRebuild(new RebuildEvent(this));
         }
         if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
         logger.info("ONS consumer rebuild success");
@@ -127,10 +127,10 @@ public class ONSConsumer implements Rebuildable {
     /**
      * 添加重建监听器
      *
-     * @param listener 重建监听器
+     * @param eventListener 重建监听器
      */
-    public void addRebuildListener(Listener listener) {
-        if (listener == null) return;
-        listeners.add(listener);
+    public void addRebuildListener(EventListener eventListener) {
+        if (eventListener == null) return;
+        eventListeners.add(eventListener);
     }
 }

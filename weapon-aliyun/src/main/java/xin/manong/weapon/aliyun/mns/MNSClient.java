@@ -8,8 +8,8 @@ import com.aliyun.mns.model.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.listen.Listener;
-import xin.manong.weapon.base.listen.RebuildEvent;
+import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.RebuildEvent;
 import xin.manong.weapon.base.rebuild.RebuildManager;
 import xin.manong.weapon.base.rebuild.Rebuildable;
 import xin.manong.weapon.aliyun.secret.DynamicSecret;
@@ -32,13 +32,13 @@ public class MNSClient implements Rebuildable {
     private final MNSClientConfig config;
     private com.aliyun.mns.client.MNSClient client;
     private Map<String, CloudQueue> queueMap;
-    private final List<Listener> listeners;
+    private final List<EventListener> eventListeners;
 
     public MNSClient(MNSClientConfig config) {
         if (config == null || !config.check()) throw new IllegalArgumentException("MNS client config is invalid");
         this.config = config;
         build();
-        this.listeners = new ArrayList<>();
+        this.eventListeners = new ArrayList<>();
         if (this.config.dynamic) RebuildManager.register(this);
     }
 
@@ -65,8 +65,8 @@ public class MNSClient implements Rebuildable {
         com.aliyun.mns.client.MNSClient prevClient = client;
         build();
         if (prevClient != null) prevClient.close();
-        for (Listener listener : listeners) {
-            listener.onRebuild(new RebuildEvent(this));
+        for (EventListener eventListener : eventListeners) {
+            eventListener.onRebuild(new RebuildEvent(this));
         }
         logger.info("MNS client rebuild success");
     }
@@ -122,11 +122,11 @@ public class MNSClient implements Rebuildable {
     /**
      * 添加重建监听器
      *
-     * @param listener 重建监听器
+     * @param eventListener 重建监听器
      */
-    public void addRebuildListener(Listener listener) {
-        if (listener == null) return;
-        listeners.add(listener);
+    public void addRebuildListener(EventListener eventListener) {
+        if (eventListener == null) return;
+        eventListeners.add(eventListener);
     }
 
     /**

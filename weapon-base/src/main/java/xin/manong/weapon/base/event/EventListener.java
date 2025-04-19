@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.listen;
+package xin.manong.weapon.base.event;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * @author frankcl
  * @date 2022-12-09 10:38:26
  */
-public interface Listener {
+public interface EventListener {
 
     /**
      * 初始化监听器
@@ -27,14 +27,21 @@ public interface Listener {
      *
      * @param event 变更事件
      */
-    default void onChange(@NotNull ChangeEvent event) {}
+    default void onChange(@NotNull ChangeEvent<?> event) {}
 
     /**
      * 处理重建事件
      *
      * @param event 重建事件
      */
-    default void onRebuild(@NotNull RebuildEvent event) {}
+    default void onRebuild(@NotNull RebuildEvent<?> event) {}
+
+    /**
+     * 处理错误时间
+     *
+     * @param event 错误事件
+     */
+    default void onError(@NotNull ErrorEvent event) {}
 
     /**
      * 处理事件
@@ -42,8 +49,9 @@ public interface Listener {
      * @param event 事件
      */
     default void onEvent(@NotNull Event event) {
-        if (event instanceof ChangeEvent) onChange((ChangeEvent) event);
-        else if (event instanceof RebuildEvent) onRebuild((RebuildEvent) event);
+        if (event instanceof ChangeEvent) onChange((ChangeEvent<?>) event);
+        else if (event instanceof RebuildEvent) onRebuild((RebuildEvent<?>) event);
+        else if (event instanceof ErrorEvent) onError((ErrorEvent) event);
         else throw new UnsupportedOperationException("unsupported event: " + event.getClass().getName());
     }
 }

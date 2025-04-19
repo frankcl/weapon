@@ -2,8 +2,8 @@ package xin.manong.weapon.aliyun.secret;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.manong.weapon.base.listen.Listener;
-import xin.manong.weapon.base.listen.Priority;
+import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.Priority;
 
 /**
  * 动态秘钥监听器注册
@@ -18,28 +18,28 @@ public class ListenerRegistry {
 
     private static final int DEFAULT_PRIORITY = 1000;
     private static int currentPriority = DEFAULT_PRIORITY;
-    private static Listener currentListener = null;
+    private static EventListener currentEventListener = null;
 
     /**
      * 注册动态秘钥监听器
      * 1. 如果缺失监听器则成功注册
      * 2. 如果存在监听器，注册监听器优先级高于当前监听器，则成功注册
      *
-     * @param listener 动态秘钥监听器
+     * @param eventListener 动态秘钥监听器
      */
-    static void register(Listener listener) {
-        if (listener == null) return;
-        int priority = getPriority(listener);
-        if (currentListener != null && priority >= currentPriority) return;
+    static void register(EventListener eventListener) {
+        if (eventListener == null) return;
+        int priority = getPriority(eventListener);
+        if (currentEventListener != null && priority >= currentPriority) return;
         synchronized (ListenerRegistry.class) {
-            if (currentListener != null && priority >= currentPriority) return;
-            if (currentListener != null) {
-                currentListener.destroy();
-                logger.info("unregister dynamic secret listener: {}", currentListener.getClass().getName());
+            if (currentEventListener != null && priority >= currentPriority) return;
+            if (currentEventListener != null) {
+                currentEventListener.destroy();
+                logger.info("unregister dynamic secret listener: {}", currentEventListener.getClass().getName());
             }
             currentPriority = priority;
-            currentListener = listener;
-            logger.info("register dynamic secret listener success: {}", listener.getClass().getName());
+            currentEventListener = eventListener;
+            logger.info("register dynamic secret listener success: {}", eventListener.getClass().getName());
         }
     }
 
@@ -47,12 +47,12 @@ public class ListenerRegistry {
      * 启动动态秘钥监听器
      */
     static void start() {
-        if (currentListener == null) return;
+        if (currentEventListener == null) return;
         try {
-            currentListener.init();
-            logger.info("start dynamic secret listener success: {}", currentListener.getClass().getName());
+            currentEventListener.init();
+            logger.info("start dynamic secret listener success: {}", currentEventListener.getClass().getName());
         } catch (Exception e) {
-            logger.error("start dynamic secret listener failed: {}", currentListener.getClass().getName());
+            logger.error("start dynamic secret listener failed: {}", currentEventListener.getClass().getName());
             logger.error(e.getMessage(), e);
         }
     }
@@ -61,18 +61,18 @@ public class ListenerRegistry {
      * 停止动态秘钥监听器
      */
     static void stop() {
-        if (currentListener == null) return;
-        currentListener.destroy();
+        if (currentEventListener == null) return;
+        currentEventListener.destroy();
     }
 
     /**
      * 获取监听器优先级
      *
-     * @param listener 监听器
+     * @param eventListener 监听器
      * @return 优先级
      */
-    private static int getPriority(Listener listener) {
-        Priority priority = listener.getClass().getAnnotation(Priority.class);
+    private static int getPriority(EventListener eventListener) {
+        Priority priority = eventListener.getClass().getAnnotation(Priority.class);
         return priority != null ? priority.value() : DEFAULT_PRIORITY;
     }
 }

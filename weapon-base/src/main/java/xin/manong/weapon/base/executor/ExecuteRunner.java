@@ -1,9 +1,15 @@
 package xin.manong.weapon.base.executor;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xin.manong.weapon.base.event.ErrorEvent;
+import xin.manong.weapon.base.event.EventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 线程执行调度
@@ -21,6 +27,13 @@ public abstract class ExecuteRunner implements Runnable {
     private final long executeTimeIntervalMs;
     @Getter
     private final String name;
+    @Getter
+    @Setter
+    private String chineseName;
+    @Getter
+    @Setter
+    private String description;
+    protected final List<EventListener> eventListeners;
     private Thread thread;
 
     public ExecuteRunner(long executeTimeIntervalMs) {
@@ -31,6 +44,7 @@ public abstract class ExecuteRunner implements Runnable {
         this.name = StringUtils.isEmpty(name) ? DEFAULT_NAME : name;
         this.running = false;
         this.executeTimeIntervalMs = Math.max(1000L, executeTimeIntervalMs);
+        this.eventListeners = new ArrayList<>();
     }
 
     /**
@@ -76,10 +90,32 @@ public abstract class ExecuteRunner implements Runnable {
                 if (processTime >= executeTimeIntervalMs) continue;
                 logger.info("finish one loop processing, sleep {} seconds", executeTimeIntervalMs / 1000);
                 Thread.sleep(executeTimeIntervalMs);
+            } catch (InterruptedException ignored) {
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
+                for (EventListener eventListener : eventListeners) {
+                    eventListener.onError(new ErrorEvent(e.getMessage(), e));
+                }
             }
         }
+    }
+
+    /**
+     * 添加事件监听器
+     *
+     * @param eventListener 事件监听器
+     */
+    public void addEventListener(EventListener eventListener) {
+        eventListeners.add(eventListener);
+    }
+
+    /**
+     * 移除事件监听器
+     *
+     * @param eventListener 事件监听器
+     */
+    public void removeEventListener(EventListener eventListener) {
+        eventListeners.remove(eventListener);
     }
 
     /**

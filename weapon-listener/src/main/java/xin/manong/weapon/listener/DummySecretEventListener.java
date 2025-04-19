@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.aliyun.secret.*;
-import xin.manong.weapon.base.listen.Listener;
-import xin.manong.weapon.base.listen.Priority;
+import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.Priority;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -29,15 +29,15 @@ import java.util.Enumeration;
  * @date 2022-12-17 10:15:18
  */
 @Priority(2000)
-public class DummySecretListener implements Listener {
+public class DummySecretEventListener implements EventListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(DummySecretListener.class);
+    private final static Logger logger = LoggerFactory.getLogger(DummySecretEventListener.class);
 
     private static final int BUFFER_SIZE = 4096;
     private static final String JVM_PARAM_SECRET_PATH = "secret_path";
     private static final String DEFAULT_SECRET_PATH = "aliyun_secret.json";
 
-    public DummySecretListener() {
+    public DummySecretEventListener() {
     }
 
     @Override
