@@ -29,10 +29,10 @@ public abstract class ExecuteRunner implements Runnable {
     private final String name;
     @Getter
     @Setter
-    private String chineseName;
+    protected String chineseName;
     @Getter
     @Setter
-    private String description;
+    protected String description;
     protected final List<EventListener> eventListeners;
     private Thread thread;
 
