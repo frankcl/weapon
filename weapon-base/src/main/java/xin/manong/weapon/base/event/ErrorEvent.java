@@ -12,14 +12,14 @@ import lombok.Getter;
 public class ErrorEvent implements Event {
 
     private final String message;
-    private final Exception exception;
+    private final Throwable throwable;
 
     public ErrorEvent(String message) {
         this(message, null);
     }
 
-    public ErrorEvent(String message, Exception exception) {
+    public ErrorEvent(String message, Throwable throwable) {
         this.message = message;
-        this.exception = exception;
+        this.throwable = throwable;
     }
 }
