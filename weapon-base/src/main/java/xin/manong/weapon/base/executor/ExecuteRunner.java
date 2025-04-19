@@ -84,20 +84,27 @@ public abstract class ExecuteRunner implements Runnable {
     public void run() {
         while (running) {
             try {
+                Thread.sleep(executeTimeIntervalMs);
                 long startTime = System.currentTimeMillis();
                 execute();
                 long processTime = System.currentTimeMillis() - startTime;
                 if (processTime >= executeTimeIntervalMs) continue;
-                logger.info("finish one loop processing, sleep {} seconds", executeTimeIntervalMs / 1000);
-                Thread.sleep(executeTimeIntervalMs);
+                logger.info("finish one round processing, sleep {} seconds", executeTimeIntervalMs / 1000);
             } catch (InterruptedException ignored) {
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-                for (EventListener eventListener : eventListeners) {
-                    eventListener.onError(new ErrorEvent(e.getMessage(), e));
-                }
+                notifyErrorEvent(new ErrorEvent(e.getMessage(), e));
             }
         }
+    }
+
+    /**
+     * 通知错误事件
+     *
+     * @param errorEvent 错误事件
+     */
+    protected void notifyErrorEvent(ErrorEvent errorEvent) {
+        for (EventListener eventListener : eventListeners) eventListener.onError(errorEvent);
     }
 
     /**
