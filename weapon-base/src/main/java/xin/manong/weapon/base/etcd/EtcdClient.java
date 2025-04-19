@@ -6,7 +6,6 @@ import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.lock.LockResponse;
-import io.etcd.jetcd.support.CloseableClient;
 import io.etcd.jetcd.watch.WatchResponse;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.StringUtils;
@@ -63,17 +62,12 @@ public class EtcdClient {
      * @param observer 租约活性观察者
      * @return 成功返回ETCD锁，否则返回null
      */
-    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout, StreamObserver<LeaseKeepAliveResponse> observer) {
+    public EtcdLock lock(String lockKey, long leaseTTL, Long timeout,
+                         StreamObserver<LeaseKeepAliveResponse> observer) {
         assert leaseTTL > 0;
         EtcdLock etcdLock = new EtcdLock(lockKey, leaseTTL);
-        Long leaseId = createLease(leaseTTL, observer);
-        if (leaseId == null) return null;
-        etcdLock.setLeaseId(leaseId);
-        String lockPath = createLock(lockKey, leaseId, timeout);
-        if (lockPath == null) return null;
-        etcdLock.setLockPath(lockPath);
-        etcdLock.setCloseObserver(client.getLeaseClient().keepAlive(leaseId,
-                observer == null ? new LeaseAliveObserver(leaseId) : observer));
+        if (!createLease(etcdLock, observer)) return null;
+        if (!createLock(etcdLock, timeout)) return null;
         logger.info("lock[{}] success", lockKey);
         return etcdLock;
     }
@@ -115,49 +109,56 @@ public class EtcdClient {
     /**
      * 创建锁
      *
-     * @param lockKey 锁key
-     * @param leaseId 租约ID
+     * @param etcdLock 锁
      * @param timeout 创建超时时间，单位秒
-     * @return 成功返回lockPath，否则返回null
+     * @return 成功返回true，否则返回false
      */
-    private String createLock(String lockKey, long leaseId, Long timeout) {
+    private boolean createLock(EtcdLock etcdLock, Long timeout) {
         try {
             Lock lockClient = client.getLockClient();
-            LockResponse lockResponse;
+            LockResponse response;
             if (timeout != null && timeout > 0L) {
-                lockResponse = lockClient.lock(ByteSequence.from(
-                        lockKey.getBytes(StandardCharsets.UTF_8)), leaseId).get(timeout, TimeUnit.SECONDS);
+                response = lockClient.lock(ByteSequence.from(
+                        etcdLock.getLockKey().getBytes(StandardCharsets.UTF_8)),
+                        etcdLock.getLeaseId()).get(timeout, TimeUnit.SECONDS);
             } else {
-                lockResponse = lockClient.lock(ByteSequence.from(
-                        lockKey.getBytes(StandardCharsets.UTF_8)), leaseId).get();
+                response = lockClient.lock(ByteSequence.from(
+                        etcdLock.getLockKey().getBytes(StandardCharsets.UTF_8)),
+                        etcdLock.getLeaseId()).get();
             }
-            if (lockResponse == null) return null;
-            return lockResponse.getKey().toString(StandardCharsets.UTF_8);
+            if (response == null) return false;
+            etcdLock.setLockPath(response.getKey().toString(StandardCharsets.UTF_8));
+            return true;
         } catch (TimeoutException e) {
-            client.getLeaseClient().revoke(leaseId);
-            logger.warn("create lock[{}] timeout", lockKey);
-            return null;
+            if (etcdLock.getCloseObserver() != null) etcdLock.getCloseObserver().close();
+            client.getLeaseClient().revoke(etcdLock.getLeaseId());
+            logger.warn("create lock[{}] timeout", etcdLock.getLockKey());
+            return false;
         } catch (InterruptedException | ExecutionException e) {
-            client.getLeaseClient().revoke(leaseId);
-            logger.error("create lock[{}] failed, cause[{}]", lockKey, e.getMessage());
+            if (etcdLock.getCloseObserver() != null) etcdLock.getCloseObserver().close();
+            client.getLeaseClient().revoke(etcdLock.getLeaseId());
+            logger.error("create lock[{}] failed, cause[{}]", etcdLock.getLockKey(), e.getMessage());
             logger.error(e.getMessage(), e);
-            return null;
+            return false;
         }
     }
     /**
      * 创建租约
      *
-     * @param leaseTTL 租约生命周期
-     * @return 成功返回租约ID，否则返回null
+     * @param etcdLock 锁
+     * @return 成功返回true，否则返回false
      */
-    private Long createLease(long leaseTTL, StreamObserver<LeaseKeepAliveResponse> observer) {
+    private boolean createLease(EtcdLock etcdLock, StreamObserver<LeaseKeepAliveResponse> observer) {
         try {
             Lease leaseClient = client.getLeaseClient();
-            return leaseClient.grant(leaseTTL).get().getID();
+            long leaseId = leaseClient.grant(etcdLock.getLeaseTTL()).get().getID();
+            etcdLock.setLeaseId(leaseId);
+            if (observer != null) etcdLock.setCloseObserver(leaseClient.keepAlive(leaseId, observer));
+            return true;
         } catch (InterruptedException | ExecutionException e) {
             logger.error("create lease failed");
             logger.error(e.getMessage(), e);
-            return null;
+            return false;
         }
     }
 
