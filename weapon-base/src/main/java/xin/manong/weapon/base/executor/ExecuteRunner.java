@@ -28,7 +28,7 @@ public abstract class ExecuteRunner implements Runnable {
     protected volatile boolean running;
     private final long executeTimeIntervalMs;
     @Getter
-    private final String key;
+    private final String id;
     @Getter
     @Setter
     private String name;
@@ -39,11 +39,11 @@ public abstract class ExecuteRunner implements Runnable {
     private Thread thread;
 
     public ExecuteRunner(long executeTimeIntervalMs) {
-        this(buildRandomKey(), executeTimeIntervalMs);
+        this(buildRandomId(), executeTimeIntervalMs);
     }
 
-    public ExecuteRunner(String key, long executeTimeIntervalMs) {
-        this.key = StringUtils.isEmpty(key) ? buildRandomKey() : key;
+    public ExecuteRunner(String id, long executeTimeIntervalMs) {
+        this.id = StringUtils.isEmpty(id) ? buildRandomId() : id;
         this.running = false;
         this.executeTimeIntervalMs = Math.max(1000L, executeTimeIntervalMs);
         this.eventListeners = new ArrayList<>();
@@ -54,7 +54,7 @@ public abstract class ExecuteRunner implements Runnable {
      *
      * @return 随机key
      */
-    private static String buildRandomKey() {
+    private static String buildRandomId() {
         return String.format("%s%s", KEY_PREFIX, RandomID.build());
     }
 
@@ -65,11 +65,11 @@ public abstract class ExecuteRunner implements Runnable {
      */
     public boolean start() {
         if (thread != null && thread.isAlive()) stop();
-        logger.info("{} is starting ...", key);
+        logger.info("{} is starting ...", id);
         running = true;
-        thread = new Thread(this, key);
+        thread = new Thread(this, id);
         thread.start();
-        logger.info("{} has been started", key);
+        logger.info("{} has been started", id);
         return true;
     }
 
@@ -77,7 +77,7 @@ public abstract class ExecuteRunner implements Runnable {
      * 停止执行
      */
     public void stop() {
-        logger.info("{} is stopping", key);
+        logger.info("{} is stopping", id);
         running = false;
         if (thread != null && thread.isAlive()) {
             thread.interrupt();
@@ -87,7 +87,7 @@ public abstract class ExecuteRunner implements Runnable {
                 logger.error(e.getMessage(), e);
             }
         }
-        logger.info("{} has been stopped", key);
+        logger.info("{} has been stopped", id);
     }
 
     @SuppressWarnings("BusyWait")
