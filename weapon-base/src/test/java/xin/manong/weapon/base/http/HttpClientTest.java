@@ -101,9 +101,9 @@ public class HttpClientTest {
     @Test
     public void testDoGetHttp() throws Exception {
         HttpRequest httpRequest = new HttpRequest();
-        httpRequest.requestURL = "http://www.sina.com.cn";
+        httpRequest.requestURL = "https://www.163.com/news/article/JTTVS0VK000189FH.html?clickfrom=w_yw";
         httpRequest.method = RequestMethod.GET;
-        httpRequest.headers.put("Host", "www.sina.com.cn");
+        httpRequest.headers.put("Host", "www.163.com");
         Response response = httpClient.execute(httpRequest);
         Assert.assertTrue(response.isSuccessful());
         Assert.assertEquals(200, response.code());
