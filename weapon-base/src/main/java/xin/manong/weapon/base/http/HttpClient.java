@@ -165,7 +165,7 @@ public class HttpClient {
         if (httpRequest.params == null || httpRequest.params.isEmpty()) return requestURL;
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
-            if (builder.length() > 0) builder.append("&");
+            if (!builder.isEmpty()) builder.append("&");
             builder.append(entry.getKey()).append("=").append(
                     URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
         }
