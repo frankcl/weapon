@@ -373,6 +373,6 @@ public class DomainUtil {
             }
             if (!segment.equals("www")) domain.insert(0, ".").insert(0, segment);
         }
-        return domain.length() == 0 ? host : domain.toString();
+        return domain.isEmpty() ? host : domain.toString();
     }
 }

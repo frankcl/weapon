@@ -79,7 +79,6 @@ public class CommonUtil {
             return url.getHost();
         } catch (MalformedURLException e) {
             logger.warn("malformed url[{}]", str);
-            logger.warn(e.getMessage(), e);
             return "";
         }
     }
