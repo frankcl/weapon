@@ -6,9 +6,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -126,8 +128,8 @@ public class HttpClientTest {
         response.close();
     }
 
-    @Test
-    public void testUnknownHostHttp() {
+    @Test(expected = UnknownHostException.class)
+    public void testUnknownHostHttp() throws IOException {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.requestURL = "https://www.sina.com.cnm/";
         httpRequest.method = RequestMethod.GET;

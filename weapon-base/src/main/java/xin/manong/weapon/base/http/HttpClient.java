@@ -2,7 +2,9 @@ package xin.manong.weapon.base.http;
 
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
+import okhttp3.Authenticator;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +12,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
@@ -33,9 +32,9 @@ public class HttpClient {
     public static final String HEADER_CONNECTION = "Connection";
     public static final String HEADER_ACCEPT = "Accept";
     public static final String HEADER_HOST = "Host";
-    public static final String HEADER_READ_TIMEOUT_MS = "__READ_TIMEOUT_MS__";
-    public static final String HEADER_WRITE_TIMEOUT_MS = "__WRITE_TIMEOUT_MS__";
-    public static final String HEADER_CONNECT_TIMEOUT_MS = "__CONNECT_TIMEOUT_MS__";
+    public static final String HEADER_READ_TIMEOUT = "Read-Timeout";
+    public static final String HEADER_WRITE_TIMEOUT = "Write-Timeout";
+    public static final String HEADER_CONNECT_TIMEOUT = "Connect-Timeout";
 
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
     private static final String ACCEPT_ALL = "*/*";
@@ -100,7 +99,7 @@ public class HttpClient {
      */
     private void init() {
         try {
-            if (!config.check()) throw new IllegalArgumentException("http client config is invalid");
+            if (!config.check()) throw new IllegalArgumentException("HttpClient config is invalid");
             UnsafeTrustManager unsafeTrustManager = new UnsafeTrustManager();
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{unsafeTrustManager}, new SecureRandom());
@@ -139,10 +138,11 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应
      */
-    public Response execute(HttpRequest httpRequest) {
+    @NotNull
+    public Response execute(HttpRequest httpRequest) throws IOException {
         if (httpRequest == null || !httpRequest.check()) {
-            logger.error("invalid http request");
-            return null;
+            logger.error("Invalid http request");
+            throw new IOException("Invalid http request");
         }
         if (httpRequest.method == RequestMethod.GET) return doGet(httpRequest);
         else if (httpRequest.method == RequestMethod.HEAD) return doHead(httpRequest);
@@ -150,7 +150,7 @@ public class HttpClient {
         else if (httpRequest.method == RequestMethod.PUT) return doPut(httpRequest);
         else if (httpRequest.method == RequestMethod.DELETE) return doDelete(httpRequest);
         else if (httpRequest.method == RequestMethod.PATCH) return doPatch(httpRequest);
-        return null;
+        throw new UnsupportedOperationException("Unsupported HTTP method:" + httpRequest.method.name());
     }
 
     /**
@@ -158,9 +158,8 @@ public class HttpClient {
      *
      * @param httpRequest HTTP请求
      * @return 编码URL
-     * @throws UnsupportedEncodingException 不支持编码异常
      */
-    private String encodeGetURL(HttpRequest httpRequest) throws UnsupportedEncodingException {
+    private String encodeGetURL(HttpRequest httpRequest) {
         String requestURL = httpRequest.requestURL;
         if (httpRequest.params == null || httpRequest.params.isEmpty()) return requestURL;
         StringBuilder builder = new StringBuilder();
@@ -180,19 +179,15 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doHead(HttpRequest httpRequest) {
-        try {
-            Request.Builder requestBuilder = new Request.Builder();
-            String requestURL = encodeGetURL(httpRequest);
-            requestBuilder.url(requestURL).head();
-            handleRequestHeaders(requestBuilder, httpRequest);
-            handleTimeout(requestBuilder, httpRequest);
-            Request request = requestBuilder.build();
-            return executeRequest(request);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-            return null;
-        }
+    @NotNull
+    private Response doHead(HttpRequest httpRequest) throws IOException {
+        Request.Builder requestBuilder = new Request.Builder();
+        String requestURL = encodeGetURL(httpRequest);
+        requestBuilder.url(requestURL).head();
+        handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
+        Request request = requestBuilder.build();
+        return executeRequest(request);
     }
 
     /**
@@ -201,19 +196,15 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doGet(HttpRequest httpRequest) {
-        try {
-            Request.Builder requestBuilder = new Request.Builder();
-            String requestURL = encodeGetURL(httpRequest);
-            requestBuilder.url(requestURL).get();
-            handleRequestHeaders(requestBuilder, httpRequest);
-            handleTimeout(requestBuilder, httpRequest);
-            Request request = requestBuilder.build();
-            return executeRequest(request);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-            return null;
-        }
+    @NotNull
+    private Response doGet(HttpRequest httpRequest) throws IOException {
+        Request.Builder requestBuilder = new Request.Builder();
+        String requestURL = encodeGetURL(httpRequest);
+        requestBuilder.url(requestURL).get();
+        handleRequestHeaders(requestBuilder, httpRequest);
+        handleTimeout(requestBuilder, httpRequest);
+        Request request = requestBuilder.build();
+        return executeRequest(request);
     }
 
     /**
@@ -222,7 +213,8 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doPost(HttpRequest httpRequest) {
+    @NotNull
+    private Response doPost(HttpRequest httpRequest) throws IOException {
         RequestBody requestBody = buildRequestBody(httpRequest);
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).post(requestBody);
@@ -238,7 +230,8 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doDelete(HttpRequest httpRequest) {
+    @NotNull
+    private Response doDelete(HttpRequest httpRequest) throws IOException {
         RequestBody requestBody = buildRequestBody(httpRequest);
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).delete(requestBody);
@@ -254,7 +247,8 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doPut(HttpRequest httpRequest) {
+    @NotNull
+    private Response doPut(HttpRequest httpRequest) throws IOException {
         RequestBody requestBody = buildRequestBody(httpRequest);
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).put(requestBody);
@@ -270,7 +264,8 @@ public class HttpClient {
      * @param httpRequest HTTP请求
      * @return HTTP响应对象
      */
-    private Response doPatch(HttpRequest httpRequest) {
+    @NotNull
+    private Response doPatch(HttpRequest httpRequest) throws IOException {
         RequestBody requestBody = buildRequestBody(httpRequest);
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(httpRequest.requestURL).patch(requestBody);
@@ -334,13 +329,13 @@ public class HttpClient {
      */
     private void handleTimeout(Request.Builder builder, HttpRequest httpRequest) {
         if (httpRequest.connectTimeoutMs != null && httpRequest.connectTimeoutMs > 0) {
-            builder.addHeader(HEADER_CONNECT_TIMEOUT_MS, String.valueOf(httpRequest.connectTimeoutMs));
+            builder.addHeader(HEADER_CONNECT_TIMEOUT, String.valueOf(httpRequest.connectTimeoutMs));
         }
         if (httpRequest.readTimeoutMs != null && httpRequest.readTimeoutMs > 0) {
-            builder.addHeader(HEADER_READ_TIMEOUT_MS, String.valueOf(httpRequest.readTimeoutMs));
+            builder.addHeader(HEADER_READ_TIMEOUT, String.valueOf(httpRequest.readTimeoutMs));
         }
         if (httpRequest.writeTimeoutMs != null && httpRequest.writeTimeoutMs > 0) {
-            builder.addHeader(HEADER_WRITE_TIMEOUT_MS, String.valueOf(httpRequest.writeTimeoutMs));
+            builder.addHeader(HEADER_WRITE_TIMEOUT, String.valueOf(httpRequest.writeTimeoutMs));
         }
     }
 
@@ -350,20 +345,18 @@ public class HttpClient {
      * @param request HTTP请求
      * @return HTTP响应
      */
-    private Response executeRequest(Request request) {
+    @NotNull
+    private Response executeRequest(Request request) throws IOException {
         for (int i = 0; i < config.retryCnt; i++) {
             try {
                 return okHttpClient.newCall(request).execute();
-            } catch (IOException e) {
-                logger.warn("fetch failed for URL[{}], retry {} times", request.url().url(), i + 1);
+            } catch (SocketTimeoutException e) {
+                logger.warn("Fetch timeout for url:{}, retry {} times", request.url().url(), i + 1);
                 logger.error(e.getMessage(), e);
-            } catch (Exception e) {
-                logger.warn("fetch failed for URL[{}]", request.url().url());
-                logger.error(e.getMessage(), e);
-                return null;
+                if (i >= config.retryCnt - 1) throw e;
             }
         }
-        logger.error("fetch failed for URL[{}]", request.url().url());
-        return null;
+        logger.error("Fetch failed for url: {}", request.url().url());
+        throw new IOException("Fetch failed");
     }
 }

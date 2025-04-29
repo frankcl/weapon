@@ -21,9 +21,9 @@ public class TimeoutModifyInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        chain = resetTimeout(chain, HttpClient.HEADER_CONNECT_TIMEOUT_MS);
-        chain = resetTimeout(chain, HttpClient.HEADER_READ_TIMEOUT_MS);
-        chain = resetTimeout(chain, HttpClient.HEADER_WRITE_TIMEOUT_MS);
+        chain = resetTimeout(chain, HttpClient.HEADER_CONNECT_TIMEOUT);
+        chain = resetTimeout(chain, HttpClient.HEADER_READ_TIMEOUT);
+        chain = resetTimeout(chain, HttpClient.HEADER_WRITE_TIMEOUT);
         return chain.proceed(request);
     }
 
@@ -31,22 +31,22 @@ public class TimeoutModifyInterceptor implements Interceptor {
      * 重置超时时间
      *
      * @param chain 请求链
-     * @param timeoutHeader 超时header
+     * @param headerName 超时header
      * @return 修改后chain
      */
-    private Chain resetTimeout(Chain chain, String timeoutHeader) {
+    private Chain resetTimeout(Chain chain, String headerName) {
         Request request = chain.request();
-        String value = request.header(timeoutHeader);
-        if (StringUtils.isEmpty(value)) return chain;
-        int timeout = Integer.parseInt(value);
-        switch (timeoutHeader) {
-            case HttpClient.HEADER_READ_TIMEOUT_MS:
+        String headerValue = request.header(headerName);
+        if (StringUtils.isEmpty(headerValue)) return chain;
+        int timeout = Integer.parseInt(headerValue);
+        switch (headerName) {
+            case HttpClient.HEADER_READ_TIMEOUT:
                 chain = chain.withReadTimeout(timeout, TimeUnit.MILLISECONDS);
                 break;
-            case HttpClient.HEADER_WRITE_TIMEOUT_MS:
+            case HttpClient.HEADER_WRITE_TIMEOUT:
                 chain = chain.withWriteTimeout(timeout, TimeUnit.MILLISECONDS);
                 break;
-            case HttpClient.HEADER_CONNECT_TIMEOUT_MS:
+            case HttpClient.HEADER_CONNECT_TIMEOUT:
                 chain = chain.withConnectTimeout(timeout, TimeUnit.MILLISECONDS);
                 break;
         }
