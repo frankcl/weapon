@@ -67,7 +67,7 @@
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
 | jakarta.ws.rs-api    | jakarta.ws.rs              |     4.0.0      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
-| kafka-clients        | org.apache.kafka           |     3.9.0      |   true   |
+| kafka-clients        | org.apache.kafka           |     4.0.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
 | okhttp3              | com.squareup.okhttp3       |     4.12.0     |   true   |
 | ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
