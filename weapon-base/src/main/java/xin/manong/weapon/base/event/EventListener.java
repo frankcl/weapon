@@ -37,11 +37,25 @@ public interface EventListener {
     default void onRebuild(@NotNull RebuildEvent<?> event) {}
 
     /**
-     * 处理错误时间
+     * 处理错误事件
      *
      * @param event 错误事件
      */
     default void onError(@NotNull ErrorEvent event) {}
+
+    /**
+     * 处理启动事件
+     *
+     * @param event 启动事件
+     */
+    default void onStart(@NotNull StartEvent event) {}
+
+    /**
+     * 处理停止事件
+     *
+     * @param event 停止事件
+     */
+    default void onStop(@NotNull StopEvent event) {}
 
     /**
      * 处理事件

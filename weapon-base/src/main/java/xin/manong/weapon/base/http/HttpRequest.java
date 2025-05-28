@@ -203,4 +203,19 @@ public class HttpRequest {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("requestURL:").append(requestURL).
+                append(", method:").append(method == null ? "null" : method.name()).
+                append(", format:").append(format == null ? "null" : format.name());
+        if (params != null && !params.isEmpty()) {
+            builder.append(", params:");
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                builder.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
+            }
+        }
+        return builder.toString();
+    }
 }

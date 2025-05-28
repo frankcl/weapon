@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.manong.weapon.base.event.ErrorEvent;
 import xin.manong.weapon.base.event.EventListener;
+import xin.manong.weapon.base.event.StartEvent;
+import xin.manong.weapon.base.event.StopEvent;
 import xin.manong.weapon.base.util.RandomID;
 
 import java.util.ArrayList;
@@ -69,6 +71,7 @@ public abstract class ExecuteRunner implements Runnable {
         running = true;
         thread = new Thread(this, id);
         thread.start();
+        notifyStartEvent();
         logger.info("{} has been started", id);
         return true;
     }
@@ -107,6 +110,7 @@ public abstract class ExecuteRunner implements Runnable {
                 notifyErrorEvent(new ErrorEvent(e.getMessage(), e));
             }
         }
+        notifyStopEvent();
     }
 
     /**
@@ -116,6 +120,22 @@ public abstract class ExecuteRunner implements Runnable {
      */
     protected void notifyErrorEvent(ErrorEvent errorEvent) {
         for (EventListener eventListener : eventListeners) eventListener.onError(errorEvent);
+    }
+
+    /**
+     * 通知启动事件
+     */
+    protected void notifyStartEvent() {
+        StartEvent event = new StartEvent();
+        for (EventListener eventListener : eventListeners) eventListener.onStart(event);
+    }
+
+    /**
+     * 通知停止事件
+     */
+    protected void notifyStopEvent() {
+        StopEvent event = new StopEvent();
+        for (EventListener eventListener : eventListeners) eventListener.onStop(event);
     }
 
     /**
