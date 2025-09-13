@@ -104,5 +104,10 @@
             <artifactId>jetcd-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>co.elastic.clients</groupId>
+            <artifactId>elasticsearch-java</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>

@@ -74,6 +74,7 @@
         <aliyun-log.version>0.6.82</aliyun-log.version>
         <aliyun-log-producer.version>0.3.12</aliyun-log-producer.version>
         <aliyun-mns.version>1.1.9.2</aliyun-mns.version>
+        <elasticsearch-java.version>8.13.4</elasticsearch-java.version>
         <weapon.version>0.2.0</weapon.version>
     </properties>
 
@@ -335,6 +336,11 @@
                 <groupId>com.aliyun.mns</groupId>
                 <artifactId>aliyun-sdk-mns</artifactId>
                 <version>${aliyun-mns.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

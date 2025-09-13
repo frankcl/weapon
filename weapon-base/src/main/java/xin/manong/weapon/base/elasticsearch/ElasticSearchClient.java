@@ -1,0 +1,483 @@
+package xin.manong.weapon.base.elasticsearch;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
+import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * ES客户端封装
+ *
+ * @author frankcl
+ * @date 2025-09-11 12:21:58
+ */
+public class ElasticSearchClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
+
+    private final ElasticSearchClientConfig config;
+    private ElasticsearchClient client;
+
+    public ElasticSearchClient(ElasticSearchClientConfig config) {
+        this.config = config;
+    }
+
+    /**
+     * 打开客户端
+     *
+     * @return 成功返回true，否则返回false
+     */
+    public boolean open() {
+        logger.info("elasticsearch client start opening");
+        if (config == null || !config.check()) {
+            logger.error("elasticsearch client config is invalid");
+            return false;
+        }
+        RestClientBuilder builder = RestClient.builder(HttpHost.create(config.serverURL));
+        if (StringUtils.isNotEmpty(config.apiKey)) {
+            builder.setDefaultHeaders(new Header[] {
+                    new BasicHeader("Authorization", "ApiKey " + config.apiKey)});
+        }
+        RestClient restClient = builder.build();
+        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        client = new ElasticsearchClient(transport);
+        logger.info("elasticsearch client open success");
+        return true;
+    }
+
+    /**
+     * 关闭客户端
+     */
+    public void close() {
+        logger.info("elasticsearch client start closing");
+        try {
+            if (client != null) client._transport().close();
+        } catch (IOException e) {
+            logger.error("close elasticsearch client error");
+            logger.error(e.getMessage(), e);
+        }
+        logger.info("elasticsearch client close success");
+    }
+
+    /**
+     * 根据ID获取数据
+     *
+     * @param id 数据ID
+     * @param index 索引名
+     * @param documentClass 数据类型
+     * @return 成功返回数据，否则返回null
+     * @param <T> 数据类型
+     */
+    public <T> T get(String id, String index, Class<T> documentClass) {
+        GetRequest request = GetRequest.of(builder -> builder.index(index).id(id));
+        try {
+            GetResponse<T> response = client.get(request, documentClass);
+            return response.source();
+        } catch (Exception e) {
+            logger.error("get failed for id:{}, index:{}", id, index);
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 添加数据
+     *
+     * @param id 数据ID
+     * @param doc 数据
+     * @param index 索引名
+     * @return 成功返回true，否则返回false
+     * @param <T> 数据类型
+     */
+    public <T> boolean put(String id, T doc, String index) {
+        return put(id, doc, index, Refresh.False);
+    }
+
+    /**
+     * 添加数据
+     *
+     * @param id 数据ID
+     * @param doc 数据
+     * @param index 索引名
+     * @param refresh 是否立即刷新索引
+     * @return 成功返回true，否则返回false
+     * @param <T> 数据类型
+     */
+    public <T> boolean put(String id, T doc, String index, Refresh refresh) {
+        IndexRequest<T> request = IndexRequest.of(builder -> builder.index(index).id(id).document(doc).
+                refresh(refresh == null ? Refresh.False : refresh));
+        try {
+            IndexResponse response = client.index(request);
+            logger.debug("put success for id:{}, version:{}", id, response.version());
+            return true;
+        } catch (Exception e) {
+            logger.error("put failed for id:{}, index:{}", id, index);
+            return false;
+        }
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param id 数据ID
+     * @param index 索引名
+     * @return 成功返回true，否则返回false
+     */
+    public boolean delete(String id, String index) {
+        return delete(id, index, Refresh.False);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param id 数据ID
+     * @param index 索引名
+     * @param refresh 是否立即刷新索引
+     * @return 成功返回true，否则返回false
+     */
+    public boolean delete(String id, String index, Refresh refresh) {
+        DeleteRequest request = DeleteRequest.of(builder -> builder.index(index).id(id).
+                refresh(refresh == null ? Refresh.False : refresh));
+        try {
+            DeleteResponse response = client.delete(request);
+            logger.debug("delete success for id:{}, version:{}", id, response.version());
+            return true;
+        } catch (Exception e) {
+            logger.error("delete failed for id:{}, index:{}", id, index);
+            return false;
+        }
+    }
+
+    /**
+     * 更新数据，不存在插入数据
+     *
+     * @param id 数据ID
+     * @param doc 更新数据
+     * @param index 索引名
+     * @param documentClass 完整数据类型
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 完整数据类型
+     * @param <TPartialDocument> 更新数据类型
+     */
+    public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
+                                                        String index, Class<TDocument> documentClass) {
+        return upsert(id, doc, index, documentClass, Refresh.False);
+    }
+
+    /**
+     * 更新数据，不存在插入数据
+     *
+     * @param id 数据ID
+     * @param doc 更新数据
+     * @param index 索引名
+     * @param documentClass 完整数据类型
+     * @param refresh 是否立即刷新索引
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 完整数据类型
+     * @param <TPartialDocument> 更新数据类型
+     */
+    public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
+                                                        String index, Class<TDocument> documentClass,
+                                                        Refresh refresh) {
+        UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
+                builder -> builder.index(index).id(id).doc(doc).docAsUpsert(true).
+                        refresh(refresh == null ? Refresh.False : refresh));
+        return update(request, documentClass);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param id 数据ID
+     * @param doc 更新数据
+     * @param index 索引名
+     * @param documentClass 完整数据类型
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 完整数据类型
+     * @param <TPartialDocument> 更新数据类型
+     */
+    public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
+                                                        String index, Class<TDocument> documentClass) {
+        return update(id, doc, index, documentClass, Refresh.False);
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param id 数据ID
+     * @param doc 更新数据
+     * @param index 索引名
+     * @param documentClass 完整数据类型
+     * @param refresh 是否立即刷新索引
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 完整数据类型
+     * @param <TPartialDocument> 更新数据类型
+     */
+    public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
+                                                        String index, Class<TDocument> documentClass,
+                                                        Refresh refresh) {
+        UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
+                builder -> builder.index(index).id(id).doc(doc).docAsUpsert(false).
+                        refresh(refresh == null ? Refresh.False : refresh));
+        return update(request, documentClass);
+    }
+
+    /**
+     * 搜索数据
+     *
+     * @param searchRequest 搜索请求
+     * @param documentClass 数据类型
+     * @return 搜索响应
+     * @param <T> 数据类型
+     */
+    public <T> ElasticSearchResponse<T> search(ElasticSearchRequest searchRequest, Class<T> documentClass) {
+        SearchRequest request = SearchRequest.of(builder -> {
+            builder.index(searchRequest.index).query(searchRequest.query).
+                    from(searchRequest.from).size(searchRequest.size);
+            handleIncludeExclude(builder, searchRequest);
+            return builder;
+        });
+        return search(request, documentClass);
+    }
+
+    /**
+     * 根据游标搜索数据
+     *
+     * @param searchRequest 搜索请求
+     * @param documentClass 数据类型
+     * @return 搜索响应
+     * @param <T> 数据类型
+     */
+    public <T> ElasticSearchResponse<T> searchWithCursor(ElasticSearchRequest searchRequest,
+                                                         Class<T> documentClass) {
+        assert searchRequest.sortOptions != null && !searchRequest.sortOptions.isEmpty();
+        assert searchRequest.cursor == null || searchRequest.cursor.size() == searchRequest.sortOptions.size();
+        List<SortOptions> sortOptions = new ArrayList<>();
+        for (ElasticSortOption sortRequest : searchRequest.sortOptions) {
+            sortOptions.add(SortOptions.of(b -> b.field(
+                    f -> f.field(sortRequest.field).order(sortRequest.sortOrder))));
+        }
+        SearchRequest request = SearchRequest.of(builder -> {
+            builder.index(searchRequest.index).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
+            if (searchRequest.cursor != null) builder.searchAfter(searchRequest.cursor);
+            handleIncludeExclude(builder, searchRequest);
+            return builder;
+        });
+        return search(request, documentClass);
+    }
+
+    /**
+     * 嵌套terms聚合
+     *
+     * @param searchRequest 搜索请求
+     * @param bucketSize 聚合桶大小
+     * @param fields 嵌套聚合字段
+     * @return 聚合结果
+     */
+    public List<ElasticBucket<?>> nestedTermsAggregate(ElasticSearchRequest searchRequest,
+                                                       int bucketSize, String ... fields) {
+        assert fields != null && fields.length > 0;
+        SearchRequest request = SearchRequest.of(builder ->
+                builder.index(searchRequest.index).query(searchRequest.query).size(0).
+                aggregations(fields[0], buildNestedTermsAggRequest(0, fields, bucketSize)));
+        try {
+            SearchResponse<Void> response = client.search(request, Void.class);
+            Map<String, Aggregate> aggregateMap = response.aggregations();
+            return buildNestedAggResponse(0, fields, aggregateMap);
+        } catch (Exception e) {
+            logger.error("nested terms aggregate error for index:{}", searchRequest.index);
+            logger.error(e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 多terms聚合
+     *
+     * @param searchRequest 搜索请求
+     * @param fields 聚合字段
+     * @param bucketSize 聚合桶大小
+     * @return 聚合结果
+     */
+    public Map<String, List<ElasticBucket<?>>> multiTermsAggregate(ElasticSearchRequest searchRequest,
+                                                                   List<String> fields, int bucketSize) {
+        Map<String, List<ElasticBucket<?>>> aggregateMap = new HashMap<>();
+        Map<String, Aggregation> aggregationRequest = new HashMap<>();
+        fields.forEach(field -> aggregationRequest.put(field, Aggregation.of(
+                a -> a.terms(t -> t.field(field).size(bucketSize)))));
+        SearchRequest request = SearchRequest.of(builder -> builder.index(searchRequest.index).
+                query(searchRequest.query).size(0).aggregations(aggregationRequest));
+        try {
+            SearchResponse<Void> response = client.search(request, Void.class);
+            for (String field : fields) {
+                List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
+                Aggregate aggregate = response.aggregations().get(field);
+                Buckets<? extends TermsBucketBase> buckets = getTermsBuckets(aggregate);
+                for (TermsBucketBase bucket : buckets.array()) {
+                    elasticBuckets.add(buildElasticBucket(bucket));
+                }
+                aggregateMap.put(field, elasticBuckets);
+            }
+            return aggregateMap;
+        } catch (Exception e) {
+            logger.error("multi terms aggregate error for index:{}", searchRequest.index);
+            logger.error(e.getMessage(), e);
+            return aggregateMap;
+        }
+    }
+
+    /**
+     * 处理字段包含排除
+     *
+     * @param builder ES搜索请求builder
+     * @param searchRequest 搜索请求
+     */
+    private void handleIncludeExclude(SearchRequest.Builder builder, ElasticSearchRequest searchRequest) {
+        if ((searchRequest.includes == null || searchRequest.includes.isEmpty()) &&
+            (searchRequest.excludes == null || searchRequest.excludes.isEmpty())) return;
+        builder.source(SourceConfig.of(b -> b.filter(SourceFilter.of(filter -> {
+            if (searchRequest.includes != null && !searchRequest.includes.isEmpty()) {
+                filter.includes(searchRequest.includes);
+            }
+            if (searchRequest.excludes != null && !searchRequest.excludes.isEmpty()) {
+                filter.excludes(searchRequest.excludes);
+            }
+            return filter;
+        }))));
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param request 更新请求
+     * @param documentClass 完整数据类型
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 完整数据类型
+     * @param <TPartialDocument> 更新数据类型
+     */
+    private <TDocument, TPartialDocument> boolean update(UpdateRequest<TDocument, TPartialDocument> request,
+                                                         Class<TDocument> documentClass) {
+        try {
+            UpdateResponse<TDocument> response = client.update(request, documentClass);
+            logger.debug("update success for id:{}, version:{}", request.id(), response.version());
+            return true;
+        } catch (Exception e) {
+            logger.error("update failed for id:{}, index:{}", request.id(), request.index());
+            logger.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 搜索数据
+     *
+     * @param request 搜索请求
+     * @param documentClass 数据类型
+     * @return 搜索响应
+     * @param <T> 数据类型
+     */
+    private <T> ElasticSearchResponse<T> search(SearchRequest request, Class<T> documentClass) {
+        try {
+            SearchResponse<T> response = client.search(request, documentClass);
+            HitsMetadata<T> hitsMetadata = response.hits();
+            ElasticSearchResponse<T> searchResponse = new ElasticSearchResponse<>();
+            searchResponse.total = hitsMetadata.total() == null ? 0L : hitsMetadata.total().value();
+            List<Hit<T>> hits = hitsMetadata.hits();
+            for (Hit<T> hit : hits) searchResponse.records.add(hit.source());
+            if (!hits.isEmpty()) searchResponse.cursor = hits.get(hits.size() - 1).sort();
+            return searchResponse;
+        } catch (Exception e) {
+            logger.error("search error for index:{}", request.index());
+            logger.error(e.getMessage(), e);
+            return new ElasticSearchResponse<>();
+        }
+    }
+
+    /**
+     * 构建嵌套terms聚合请求
+     *
+     * @param cursor 聚合字段游标
+     * @param fields 聚合字段数组
+     * @param bucketSize 聚合桶大小
+     * @return 聚合请求
+     */
+    private Aggregation buildNestedTermsAggRequest(int cursor, String[] fields, int bucketSize) {
+        if (cursor == fields.length - 1) {
+            return Aggregation.of(builder -> builder.terms(t -> t.field(fields[cursor]).size(bucketSize)));
+        }
+        Aggregation subAggregation = buildNestedTermsAggRequest(cursor + 1, fields, bucketSize);
+        return Aggregation.of(builder -> builder.terms(t -> t.field(fields[cursor]).size(bucketSize)).
+                aggregations(fields[cursor+1], subAggregation));
+    }
+
+    /**
+     * 构建嵌套terms聚合结果
+     *
+     * @param cursor 聚合字段游标
+     * @param fields 聚合字段数组
+     * @param aggregateMap 当前字段聚合结果
+     * @return 聚合结果
+     */
+    private List<ElasticBucket<?>> buildNestedAggResponse(int cursor, String[] fields,
+                                                          Map<String, Aggregate> aggregateMap) {
+        List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
+        if (cursor < 0 || cursor >= fields.length) return elasticBuckets;
+        Aggregate aggregate = aggregateMap.get(fields[cursor]);
+        Buckets<? extends TermsBucketBase> termsBuckets = getTermsBuckets(aggregate);
+        for (TermsBucketBase termsBucket : termsBuckets.array()) {
+            ElasticBucket<?> elasticBucket = buildElasticBucket(termsBucket);
+            elasticBuckets.add(elasticBucket);
+            if (termsBucket.aggregations().isEmpty()) continue;
+            elasticBucket.bucketMap = new HashMap<>();
+            elasticBucket.bucketMap.put(fields[cursor+1],
+                    buildNestedAggResponse(cursor + 1, fields, termsBucket.aggregations()));
+        }
+        return elasticBuckets;
+    }
+
+    /**
+     * 从聚合结果中获取terms桶
+     *
+     * @param aggregate 聚合结果
+     * @return terms桶
+     */
+    private Buckets<? extends TermsBucketBase> getTermsBuckets(Aggregate aggregate) {
+        if (aggregate.isDterms()) return aggregate.dterms().buckets();
+        else if (aggregate.isLterms()) return aggregate.lterms().buckets();
+        return aggregate.sterms().buckets();
+    }
+
+    /**
+     * 根据term桶生成ElasticBucket
+     *
+     * @param termBucket term桶
+     * @return ElasticBucket
+     */
+    private ElasticBucket<?> buildElasticBucket(TermsBucketBase termBucket) {
+        if (termBucket instanceof LongTermsBucket lTermsBucket) {
+            return new ElasticBucket<>(lTermsBucket.key(), lTermsBucket.docCount());
+        } else if (termBucket instanceof DoubleTermsBucket dTermsBucket) {
+            return new ElasticBucket<>(dTermsBucket.key(), dTermsBucket.docCount());
+        }
+        StringTermsBucket sTermsBucket = (StringTermsBucket) termBucket;
+        return new ElasticBucket<>(sTermsBucket.key().stringValue(), sTermsBucket.docCount());
+    }
+}
