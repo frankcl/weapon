@@ -249,9 +249,11 @@ public class ElasticSearchClient {
      * @param <T> 数据类型
      */
     public <T> ElasticSearchResponse<T> search(ElasticSearchRequest searchRequest, Class<T> documentClass) {
+        List<SortOptions> sortOptions = buildSortOptions(searchRequest);
         SearchRequest request = SearchRequest.of(builder -> {
             builder.index(searchRequest.index).query(searchRequest.query).
                     from(searchRequest.from).size(searchRequest.size);
+            if (sortOptions != null && !sortOptions.isEmpty()) builder.sort(sortOptions);
             handleIncludeExclude(builder, searchRequest);
             return builder;
         });
@@ -270,11 +272,7 @@ public class ElasticSearchClient {
                                                          Class<T> documentClass) {
         assert searchRequest.sortOptions != null && !searchRequest.sortOptions.isEmpty();
         assert searchRequest.cursor == null || searchRequest.cursor.size() == searchRequest.sortOptions.size();
-        List<SortOptions> sortOptions = new ArrayList<>();
-        for (ElasticSortOption sortRequest : searchRequest.sortOptions) {
-            sortOptions.add(SortOptions.of(b -> b.field(
-                    f -> f.field(sortRequest.field).order(sortRequest.sortOrder))));
-        }
+        List<SortOptions> sortOptions = buildSortOptions(searchRequest);
         SearchRequest request = SearchRequest.of(builder -> {
             builder.index(searchRequest.index).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
             if (searchRequest.cursor != null) builder.searchAfter(searchRequest.cursor);
@@ -293,11 +291,11 @@ public class ElasticSearchClient {
      * @return 聚合结果
      */
     public List<ElasticBucket<?>> nestedTermsAggregate(ElasticSearchRequest searchRequest,
-                                                       int bucketSize, String ... fields) {
+                                                       int bucketSize, ElasticAggField ... fields) {
         assert fields != null && fields.length > 0;
         SearchRequest request = SearchRequest.of(builder ->
                 builder.index(searchRequest.index).query(searchRequest.query).size(0).
-                aggregations(fields[0], buildNestedTermsAggRequest(0, fields, bucketSize)));
+                aggregations(fields[0].name, buildNestedTermsAggRequest(0, fields, bucketSize)));
         try {
             SearchResponse<Void> response = client.search(request, Void.class);
             Map<String, Aggregate> aggregateMap = response.aggregations();
@@ -318,23 +316,23 @@ public class ElasticSearchClient {
      * @return 聚合结果
      */
     public Map<String, List<ElasticBucket<?>>> multiTermsAggregate(ElasticSearchRequest searchRequest,
-                                                                   List<String> fields, int bucketSize) {
+                                                                   List<ElasticAggField> fields, int bucketSize) {
         Map<String, List<ElasticBucket<?>>> aggregateMap = new HashMap<>();
         Map<String, Aggregation> aggregationRequest = new HashMap<>();
-        fields.forEach(field -> aggregationRequest.put(field, Aggregation.of(
-                a -> a.terms(t -> t.field(field).size(bucketSize)))));
+        fields.forEach(field -> aggregationRequest.put(field.name, buildAggregation(field, bucketSize)));
         SearchRequest request = SearchRequest.of(builder -> builder.index(searchRequest.index).
                 query(searchRequest.query).size(0).aggregations(aggregationRequest));
         try {
             SearchResponse<Void> response = client.search(request, Void.class);
-            for (String field : fields) {
+            for (ElasticAggField field : fields) {
                 List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
-                Aggregate aggregate = response.aggregations().get(field);
+                Aggregate aggregate = response.aggregations().get(field.name);
+                while (aggregate.isNested()) aggregate = aggregate.nested().aggregations().get(field.name);
                 Buckets<? extends TermsBucketBase> buckets = getTermsBuckets(aggregate);
                 for (TermsBucketBase bucket : buckets.array()) {
                     elasticBuckets.add(buildElasticBucket(bucket));
                 }
-                aggregateMap.put(field, elasticBuckets);
+                aggregateMap.put(field.name, elasticBuckets);
             }
             return aggregateMap;
         } catch (Exception e) {
@@ -399,6 +397,8 @@ public class ElasticSearchClient {
             SearchResponse<T> response = client.search(request, documentClass);
             HitsMetadata<T> hitsMetadata = response.hits();
             ElasticSearchResponse<T> searchResponse = new ElasticSearchResponse<>();
+            searchResponse.from = request.from();
+            searchResponse.size = request.size();
             searchResponse.total = hitsMetadata.total() == null ? 0L : hitsMetadata.total().value();
             List<Hit<T>> hits = hitsMetadata.hits();
             for (Hit<T> hit : hits) searchResponse.records.add(hit.source());
@@ -419,13 +419,19 @@ public class ElasticSearchClient {
      * @param bucketSize 聚合桶大小
      * @return 聚合请求
      */
-    private Aggregation buildNestedTermsAggRequest(int cursor, String[] fields, int bucketSize) {
+    private Aggregation buildNestedTermsAggRequest(int cursor, ElasticAggField[] fields, int bucketSize) {
         if (cursor == fields.length - 1) {
-            return Aggregation.of(builder -> builder.terms(t -> t.field(fields[cursor]).size(bucketSize)));
+            return buildAggregation(fields[cursor], bucketSize);
         }
         Aggregation subAggregation = buildNestedTermsAggRequest(cursor + 1, fields, bucketSize);
-        return Aggregation.of(builder -> builder.terms(t -> t.field(fields[cursor]).size(bucketSize)).
-                aggregations(fields[cursor+1], subAggregation));
+        Aggregation aggregation = Aggregation.of(builder -> builder.terms(
+                t -> t.field(fields[cursor].name).size(bucketSize)).
+                aggregations(fields[cursor+1].name, subAggregation));
+        if (fields[cursor].nested) {
+            return Aggregation.of(builder -> builder.nested(n ->
+                    n.path(fields[cursor].path)).aggregations(fields[cursor].name, aggregation));
+        }
+        return aggregation;
     }
 
     /**
@@ -436,18 +442,19 @@ public class ElasticSearchClient {
      * @param aggregateMap 当前字段聚合结果
      * @return 聚合结果
      */
-    private List<ElasticBucket<?>> buildNestedAggResponse(int cursor, String[] fields,
+    private List<ElasticBucket<?>> buildNestedAggResponse(int cursor, ElasticAggField[] fields,
                                                           Map<String, Aggregate> aggregateMap) {
         List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
         if (cursor < 0 || cursor >= fields.length) return elasticBuckets;
-        Aggregate aggregate = aggregateMap.get(fields[cursor]);
+        Aggregate aggregate = aggregateMap.get(fields[cursor].name);
+        while (aggregate.isNested()) aggregate = aggregate.nested().aggregations().get(fields[cursor].name);
         Buckets<? extends TermsBucketBase> termsBuckets = getTermsBuckets(aggregate);
         for (TermsBucketBase termsBucket : termsBuckets.array()) {
             ElasticBucket<?> elasticBucket = buildElasticBucket(termsBucket);
             elasticBuckets.add(elasticBucket);
             if (termsBucket.aggregations().isEmpty()) continue;
             elasticBucket.bucketMap = new HashMap<>();
-            elasticBucket.bucketMap.put(fields[cursor+1],
+            elasticBucket.bucketMap.put(fields[cursor+1].name,
                     buildNestedAggResponse(cursor + 1, fields, termsBucket.aggregations()));
         }
         return elasticBuckets;
@@ -479,5 +486,38 @@ public class ElasticSearchClient {
         }
         StringTermsBucket sTermsBucket = (StringTermsBucket) termBucket;
         return new ElasticBucket<>(sTermsBucket.key().stringValue(), sTermsBucket.docCount());
+    }
+
+    /**
+     * 构建排序选项
+     *
+     * @param searchRequest 搜索请求
+     * @return 排序选项
+     */
+    private List<SortOptions> buildSortOptions(ElasticSearchRequest searchRequest) {
+        if (searchRequest.sortOptions == null) return null;
+        List<SortOptions> sortOptions = new ArrayList<>();
+        for (ElasticSortOption sortRequest : searchRequest.sortOptions) {
+            sortOptions.add(SortOptions.of(b -> b.field(
+                    f -> f.field(sortRequest.field).order(sortRequest.sortOrder))));
+        }
+        return sortOptions.isEmpty() ? null : sortOptions;
+    }
+
+    /**
+     * 构建聚合：区分普通字段聚合和nested字段聚合
+     *
+     * @param field 字段
+     * @param bucketSize 桶大小
+     * @return 聚合
+     */
+    private Aggregation buildAggregation(ElasticAggField field, int bucketSize) {
+        Aggregation aggregation = Aggregation.of(builder ->
+                builder.terms(t -> t.field(field.name).size(bucketSize)));
+        if (field.nested) {
+            return Aggregation.of(builder -> builder.nested(n ->
+                    n.path(field.path)).aggregations(field.name, aggregation));
+        }
+        return aggregation;
     }
 }

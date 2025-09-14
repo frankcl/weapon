@@ -47,6 +47,7 @@
         <jdk.version>17</jdk.version>
         <java-servlet.version>6.1.0</java-servlet.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
+        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <jackson.version>2.13.3</jackson.version>
         <slf4j-reload4j.version>2.0.16</slf4j-reload4j.version>
         <junit.version>4.13.2</junit.version>
@@ -196,6 +197,11 @@
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
                 <version>${jakarta.ws.rs-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

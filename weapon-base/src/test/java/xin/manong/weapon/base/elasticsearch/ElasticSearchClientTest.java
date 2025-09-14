@@ -89,13 +89,13 @@ public class ElasticSearchClientTest {
             searchRequest.index = "test_index";
             searchRequest.from = 0;
             ElasticSearchResponse<Record> searchResponse = elasticSearchClient.search(searchRequest, Record.class);
-            Assert.assertEquals(3, searchResponse.total);
+            Assert.assertEquals(3L, searchResponse.total.longValue());
             Assert.assertEquals(3, searchResponse.records.size());
 
-            List<String> fields = new ArrayList<>();
-            fields.add("key");
-            fields.add("count");
-            fields.add("price");
+            List<ElasticAggField> fields = new ArrayList<>();
+            fields.add(new ElasticAggField("key"));
+            fields.add(new ElasticAggField("count"));
+            fields.add(new ElasticAggField("price"));
             Map<String, List<ElasticBucket<?>>> aggregateMap = elasticSearchClient.multiTermsAggregate(
                     searchRequest, fields, 100);
             Assert.assertEquals(3, aggregateMap.size());
@@ -119,11 +119,11 @@ public class ElasticSearchClientTest {
             searchRequest.index = "test_index";
             searchRequest.from = 0;
 
-            List<String> fields = new ArrayList<>();
-            fields.add("count");
-            fields.add("price");
+            List<ElasticAggField> fields = new ArrayList<>();
+            fields.add(new ElasticAggField("count"));
+            fields.add(new ElasticAggField("price"));
             List<ElasticBucket<?>> elasticBuckets = elasticSearchClient.nestedTermsAggregate(
-                    searchRequest, 100, fields.toArray(new String[0]));
+                    searchRequest, 100, fields.toArray(new ElasticAggField[0]));
             Assert.assertEquals(2, elasticBuckets.size());
             {
                 ElasticBucket<?> elasticBucket = elasticBuckets.get(0);

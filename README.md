@@ -66,6 +66,7 @@
 | imageio-webp         | com.twelvemonkeys.imageio  |     3.12.0     |  false   |
 | jackson-annotations  | com.fasterxml.jackson.core |     2.13.3     |   true   |
 | jakarta.ws.rs-api    | jakarta.ws.rs              |     4.0.0      |   true   |
+| jakarta.xml.bind-api | jakarta.xml.bind           |     4.0.2      |   true   |
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
 | kafka-clients        | org.apache.kafka           |     4.0.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |

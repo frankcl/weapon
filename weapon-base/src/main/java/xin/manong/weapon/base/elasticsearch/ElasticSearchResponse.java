@@ -13,7 +13,9 @@ import java.util.List;
  */
 public class ElasticSearchResponse<T> {
 
-    public long total;
+    public Integer from = 0;
+    public Integer size = 10;
+    public Long total;
     public List<T> records;
     public List<FieldValue> cursor;
 
