@@ -400,6 +400,9 @@ public class ElasticSearchClient {
             searchResponse.from = request.from();
             searchResponse.size = request.size();
             searchResponse.total = hitsMetadata.total() == null ? 0L : hitsMetadata.total().value();
+            if (hitsMetadata.total() != null) {
+                searchResponse.totalHitRelation = hitsMetadata.total().relation().jsonValue();
+            }
             List<Hit<T>> hits = hitsMetadata.hits();
             for (Hit<T> hit : hits) searchResponse.records.add(hit.source());
             if (!hits.isEmpty()) searchResponse.cursor = hits.get(hits.size() - 1).sort();

@@ -16,11 +16,13 @@ public class ElasticSearchResponse<T> {
     public Integer from = 0;
     public Integer size = 10;
     public Long total;
+    public String totalHitRelation;
     public List<T> records;
     public List<FieldValue> cursor;
 
     public ElasticSearchResponse() {
         total = 0L;
+        totalHitRelation = "eq";
         records = new ArrayList<>();
     }
 }
