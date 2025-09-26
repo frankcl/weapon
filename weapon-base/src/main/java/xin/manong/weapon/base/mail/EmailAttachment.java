@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.email;
+package xin.manong.weapon.base.mail;
 
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;

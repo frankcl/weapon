@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.email;
+package xin.manong.weapon.base.mail;
 
 import jakarta.mail.MessagingException;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package xin.manong.weapon.base.email;
+package xin.manong.weapon.base.mail;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
