@@ -74,10 +74,10 @@
 | ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
 | redisson             | org.redisson               |     3.38.1     |   true   | 
 | slf4j-reload4j       | org.slf4j                  |     2.0.16     |   true   |
-| spring-aspects       | org.springframework        |     6.1.14     |   true   |
-| spring-boot          | org.springframework.boot   |     3.3.5      |   true   |
-| spring-boot-starter  | org.springframework.boot   |     3.3.5      |   true   |
-| spring-web           | org.springframework        |     6.1.14     |   true   |
+| spring-aspects       | org.springframework        |     6.2.11     |   true   |
+| spring-boot          | org.springframework.boot   |     3.4.10     |   true   |
+| spring-boot-starter  | org.springframework.boot   |     3.4.10     |   true   |
+| spring-web           | org.springframework        |     6.2.11     |   true   |
 | tablestore           | com.aliyun.openservices    |    5.13.10     |   true   |
 
 
