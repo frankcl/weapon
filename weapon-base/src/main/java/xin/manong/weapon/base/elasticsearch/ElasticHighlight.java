@@ -1,5 +1,9 @@
 package xin.manong.weapon.base.elasticsearch;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +13,23 @@ import java.util.List;
  * @author frankcl
  * @date 2025-09-30 14:58:56
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ElasticHighlight {
 
+    @JSONField(name = "field")
+    @JsonProperty("field")
     public String field;
+    @JSONField(name = "fragment_size")
+    @JsonProperty("fragment_size")
     public Integer fragmentSize = 100;
+    @JSONField(name = "fragment_num")
+    @JsonProperty("fragment_num")
     public Integer fragmentNum = 2;
+    @JSONField(name = "pre_tags")
+    @JsonProperty("pre_tags")
     public List<String> preTags;
+    @JSONField(name = "post_tags")
+    @JsonProperty("post_tags")
     public List<String> postTags;
 
     public ElasticHighlight() {}
