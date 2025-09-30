@@ -255,6 +255,7 @@ public class ElasticSearchClient {
                     from(searchRequest.from).size(searchRequest.size);
             if (sortOptions != null && !sortOptions.isEmpty()) builder.sort(sortOptions);
             handleIncludeExclude(builder, searchRequest);
+            handleHighlight(builder, searchRequest);
             return builder;
         });
         return search(request, documentClass);
@@ -277,6 +278,7 @@ public class ElasticSearchClient {
             builder.index(searchRequest.index).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
             if (searchRequest.cursor != null) builder.searchAfter(searchRequest.cursor);
             handleIncludeExclude(builder, searchRequest);
+            handleHighlight(builder, searchRequest);
             return builder;
         });
         return search(request, documentClass);
@@ -363,6 +365,25 @@ public class ElasticSearchClient {
     }
 
     /**
+     * 处理高亮请求
+     *
+     * @param builder 搜索请求构建器
+     * @param searchRequest ES搜索请求
+     */
+    private void handleHighlight(SearchRequest.Builder builder, ElasticSearchRequest searchRequest) {
+        if (searchRequest.highlights == null || searchRequest.highlights.isEmpty()) return;
+        Map<String, HighlightField> highlightFieldMap = new HashMap<>();
+        for (ElasticHighlight highlight : searchRequest.highlights) {
+            HighlightField.Builder b = new HighlightField.Builder();
+            b.fragmentSize(highlight.fragmentSize).numberOfFragments(highlight.fragmentNum);
+            if (highlight.preTags != null) b.preTags(highlight.preTags);
+            if (highlight.postTags != null) b.postTags(highlight.postTags);
+            highlightFieldMap.put(highlight.field, b.build());
+        }
+        builder.highlight(b -> b.fields(highlightFieldMap));
+    }
+
+    /**
      * 更新数据
      *
      * @param request 更新请求
@@ -404,7 +425,14 @@ public class ElasticSearchClient {
                 searchResponse.totalHitRelation = hitsMetadata.total().relation().jsonValue();
             }
             List<Hit<T>> hits = hitsMetadata.hits();
-            for (Hit<T> hit : hits) searchResponse.records.add(hit.source());
+            for (Hit<T> hit : hits) {
+                T record = hit.source();
+                if (record instanceof ElasticHighlightRecord) {
+                    ((ElasticHighlightRecord) record).injectHighlight(hit.highlight());
+                }
+                searchResponse.records.add(record);
+
+            }
             if (!hits.isEmpty()) searchResponse.cursor = hits.get(hits.size() - 1).sort();
             return searchResponse;
         } catch (Exception e) {
