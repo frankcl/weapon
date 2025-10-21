@@ -60,7 +60,7 @@
 | aliyun-sdk-oss       | com.aliyun.oss             |     3.18.1     |   true   |
 | commons-codec        | commons-codec              |      1.15      |  false   |
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
-| commons-lang3        | org.apache.commons         |      3.8       |  false   |
+| commons-lang3        | org.apache.commons         |     3.19.0     |  false   |
 | fastjson             | com.alibaba                |     2.0.35     |  false   |
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
 | imageio-webp         | com.twelvemonkeys.imageio  |     3.12.0     |  false   |
