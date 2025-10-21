@@ -45,14 +45,15 @@ public class ElasticSearchClientTest {
     }
 
     @Test
-    public void testOperations() {
+    public void testOperations() throws ConflictVersionException{
         {
             Record record = new Record();
             record.count = 1;
             record.price = 1.0f;
             record.key = "key1";
             record.title = "哈哈哈";
-            Assert.assertTrue(elasticSearchClient.put("key1", record, "test_index", Refresh.True));
+            Assert.assertTrue(elasticSearchClient.put("key1", record, "test_index",
+                    null, null, Refresh.True));
         }
 
         {
@@ -61,7 +62,8 @@ public class ElasticSearchClientTest {
             record.price = 2.0f;
             record.key = "key2";
             record.title = "测试设备";
-            Assert.assertTrue(elasticSearchClient.put("key2", record, "test_index", Refresh.True));
+            Assert.assertTrue(elasticSearchClient.put("key2", record, "test_index",
+                    null, null, Refresh.True));
         }
 
         {
@@ -70,29 +72,30 @@ public class ElasticSearchClientTest {
             record.price = 2.0f;
             record.key = "key3";
             record.title = "测试机器";
-            Assert.assertTrue(elasticSearchClient.put("key3", record, "test_index", Refresh.True));
+            Assert.assertTrue(elasticSearchClient.put("key3", record, "test_index",
+                    null, null, Refresh.True));
         }
 
         {
             Assert.assertNull(elasticSearchClient.get("unknown", "test_index", Record.class));
-            Record record = elasticSearchClient.get("key3", "test_index", Record.class);
+            ElasticRecord<Record> record = elasticSearchClient.get("key3", "test_index", Record.class);
             Assert.assertNotNull(record);
-            Assert.assertEquals(record.count.intValue(), 1);
-            Assert.assertEquals(record.key, "key3");
-            Assert.assertEquals(record.price, 2.0f, 0.001f);
+            Assert.assertEquals(record.value.count.intValue(), 1);
+            Assert.assertEquals(record.value.key, "key3");
+            Assert.assertEquals(record.value.price, 2.0f, 0.001f);
         }
 
         {
             Map<String, Object> updateRecord = new HashMap<>();
             updateRecord.put("price", 3.0);
             Assert.assertTrue(elasticSearchClient.update("key3", updateRecord, "test_index",
-                    Record.class, Refresh.True));
+                    Record.class, null, null, Refresh.True));
 
-            Record record = elasticSearchClient.get("key3", "test_index", Record.class);
+            ElasticRecord<Record> record = elasticSearchClient.get("key3", "test_index", Record.class);
             Assert.assertNotNull(record);
-            Assert.assertEquals(record.count.intValue(), 1);
-            Assert.assertEquals(record.key, "key3");
-            Assert.assertEquals(record.price, 3.0f, 0.001f);
+            Assert.assertEquals(record.value.count.intValue(), 1);
+            Assert.assertEquals(record.value.key, "key3");
+            Assert.assertEquals(record.value.price, 3.0f, 0.001f);
         }
 
         {

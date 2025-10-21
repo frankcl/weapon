@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHeader;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
@@ -86,11 +87,13 @@ public class ElasticSearchClient {
      * @return 成功返回数据，否则返回null
      * @param <T> 数据类型
      */
-    public <T> T get(String id, String index, Class<T> documentClass) {
+    public <T> ElasticRecord<T> get(String id, String index, Class<T> documentClass) {
         GetRequest request = GetRequest.of(builder -> builder.index(index).id(id));
         try {
             GetResponse<T> response = client.get(request, documentClass);
-            return response.source();
+            if (!response.found()) return null;
+            return new ElasticRecord<>(response.seqNo(), response.primaryTerm(),
+                    response.version(), response.source());
         } catch (Exception e) {
             logger.error("get failed for id:{}, index:{}", id, index);
             logger.error(e.getMessage(), e);
@@ -108,7 +111,11 @@ public class ElasticSearchClient {
      * @param <T> 数据类型
      */
     public <T> boolean put(String id, T doc, String index) {
-        return put(id, doc, index, Refresh.False);
+        try {
+            return put(id, doc, index, null, null, Refresh.False);
+        } catch (ConflictVersionException e) {
+            return false;
+        }
     }
 
     /**
@@ -117,18 +124,29 @@ public class ElasticSearchClient {
      * @param id 数据ID
      * @param doc 数据
      * @param index 索引名
+     * @param seqNo 序号
+     * @param primaryTerm 主项
      * @param refresh 是否立即刷新索引
      * @return 成功返回true，否则返回false
      * @param <T> 数据类型
+     * @throws ConflictVersionException 版本冲突异常
      */
-    public <T> boolean put(String id, T doc, String index, Refresh refresh) {
-        IndexRequest<T> request = IndexRequest.of(builder -> builder.index(index).id(id).document(doc).
-                refresh(refresh == null ? Refresh.False : refresh));
+    public <T> boolean put(String id, T doc, String index,
+                           Long seqNo, Long primaryTerm,
+                           Refresh refresh) throws ConflictVersionException {
+        IndexRequest<T> request = IndexRequest.of(builder -> {
+            builder.index(index).id(id).document(doc).
+                    refresh(refresh == null ? Refresh.False : refresh);
+            if (seqNo != null) builder.ifSeqNo(seqNo);
+            if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+            return builder;
+        });
         try {
             IndexResponse response = client.index(request);
             logger.debug("put success for id:{}, version:{}", id, response.version());
             return true;
         } catch (Exception e) {
+            checkVersionConflict(e);
             logger.error("put failed for id:{}, index:{}", id, index);
             return false;
         }
@@ -142,7 +160,11 @@ public class ElasticSearchClient {
      * @return 成功返回true，否则返回false
      */
     public boolean delete(String id, String index) {
-        return delete(id, index, Refresh.False);
+        try {
+            return delete(id, index, null, null, Refresh.False);
+        } catch (ConflictVersionException e) {
+            return false;
+        }
     }
 
     /**
@@ -150,17 +172,28 @@ public class ElasticSearchClient {
      *
      * @param id 数据ID
      * @param index 索引名
+     * @param seqNo 序号
+     * @param primaryTerm 主项
      * @param refresh 是否立即刷新索引
      * @return 成功返回true，否则返回false
+     * @throws ConflictVersionException 版本冲突异常
      */
-    public boolean delete(String id, String index, Refresh refresh) {
-        DeleteRequest request = DeleteRequest.of(builder -> builder.index(index).id(id).
-                refresh(refresh == null ? Refresh.False : refresh));
+    public boolean delete(String id, String index,
+                          Long seqNo, Long primaryTerm,
+                          Refresh refresh) throws ConflictVersionException {
+        DeleteRequest request = DeleteRequest.of(builder -> {
+            builder.index(index).id(id).
+                    refresh(refresh == null ? Refresh.False : refresh);
+            if (seqNo != null) builder.ifSeqNo(seqNo);
+            if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+            return builder;
+        });
         try {
             DeleteResponse response = client.delete(request);
             logger.debug("delete success for id:{}, version:{}", id, response.version());
             return true;
         } catch (Exception e) {
+            checkVersionConflict(e);
             logger.error("delete failed for id:{}, index:{}", id, index);
             return false;
         }
@@ -179,7 +212,11 @@ public class ElasticSearchClient {
      */
     public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass) {
-        return upsert(id, doc, index, documentClass, Refresh.False);
+        try {
+            return upsert(id, doc, index, documentClass, null, null, Refresh.False);
+        } catch (ConflictVersionException e) {
+            return false;
+        }
     }
 
     /**
@@ -189,17 +226,26 @@ public class ElasticSearchClient {
      * @param doc 更新数据
      * @param index 索引名
      * @param documentClass 完整数据类型
+     * @param seqNo 序号
+     * @param primaryTerm 主项
      * @param refresh 是否立即刷新索引
      * @return 成功返回true，否则返回false
      * @param <TDocument> 完整数据类型
      * @param <TPartialDocument> 更新数据类型
+     * @throws ConflictVersionException 版本冲突异常
      */
     public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass,
-                                                        Refresh refresh) {
+                                                        Long seqNo, Long primaryTerm,
+                                                        Refresh refresh) throws ConflictVersionException {
         UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
-                builder -> builder.index(index).id(id).doc(doc).docAsUpsert(true).
-                        refresh(refresh == null ? Refresh.False : refresh));
+                builder -> {
+                    builder.index(index).id(id).doc(doc).docAsUpsert(true).
+                            refresh(refresh == null ? Refresh.False : refresh);
+                    if (seqNo != null) builder.ifSeqNo(seqNo);
+                    if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+                    return builder;
+                });
         return update(request, documentClass);
     }
 
@@ -216,7 +262,11 @@ public class ElasticSearchClient {
      */
     public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass) {
-        return update(id, doc, index, documentClass, Refresh.False);
+        try {
+            return update(id, doc, index, documentClass, null, null, Refresh.False);
+        } catch (ConflictVersionException e) {
+            return false;
+        }
     }
 
     /**
@@ -226,17 +276,26 @@ public class ElasticSearchClient {
      * @param doc 更新数据
      * @param index 索引名
      * @param documentClass 完整数据类型
+     * @param seqNo 序号
+     * @param primaryTerm 主项
      * @param refresh 是否立即刷新索引
      * @return 成功返回true，否则返回false
      * @param <TDocument> 完整数据类型
      * @param <TPartialDocument> 更新数据类型
+     * @throws ConflictVersionException 版本冲突异常
      */
     public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass,
-                                                        Refresh refresh) {
+                                                        Long seqNo, Long primaryTerm, Refresh refresh)
+            throws ConflictVersionException {
         UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
-                builder -> builder.index(index).id(id).doc(doc).docAsUpsert(false).
-                        refresh(refresh == null ? Refresh.False : refresh));
+                builder -> {
+                    builder.index(index).id(id).doc(doc).docAsUpsert(false).
+                            refresh(refresh == null ? Refresh.False : refresh);
+                    if (seqNo != null) builder.ifSeqNo(seqNo);
+                    if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+                    return builder;
+                });
         return update(request, documentClass);
     }
 
@@ -391,14 +450,16 @@ public class ElasticSearchClient {
      * @return 成功返回true，否则返回false
      * @param <TDocument> 完整数据类型
      * @param <TPartialDocument> 更新数据类型
+     * @throws ConflictVersionException 版本冲突异常
      */
     private <TDocument, TPartialDocument> boolean update(UpdateRequest<TDocument, TPartialDocument> request,
-                                                         Class<TDocument> documentClass) {
+                                                         Class<TDocument> documentClass) throws ConflictVersionException {
         try {
             UpdateResponse<TDocument> response = client.update(request, documentClass);
             logger.debug("update success for id:{}, version:{}", request.id(), response.version());
             return true;
         } catch (Exception e) {
+            checkVersionConflict(e);
             logger.error("update failed for id:{}, index:{}", request.id(), request.index());
             logger.error(e.getMessage(), e);
             return false;
@@ -550,5 +611,18 @@ public class ElasticSearchClient {
                     n.path(field.path)).aggregations(field.name, aggregation));
         }
         return aggregation;
+    }
+
+    /**
+     * 检测是否版本冲突
+     *
+     * @param e 异常
+     * @throws ConflictVersionException 版本冲突抛出异常
+     */
+    private void checkVersionConflict(Exception e) throws ConflictVersionException {
+        if (!(e instanceof ResponseException responseException)) return;
+        if (responseException.getResponse().getStatusLine().getStatusCode() == 409) {
+            throw new ConflictVersionException(e);
+        }
     }
 }
