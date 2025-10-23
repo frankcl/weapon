@@ -344,6 +344,53 @@ public class ElasticSearchClient {
     }
 
     /**
+     * terms聚合
+     *
+     * @param searchRequest 搜索请求
+     * @param aggregationMap 聚合请求
+     * @return 聚合结果
+     */
+    public Map<String, List<ElasticBucket<?>>> termsAggregate(ElasticSearchRequest searchRequest,
+                                                              Map<String, Aggregation> aggregationMap) {
+        assert aggregationMap != null && !aggregationMap.isEmpty();
+        SearchRequest request = SearchRequest.of(builder ->
+                builder.index(searchRequest.index).query(searchRequest.query).
+                        size(0).aggregations(aggregationMap));
+        try {
+            SearchResponse<Void> response = client.search(request, Void.class);
+            Map<String, Aggregate> aggregateMap = response.aggregations();
+            return buildElasticBucketMap(aggregateMap);
+        } catch (Exception e) {
+            logger.error("Terms aggregate error for index:{}", searchRequest.index);
+            logger.error(e.getMessage(), e);
+            return new HashMap<>();
+        }
+    }
+
+    /**
+     * 根据聚合结果构建ElasticBucket结果
+     *
+     * @param aggregateMap 聚合结果
+     * @return ElasticBucket结果
+     */
+    private Map<String, List<ElasticBucket<?>>> buildElasticBucketMap(Map<String, Aggregate> aggregateMap) {
+        Map<String, List<ElasticBucket<?>>> bucketMap = new HashMap<>();
+        for (Map.Entry<String, Aggregate> entry : aggregateMap.entrySet()) {
+            Aggregate aggregate = entry.getValue();
+            List<ElasticBucket<?>> buckets = new ArrayList<>();
+            Buckets<? extends TermsBucketBase> termsBuckets = getTermsBuckets(aggregate);
+            for (TermsBucketBase termsBucket : termsBuckets.array()) {
+                ElasticBucket<?> elasticBucket = buildElasticBucket(termsBucket);
+                buckets.add(elasticBucket);
+                if (termsBucket.aggregations().isEmpty()) continue;
+                elasticBucket.bucketMap = buildElasticBucketMap(termsBucket.aggregations());
+            }
+            bucketMap.put(entry.getKey(), buckets);
+        }
+        return bucketMap;
+    }
+
+    /**
      * 嵌套terms聚合
      *
      * @param searchRequest 搜索请求

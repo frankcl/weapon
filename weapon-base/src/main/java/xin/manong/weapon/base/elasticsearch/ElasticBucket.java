@@ -34,6 +34,12 @@ public class ElasticBucket<T> {
     /**
      * 子分桶统计结果
      */
+    @JSONField(name = "buckets")
+    @JsonProperty("buckets")
+    public List<ElasticBucket<?>> buckets;
+    /**
+     * 子分桶统计结果
+     */
     @JSONField(name = "bucket_map")
     @JsonProperty("bucket_map")
     public Map<String, List<ElasticBucket<?>>> bucketMap;
@@ -41,5 +47,18 @@ public class ElasticBucket<T> {
     public ElasticBucket(T key, Long count) {
         this.key = key;
         this.count = count;
+    }
+
+    /**
+     * 平铺bucket map
+     */
+    public void flatBucketMap() {
+        if (bucketMap == null || bucketMap.isEmpty()) return;
+        if (bucketMap.size() > 1) throw new UnsupportedOperationException("unsupported flat bucket map");
+        for (List<ElasticBucket<?>> bucketList : bucketMap.values()) {
+            buckets = bucketList;
+            for (ElasticBucket<?> bucket : bucketList) bucket.flatBucketMap();
+        }
+        bucketMap = null;
     }
 }
