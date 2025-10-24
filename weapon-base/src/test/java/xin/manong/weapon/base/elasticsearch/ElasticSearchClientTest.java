@@ -5,7 +5,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import org.junit.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,18 +13,12 @@ import java.util.Map;
  */
 public class ElasticSearchClientTest {
 
-    public static class Record implements ElasticHighlightRecord {
+    public static class Record extends ElasticHighlightRecord {
         public String key;
         public Integer count;
         public Float price;
         public String name;
         public String title;
-        public Map<String, List<String>> highlightMap;
-
-        @Override
-        public void injectHighlight(Map<String, List<String>> highlightMap) {
-            this.highlightMap = highlightMap;
-        }
     }
 
     private ElasticSearchClient elasticSearchClient;
