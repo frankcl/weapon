@@ -1,7 +1,6 @@
 package xin.manong.weapon.base.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
@@ -112,7 +111,7 @@ public class ElasticSearchClient {
      */
     public <T> boolean put(String id, T doc, String index) {
         try {
-            return put(id, doc, index, null, null, Refresh.False);
+            return put(id, doc, index, null);
         } catch (ConflictVersionException e) {
             return false;
         }
@@ -124,21 +123,17 @@ public class ElasticSearchClient {
      * @param id 数据ID
      * @param doc 数据
      * @param index 索引名
-     * @param seqNo 序号
-     * @param primaryTerm 主项
-     * @param refresh 是否立即刷新索引
+     * @param option 选项
      * @return 成功返回true，否则返回false
      * @param <T> 数据类型
      * @throws ConflictVersionException 版本冲突异常
      */
-    public <T> boolean put(String id, T doc, String index,
-                           Long seqNo, Long primaryTerm,
-                           Refresh refresh) throws ConflictVersionException {
+    public <T> boolean put(String id, T doc, String index, ElasticOption option) throws ConflictVersionException {
         IndexRequest<T> request = IndexRequest.of(builder -> {
-            builder.index(index).id(id).document(doc).
-                    refresh(refresh == null ? Refresh.False : refresh);
-            if (seqNo != null) builder.ifSeqNo(seqNo);
-            if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+            builder.index(index).id(id).document(doc);
+            if (option != null && option.refresh != null) builder.refresh(option.refresh);
+            if (option != null && option.seqNo != null) builder.ifSeqNo(option.seqNo);
+            if (option != null && option.primaryTerm != null) builder.ifPrimaryTerm(option.primaryTerm);
             return builder;
         });
         try {
@@ -161,7 +156,7 @@ public class ElasticSearchClient {
      */
     public boolean delete(String id, String index) {
         try {
-            return delete(id, index, null, null, Refresh.False);
+            return delete(id, index, null);
         } catch (ConflictVersionException e) {
             return false;
         }
@@ -172,20 +167,16 @@ public class ElasticSearchClient {
      *
      * @param id 数据ID
      * @param index 索引名
-     * @param seqNo 序号
-     * @param primaryTerm 主项
-     * @param refresh 是否立即刷新索引
+     * @param option 选项
      * @return 成功返回true，否则返回false
      * @throws ConflictVersionException 版本冲突异常
      */
-    public boolean delete(String id, String index,
-                          Long seqNo, Long primaryTerm,
-                          Refresh refresh) throws ConflictVersionException {
+    public boolean delete(String id, String index, ElasticOption option) throws ConflictVersionException {
         DeleteRequest request = DeleteRequest.of(builder -> {
-            builder.index(index).id(id).
-                    refresh(refresh == null ? Refresh.False : refresh);
-            if (seqNo != null) builder.ifSeqNo(seqNo);
-            if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+            builder.index(index).id(id);
+            if (option != null && option.refresh != null) builder.refresh(option.refresh);
+            if (option != null && option.seqNo != null) builder.ifSeqNo(option.seqNo);
+            if (option != null && option.primaryTerm != null) builder.ifPrimaryTerm(option.primaryTerm);
             return builder;
         });
         try {
@@ -213,7 +204,7 @@ public class ElasticSearchClient {
     public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass) {
         try {
-            return upsert(id, doc, index, documentClass, null, null, Refresh.False);
+            return upsert(id, doc, index, documentClass, null);
         } catch (ConflictVersionException e) {
             return false;
         }
@@ -226,9 +217,7 @@ public class ElasticSearchClient {
      * @param doc 更新数据
      * @param index 索引名
      * @param documentClass 完整数据类型
-     * @param seqNo 序号
-     * @param primaryTerm 主项
-     * @param refresh 是否立即刷新索引
+     * @param option 选项
      * @return 成功返回true，否则返回false
      * @param <TDocument> 完整数据类型
      * @param <TPartialDocument> 更新数据类型
@@ -236,14 +225,13 @@ public class ElasticSearchClient {
      */
     public <TDocument, TPartialDocument> boolean upsert(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass,
-                                                        Long seqNo, Long primaryTerm,
-                                                        Refresh refresh) throws ConflictVersionException {
+                                                        ElasticOption option) throws ConflictVersionException {
         UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
                 builder -> {
-                    builder.index(index).id(id).doc(doc).docAsUpsert(true).
-                            refresh(refresh == null ? Refresh.False : refresh);
-                    if (seqNo != null) builder.ifSeqNo(seqNo);
-                    if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+                    builder.index(index).id(id).doc(doc).docAsUpsert(true);
+                    if (option != null && option.refresh != null) builder.refresh(option.refresh);
+                    if (option != null && option.seqNo != null) builder.ifSeqNo(option.seqNo);
+                    if (option != null && option.primaryTerm != null) builder.ifPrimaryTerm(option.primaryTerm);
                     return builder;
                 });
         return update(request, documentClass);
@@ -263,7 +251,7 @@ public class ElasticSearchClient {
     public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass) {
         try {
-            return update(id, doc, index, documentClass, null, null, Refresh.False);
+            return update(id, doc, index, documentClass, null);
         } catch (ConflictVersionException e) {
             return false;
         }
@@ -276,9 +264,7 @@ public class ElasticSearchClient {
      * @param doc 更新数据
      * @param index 索引名
      * @param documentClass 完整数据类型
-     * @param seqNo 序号
-     * @param primaryTerm 主项
-     * @param refresh 是否立即刷新索引
+     * @param option 选项
      * @return 成功返回true，否则返回false
      * @param <TDocument> 完整数据类型
      * @param <TPartialDocument> 更新数据类型
@@ -286,14 +272,14 @@ public class ElasticSearchClient {
      */
     public <TDocument, TPartialDocument> boolean update(String id, TPartialDocument doc,
                                                         String index, Class<TDocument> documentClass,
-                                                        Long seqNo, Long primaryTerm, Refresh refresh)
+                                                        ElasticOption option)
             throws ConflictVersionException {
         UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
                 builder -> {
-                    builder.index(index).id(id).doc(doc).docAsUpsert(false).
-                            refresh(refresh == null ? Refresh.False : refresh);
-                    if (seqNo != null) builder.ifSeqNo(seqNo);
-                    if (primaryTerm != null) builder.ifPrimaryTerm(primaryTerm);
+                    builder.index(index).id(id).doc(doc).docAsUpsert(false);
+                    if (option != null && option.refresh != null) builder.refresh(option.refresh);
+                    if (option != null && option.seqNo != null) builder.ifSeqNo(option.seqNo);
+                    if (option != null && option.primaryTerm != null) builder.ifPrimaryTerm(option.primaryTerm);
                     return builder;
                 });
         return update(request, documentClass);
@@ -377,6 +363,14 @@ public class ElasticSearchClient {
         Map<String, List<ElasticBucket<?>>> bucketMap = new HashMap<>();
         for (Map.Entry<String, Aggregate> entry : aggregateMap.entrySet()) {
             Aggregate aggregate = entry.getValue();
+            while (aggregate.isNested()) {
+                Map<String, Aggregate> map = aggregate.nested().aggregations();
+                if (map.size() != 1) {
+                    throw new IllegalStateException(String.format(
+                            "Unexpected nested aggregation size:%d", map.size()));
+                }
+                aggregate = map.values().iterator().next();
+            }
             List<ElasticBucket<?>> buckets = new ArrayList<>();
             Buckets<? extends TermsBucketBase> termsBuckets = getTermsBuckets(aggregate);
             for (TermsBucketBase termsBucket : termsBuckets.array()) {
@@ -388,66 +382,6 @@ public class ElasticSearchClient {
             bucketMap.put(entry.getKey(), buckets);
         }
         return bucketMap;
-    }
-
-    /**
-     * 嵌套terms聚合
-     *
-     * @param searchRequest 搜索请求
-     * @param bucketSize 聚合桶大小
-     * @param fields 嵌套聚合字段
-     * @return 聚合结果
-     */
-    public List<ElasticBucket<?>> nestedTermsAggregate(ElasticSearchRequest searchRequest,
-                                                       int bucketSize, ElasticAggField ... fields) {
-        assert fields != null && fields.length > 0;
-        SearchRequest request = SearchRequest.of(builder ->
-                builder.index(searchRequest.index).query(searchRequest.query).size(0).
-                aggregations(fields[0].name, buildNestedTermsAggRequest(0, fields, bucketSize)));
-        try {
-            SearchResponse<Void> response = client.search(request, Void.class);
-            Map<String, Aggregate> aggregateMap = response.aggregations();
-            return buildNestedAggResponse(0, fields, aggregateMap);
-        } catch (Exception e) {
-            logger.error("nested terms aggregate error for index:{}", searchRequest.index);
-            logger.error(e.getMessage(), e);
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * 多terms聚合
-     *
-     * @param searchRequest 搜索请求
-     * @param fields 聚合字段
-     * @param bucketSize 聚合桶大小
-     * @return 聚合结果
-     */
-    public Map<String, List<ElasticBucket<?>>> multiTermsAggregate(ElasticSearchRequest searchRequest,
-                                                                   List<ElasticAggField> fields, int bucketSize) {
-        Map<String, List<ElasticBucket<?>>> aggregateMap = new HashMap<>();
-        Map<String, Aggregation> aggregationRequest = new HashMap<>();
-        fields.forEach(field -> aggregationRequest.put(field.name, buildAggregation(field, bucketSize)));
-        SearchRequest request = SearchRequest.of(builder -> builder.index(searchRequest.index).
-                query(searchRequest.query).size(0).aggregations(aggregationRequest));
-        try {
-            SearchResponse<Void> response = client.search(request, Void.class);
-            for (ElasticAggField field : fields) {
-                List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
-                Aggregate aggregate = response.aggregations().get(field.name);
-                while (aggregate.isNested()) aggregate = aggregate.nested().aggregations().get(field.name);
-                Buckets<? extends TermsBucketBase> buckets = getTermsBuckets(aggregate);
-                for (TermsBucketBase bucket : buckets.array()) {
-                    elasticBuckets.add(buildElasticBucket(bucket));
-                }
-                aggregateMap.put(field.name, elasticBuckets);
-            }
-            return aggregateMap;
-        } catch (Exception e) {
-            logger.error("multi terms aggregate error for index:{}", searchRequest.index);
-            logger.error(e.getMessage(), e);
-            return aggregateMap;
-        }
     }
 
     /**
@@ -551,55 +485,6 @@ public class ElasticSearchClient {
     }
 
     /**
-     * 构建嵌套terms聚合请求
-     *
-     * @param cursor 聚合字段游标
-     * @param fields 聚合字段数组
-     * @param bucketSize 聚合桶大小
-     * @return 聚合请求
-     */
-    private Aggregation buildNestedTermsAggRequest(int cursor, ElasticAggField[] fields, int bucketSize) {
-        if (cursor == fields.length - 1) {
-            return buildAggregation(fields[cursor], bucketSize);
-        }
-        Aggregation subAggregation = buildNestedTermsAggRequest(cursor + 1, fields, bucketSize);
-        Aggregation aggregation = Aggregation.of(builder -> builder.terms(
-                t -> t.field(fields[cursor].name).size(bucketSize)).
-                aggregations(fields[cursor+1].name, subAggregation));
-        if (fields[cursor].nested) {
-            return Aggregation.of(builder -> builder.nested(n ->
-                    n.path(fields[cursor].path)).aggregations(fields[cursor].name, aggregation));
-        }
-        return aggregation;
-    }
-
-    /**
-     * 构建嵌套terms聚合结果
-     *
-     * @param cursor 聚合字段游标
-     * @param fields 聚合字段数组
-     * @param aggregateMap 当前字段聚合结果
-     * @return 聚合结果
-     */
-    private List<ElasticBucket<?>> buildNestedAggResponse(int cursor, ElasticAggField[] fields,
-                                                          Map<String, Aggregate> aggregateMap) {
-        List<ElasticBucket<?>> elasticBuckets = new ArrayList<>();
-        if (cursor < 0 || cursor >= fields.length) return elasticBuckets;
-        Aggregate aggregate = aggregateMap.get(fields[cursor].name);
-        while (aggregate.isNested()) aggregate = aggregate.nested().aggregations().get(fields[cursor].name);
-        Buckets<? extends TermsBucketBase> termsBuckets = getTermsBuckets(aggregate);
-        for (TermsBucketBase termsBucket : termsBuckets.array()) {
-            ElasticBucket<?> elasticBucket = buildElasticBucket(termsBucket);
-            elasticBuckets.add(elasticBucket);
-            if (termsBucket.aggregations().isEmpty()) continue;
-            elasticBucket.bucketMap = new HashMap<>();
-            elasticBucket.bucketMap.put(fields[cursor+1].name,
-                    buildNestedAggResponse(cursor + 1, fields, termsBucket.aggregations()));
-        }
-        return elasticBuckets;
-    }
-
-    /**
      * 从聚合结果中获取terms桶
      *
      * @param aggregate 聚合结果
@@ -641,23 +526,6 @@ public class ElasticSearchClient {
                     f -> f.field(sortRequest.field).order(sortRequest.sortOrder))));
         }
         return sortOptions.isEmpty() ? null : sortOptions;
-    }
-
-    /**
-     * 构建聚合：区分普通字段聚合和nested字段聚合
-     *
-     * @param field 字段
-     * @param bucketSize 桶大小
-     * @return 聚合
-     */
-    private Aggregation buildAggregation(ElasticAggField field, int bucketSize) {
-        Aggregation aggregation = Aggregation.of(builder ->
-                builder.terms(t -> t.field(field.name).size(bucketSize)));
-        if (field.nested) {
-            return Aggregation.of(builder -> builder.nested(n ->
-                    n.path(field.path)).aggregations(field.name, aggregation));
-        }
-        return aggregation;
     }
 
     /**
