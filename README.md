@@ -71,8 +71,9 @@
 | kafka-clients        | org.apache.kafka           |     4.0.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
 | okhttp3              | com.squareup.okhttp3       |     4.12.0     |   true   |
-| ons-client           | com.aliyun.openservices    |  1.8.0.Final   |   true   |
+| ons-client           | com.aliyun.openservices    |  2.0.8.Final   |   true   |
 | redisson             | org.redisson               |     3.38.1     |   true   | 
+| rocketmq-client      | org.apache.rocketmq        |     5.3.3      |   true   | 
 | slf4j-reload4j       | org.slf4j                  |     2.0.16     |   true   |
 | spring-aspects       | org.springframework        |     6.2.11     |   true   |
 | spring-boot          | org.springframework.boot   |     3.4.10     |   true   |

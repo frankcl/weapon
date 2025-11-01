@@ -46,9 +46,9 @@ public class ElasticSearchClient {
      * @return 成功返回true，否则返回false
      */
     public boolean open() {
-        logger.info("elasticsearch client start opening");
+        logger.info("Elasticsearch client start opening");
         if (config == null || !config.check()) {
-            logger.error("elasticsearch client config is invalid");
+            logger.error("Elasticsearch client config is invalid");
             return false;
         }
         RestClientBuilder builder = RestClient.builder(HttpHost.create(config.serverURL));
@@ -59,7 +59,7 @@ public class ElasticSearchClient {
         RestClient restClient = builder.build();
         RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         client = new ElasticsearchClient(transport);
-        logger.info("elasticsearch client open success");
+        logger.info("Elasticsearch client open success");
         return true;
     }
 
@@ -67,14 +67,14 @@ public class ElasticSearchClient {
      * 关闭客户端
      */
     public void close() {
-        logger.info("elasticsearch client start closing");
+        logger.info("Elasticsearch client start closing");
         try {
             if (client != null) client._transport().close();
         } catch (IOException e) {
-            logger.error("close elasticsearch client error");
+            logger.error("Close elasticsearch client error");
             logger.error(e.getMessage(), e);
         }
-        logger.info("elasticsearch client close success");
+        logger.info("Elasticsearch client close success");
     }
 
     /**
@@ -94,7 +94,7 @@ public class ElasticSearchClient {
             return new ElasticRecord<>(response.seqNo(), response.primaryTerm(),
                     response.version(), response.source());
         } catch (Exception e) {
-            logger.error("get failed for id:{}, index:{}", id, index);
+            logger.error("Get failed for id:{}, index:{}", id, index);
             logger.error(e.getMessage(), e);
             return null;
         }
@@ -138,11 +138,11 @@ public class ElasticSearchClient {
         });
         try {
             IndexResponse response = client.index(request);
-            logger.debug("put success for id:{}, version:{}", id, response.version());
+            logger.debug("Put success for id:{}, version:{}", id, response.version());
             return true;
         } catch (Exception e) {
             checkVersionConflict(e);
-            logger.error("put failed for id:{}, index:{}", id, index);
+            logger.error("Put failed for id:{}, index:{}", id, index);
             return false;
         }
     }
@@ -181,11 +181,11 @@ public class ElasticSearchClient {
         });
         try {
             DeleteResponse response = client.delete(request);
-            logger.debug("delete success for id:{}, version:{}", id, response.version());
+            logger.debug("Delete success for id:{}, version:{}", id, response.version());
             return true;
         } catch (Exception e) {
             checkVersionConflict(e);
-            logger.error("delete failed for id:{}, index:{}", id, index);
+            logger.error("Delete failed for id:{}, index:{}", id, index);
             return false;
         }
     }
@@ -330,6 +330,25 @@ public class ElasticSearchClient {
     }
 
     /**
+     * 计算数量
+     *
+     * @param searchRequest 搜索请求
+     * @return 数量
+     */
+    public long count(ElasticSearchRequest searchRequest) {
+        try {
+            CountRequest request = CountRequest.of(builder ->
+                    builder.index(searchRequest.index).query(searchRequest.query));
+            CountResponse response = client.count(request);
+            return response.count();
+        } catch (Exception e) {
+            logger.error("Compute count failed, cause:{}", e.getMessage());
+            logger.error(e.getMessage(), e);
+            return 0L;
+        }
+    }
+
+    /**
      * terms聚合
      *
      * @param searchRequest 搜索请求
@@ -437,11 +456,11 @@ public class ElasticSearchClient {
                                                          Class<TDocument> documentClass) throws ConflictVersionException {
         try {
             UpdateResponse<TDocument> response = client.update(request, documentClass);
-            logger.debug("update success for id:{}, version:{}", request.id(), response.version());
+            logger.debug("Update success for id:{}, version:{}", request.id(), response.version());
             return true;
         } catch (Exception e) {
             checkVersionConflict(e);
-            logger.error("update failed for id:{}, index:{}", request.id(), request.index());
+            logger.error("Update failed for id:{}, index:{}", request.id(), request.index());
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -478,7 +497,7 @@ public class ElasticSearchClient {
             if (!hits.isEmpty()) searchResponse.cursor = hits.get(hits.size() - 1).sort();
             return searchResponse;
         } catch (Exception e) {
-            logger.error("search error for index:{}", request.index());
+            logger.error("Search error for index:{}", request.index());
             logger.error(e.getMessage(), e);
             return new ElasticSearchResponse<>();
         }
