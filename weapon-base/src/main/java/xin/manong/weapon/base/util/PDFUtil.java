@@ -27,7 +27,7 @@ public class PDFUtil {
             document.getPages().accept(absorber);
             TextFragmentCollection textFragments = absorber.getTextFragments();
             for (TextFragment textFragment : textFragments) {
-                if (textFragment.getText().contentEquals(waterMark)) {
+                if (textFragment.getText().contains(waterMark)) {
                     textFragment.setText("");
                 }
             }
