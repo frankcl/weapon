@@ -11,8 +11,15 @@ public class PDFUtilTest {
 
     @Test
     public void testRemoveTextWaterMark() {
-        String path = "/Users/frankcl/Desktop/GRF3042.pdf";
+        String path = "/Users/frankcl/Desktop/LMK5C22212A.pdf";
         String dest = "/Users/frankcl/Desktop/test.pdf";
         Assert.assertTrue(PDFUtil.removeTextWaterMark(path, dest, "芯查查", true));
+    }
+
+    @Test
+    public void testRemoveImageWaterMark() {
+        String path = "/Users/frankcl/Desktop/JW1550 Datasheet_R0.1_EN_20200616 _for 纳微半导体.pdf";
+        String dest = "/Users/frankcl/Desktop/test.pdf";
+        Assert.assertTrue(PDFUtil.removeImageWaterMark(path, 500, dest));
     }
 }
