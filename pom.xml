@@ -39,7 +39,6 @@
         <module>weapon-alarm</module>
         <module>weapon-aliyun</module>
         <module>weapon-spring-boot</module>
-        <module>weapon-listener</module>
         <module>weapon-jersey</module>
     </modules>
 

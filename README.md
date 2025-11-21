@@ -31,9 +31,7 @@
   - [x] web日志切面支持
 ### 4. weapon-jersey: jersey web service支持
   - [x] jersey web层异常处理、web层响应对象归一化
-### 5. weapon-listener 阿里云工具AK/SK加载实现
-  - [x] 通过加载本地配置文件实现AK/SK加载，不具备动态更新功能
-### 6. weapon-alarm 报警和监控规范及接口定义
+### 5. weapon-alarm 报警和监控规范及接口定义
 
 
 ## 使用
@@ -46,7 +44,6 @@
 | weapon-aliyun      | xin.manong | 0.2.0 | 否    | 阿里云工具                  |
 | weapon-spring-boot | xin.manong | 0.2.0 | 否    | spring boot增强工具        |
 | weapon-jersey      | xin.manong | 0.2.0 | 否    | jersey web service增强工具 |
-| weapon-listener    | xin.manong | 0.2.0 | 否    | 通过本地资源文件加载阿里云AK/SK     |
 | weapon-alarm       | xin.manong | 0.2.0 | 否    | 报警接口定义，引入使用实现自定义报警     |
 
 ## 依赖三方库信息

@@ -25,6 +25,14 @@ public class ElasticBucket<T> {
     @JSONField(name = "key")
     @JsonProperty("key")
     public T key;
+
+    /**
+     * 统计名称
+     */
+    @JSONField(name = "name")
+    @JsonProperty("name")
+    public String name;
+
     /**
      * 统计数量
      */

@@ -18,6 +18,7 @@ public class ElasticSearchRequest {
     public int size = 10;
     public String index;
     public Query query;
+    public boolean trackTotalHits = false;
     public List<ElasticSortOption> sortOptions;
     public List<FieldValue> cursor;
     public List<String> includes;

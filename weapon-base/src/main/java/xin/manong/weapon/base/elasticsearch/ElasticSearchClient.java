@@ -299,6 +299,9 @@ public class ElasticSearchClient {
             builder.index(searchRequest.index).query(searchRequest.query).
                     from(searchRequest.from).size(searchRequest.size);
             if (sortOptions != null && !sortOptions.isEmpty()) builder.sort(sortOptions);
+            if (searchRequest.trackTotalHits) {
+                builder.trackTotalHits(new TrackHits.Builder().enabled(true).build());
+            }
             handleIncludeExclude(builder, searchRequest);
             handleHighlight(builder, searchRequest);
             return builder;
@@ -322,6 +325,7 @@ public class ElasticSearchClient {
         SearchRequest request = SearchRequest.of(builder -> {
             builder.index(searchRequest.index).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
             if (searchRequest.cursor != null) builder.searchAfter(searchRequest.cursor);
+            if (searchRequest.trackTotalHits) builder.trackTotalHits(new TrackHits.Builder().enabled(true).build());
             handleIncludeExclude(builder, searchRequest);
             handleHighlight(builder, searchRequest);
             return builder;
