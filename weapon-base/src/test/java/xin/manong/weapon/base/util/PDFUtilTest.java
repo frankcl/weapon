@@ -11,7 +11,7 @@ public class PDFUtilTest {
 
     @Test
     public void testRemoveTextWaterMark() {
-        String path = "/Users/frankcl/Downloads/0c22f09ccc0366461baf9c4dd9da6f44.pdf";
+        String path = "/Users/frankcl/Desktop/LMK5C22212A.pdf";
         String dest = "/Users/frankcl/Desktop/test.pdf";
         Assert.assertTrue(PDFUtil.removeTextWaterMark(path, dest, "芯查查", true));
     }

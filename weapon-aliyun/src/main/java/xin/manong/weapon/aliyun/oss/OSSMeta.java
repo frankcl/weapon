@@ -31,8 +31,7 @@ public class OSSMeta {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof OSSMeta)) return false;
-        OSSMeta meta = (OSSMeta) object;
+        if (!(object instanceof OSSMeta meta)) return false;
         return Objects.equals(this.region, meta.region) &&
                 Objects.equals(this.bucket, meta.bucket) &&
                 Objects.equals(this.key, meta.key);

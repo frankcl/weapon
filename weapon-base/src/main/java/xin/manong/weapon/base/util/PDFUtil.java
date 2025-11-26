@@ -139,6 +139,7 @@ public class PDFUtil {
                                            Integer minSize,
                                            String destPath) {
         try (document) {
+            document.setOptimizeSize(true);
             removeAnnotationWaterMark(document);
             removeImageWaterMark(document, minSize);
             document.save(destPath);
@@ -158,6 +159,7 @@ public class PDFUtil {
      */
     private static boolean removeAnnotationWaterMark(Document document, String destPath) {
         try (document) {
+            document.setOptimizeSize(true);
             removeAnnotationWaterMark(document);
             document.save(destPath);
             return true;
@@ -201,6 +203,7 @@ public class PDFUtil {
      */
     private static boolean removeImageWaterMark(Document document, Integer minSize, String destPath) {
         try (document) {
+            document.setOptimizeSize(true);
             removeImageWaterMark(document, minSize);
             document.save(destPath);
             return true;
@@ -240,6 +243,7 @@ public class PDFUtil {
     private static boolean removeTextWaterMark(Document document, String destPath,
                                                String waterMarkText, boolean exactlyMatch) {
         try (document) {
+            document.setOptimizeSize(true);
             removeTextWaterMark(document, waterMarkText, exactlyMatch);
             document.save(destPath);
             return true;
