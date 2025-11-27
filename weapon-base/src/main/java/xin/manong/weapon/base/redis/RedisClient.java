@@ -224,8 +224,12 @@ public class RedisClient {
      */
     public void unlock(String key) {
         if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
-        RLock lock = redissonClient.getLock(key);
-        lock.unlock();
+        try {
+            RLock lock = redissonClient.getLock(key);
+            lock.unlock();
+        } catch (Exception e) {
+            logger.error("Unlock failed for key:{}", key, e);
+        }
     }
 
     /**

@@ -78,7 +78,7 @@
         <aliyun-log-producer.version>0.3.12</aliyun-log-producer.version>
         <aliyun-mns.version>1.1.9.2</aliyun-mns.version>
         <elasticsearch-java.version>8.13.4</elasticsearch-java.version>
-        <aspose-pdf.version>25.4</aspose-pdf.version>
+        <aspose-pdf.version>25.9</aspose-pdf.version>
         <weapon.version>0.2.1</weapon.version>
     </properties>
 
