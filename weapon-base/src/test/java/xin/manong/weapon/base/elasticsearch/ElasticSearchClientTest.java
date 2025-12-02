@@ -90,7 +90,7 @@ public class ElasticSearchClientTest {
 
         {
             ElasticSearchRequest searchRequest = new ElasticSearchRequest();
-            searchRequest.index = "test_index";
+            searchRequest.addIndex("test_index");
             searchRequest.from = 0;
             ElasticSearchResponse<Record> searchResponse = elasticSearchClient.search(searchRequest, Record.class);
             Assert.assertEquals(3L, searchResponse.total.longValue());
@@ -102,7 +102,7 @@ public class ElasticSearchClientTest {
             ElasticHighlight highlight = new ElasticHighlight("title");
             highlight.addPreTag("<strong>");
             highlight.addPostTag("</strong>");
-            searchRequest.index = "test_index";
+            searchRequest.addIndex("test_index");
             searchRequest.from = 0;
             searchRequest.addHighlight(highlight);
             searchRequest.query = MatchQuery.of(b -> b.field("title").query("测试"))._toQuery();

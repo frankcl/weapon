@@ -16,7 +16,7 @@ public class ElasticSearchRequest {
 
     public int from = 0;
     public int size = 10;
-    public String index;
+    public List<String> indices;
     public Query query;
     public boolean trackTotalHits = false;
     public List<ElasticSortOption> sortOptions;
@@ -24,6 +24,16 @@ public class ElasticSearchRequest {
     public List<String> includes;
     public List<String> excludes;
     public List<ElasticHighlight> highlights;
+
+    /**
+     * 添加索引
+     *
+     * @param index 索引
+     */
+    public void addIndex(String index) {
+        if (indices == null) indices = new ArrayList<>();
+        if (!indices.contains(index)) indices.add(index);
+    }
 
     /**
      * 添加排序选项

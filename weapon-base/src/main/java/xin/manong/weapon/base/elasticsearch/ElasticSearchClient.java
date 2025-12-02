@@ -296,7 +296,7 @@ public class ElasticSearchClient {
     public <T> ElasticSearchResponse<T> search(ElasticSearchRequest searchRequest, Class<T> documentClass) {
         List<SortOptions> sortOptions = buildSortOptions(searchRequest);
         SearchRequest request = SearchRequest.of(builder -> {
-            builder.index(searchRequest.index).query(searchRequest.query).
+            builder.index(searchRequest.indices).query(searchRequest.query).
                     from(searchRequest.from).size(searchRequest.size);
             if (sortOptions != null && !sortOptions.isEmpty()) builder.sort(sortOptions);
             if (searchRequest.trackTotalHits) {
@@ -323,7 +323,7 @@ public class ElasticSearchClient {
         assert searchRequest.cursor == null || searchRequest.cursor.size() == searchRequest.sortOptions.size();
         List<SortOptions> sortOptions = buildSortOptions(searchRequest);
         SearchRequest request = SearchRequest.of(builder -> {
-            builder.index(searchRequest.index).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
+            builder.index(searchRequest.indices).query(searchRequest.query).size(searchRequest.size).sort(sortOptions);
             if (searchRequest.cursor != null) builder.searchAfter(searchRequest.cursor);
             if (searchRequest.trackTotalHits) builder.trackTotalHits(new TrackHits.Builder().enabled(true).build());
             handleIncludeExclude(builder, searchRequest);
@@ -342,7 +342,7 @@ public class ElasticSearchClient {
     public long count(ElasticSearchRequest searchRequest) {
         try {
             CountRequest request = CountRequest.of(builder ->
-                    builder.index(searchRequest.index).query(searchRequest.query));
+                    builder.index(searchRequest.indices).query(searchRequest.query));
             CountResponse response = client.count(request);
             return response.count();
         } catch (Exception e) {
@@ -363,15 +363,14 @@ public class ElasticSearchClient {
                                                               Map<String, Aggregation> aggregationMap) {
         assert aggregationMap != null && !aggregationMap.isEmpty();
         SearchRequest request = SearchRequest.of(builder ->
-                builder.index(searchRequest.index).query(searchRequest.query).
+                builder.index(searchRequest.indices).query(searchRequest.query).
                         size(0).aggregations(aggregationMap));
         try {
             SearchResponse<Void> response = client.search(request, Void.class);
             Map<String, Aggregate> aggregateMap = response.aggregations();
             return buildElasticBucketMap(aggregateMap);
         } catch (Exception e) {
-            logger.error("Terms aggregate error for index:{}", searchRequest.index);
-            logger.error(e.getMessage(), e);
+            logger.error("Terms aggregate exception occurred", e);
             return new HashMap<>();
         }
     }
