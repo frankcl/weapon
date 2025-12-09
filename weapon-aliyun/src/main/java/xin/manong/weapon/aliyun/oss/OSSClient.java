@@ -238,12 +238,15 @@ public class OSSClient implements Rebuildable {
      *
      * @param bucket bucket
      * @param directory 目录
+     * @param maxNum 最大文件数，不超过10000
      * @return 成功返回key列表，否则返回null
      */
-    public List<String> list(String bucket, String directory) {
+    public List<String> list(String bucket, String directory, int maxNum) {
         try {
             int count = 0;
-            final int maxKeys = 1000, maxNum = 10000;
+            final int maxKeys = 1000;
+            maxNum = maxNum <= 0 ? 100 : maxNum;
+            maxNum = Math.min(maxNum, 10000);
             String nextMarker = null;
             ObjectListing objectListing;
             List<String> keys = new ArrayList<>();
@@ -257,7 +260,7 @@ public class OSSClient implements Rebuildable {
                     if (++count >= maxNum) break;
                 }
                 nextMarker = objectListing.getNextMarker();
-            } while (objectListing.isTruncated());
+            } while (count < maxNum && objectListing.isTruncated());
             return keys;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

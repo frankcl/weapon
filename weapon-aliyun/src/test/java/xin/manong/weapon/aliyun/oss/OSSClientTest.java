@@ -56,9 +56,9 @@ public class OSSClientTest {
 
     @Test
     public void testList() {
-        List<String> keys = ossClient.list("default-crawler-file", "frankcl/image_dedup/");
+        List<String> keys = ossClient.list("oss-files-copy", "lumy/prod/image", 35);
         Assert.assertFalse(keys.isEmpty());
-        Assert.assertEquals(144, keys.size());
+        Assert.assertEquals(35, keys.size());
     }
 
     @Test
