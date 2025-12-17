@@ -1,10 +1,12 @@
 package xin.manong.weapon.base.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ScriptLanguage;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import org.apache.commons.lang3.StringUtils;
@@ -75,6 +77,37 @@ public class ElasticSearchClient {
             logger.error(e.getMessage(), e);
         }
         logger.info("Elasticsearch client close success");
+    }
+
+    /**
+     * 移除文档字段
+     *
+     * @param id 文档ID
+     * @param index 索引名
+     * @param fields 移除字段列表
+     * @param documentClass 文档类型
+     * @return 成功返回true，否则返回false
+     * @param <TDocument> 文档类型
+     * @param <TPartialDocument> 更新文档类型
+     */
+    public <TDocument, TPartialDocument> boolean removeFields(String id, String index, List<String> fields,
+                                                              Class<TDocument> documentClass) {
+        String script = """
+            for (field in params.fields) {
+                if (ctx._source.containsKey(field)) {
+                    ctx._source.remove(field);
+                }
+            }
+            """;
+        UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
+                builder -> builder.index(index).id(id).script(b -> b.inline(
+                        s -> s.source(script).params("fields", JsonData.of(fields)))));
+        try {
+            return update(request, documentClass);
+        } catch (ConflictVersionException e) {
+            logger.warn("Conflict occurred when removing fields", e);
+            return false;
+        }
     }
 
     /**
