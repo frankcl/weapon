@@ -134,6 +134,11 @@
             <artifactId>aspose-pdf</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <repositories>
