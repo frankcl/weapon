@@ -29,7 +29,17 @@ public class MarkdownSplitter {
     private static final int DEFAULT_MIN_CHUNK_SIZE = 500;
     private static final Pattern SENTENCE_END_PATTERN = Pattern.compile("[。？！?!]|\\.\\s|\r?\n");
 
-    public static int minChunkSize = DEFAULT_MIN_CHUNK_SIZE;
+    private static int minChunkSize = DEFAULT_MIN_CHUNK_SIZE;
+
+    /**
+     * 设置最小块大小
+     *
+     * @param minChunkSize 最小块大小
+     */
+    public static void setMinChunkSize(int minChunkSize) {
+        if (minChunkSize < 100) minChunkSize = 100;
+        MarkdownSplitter.minChunkSize = minChunkSize;
+    }
 
     /**
      * 切分markdown文档
@@ -39,15 +49,14 @@ public class MarkdownSplitter {
      * @return 分块列表
      */
     public static List<MarkdownChunk> split(String source, int chunkSize) {
-        if (minChunkSize <= 0) minChunkSize = DEFAULT_MIN_CHUNK_SIZE;
         chunkSize = Math.max(chunkSize, minChunkSize);
         Document document = parseSource(source);
         if (document == null) throw new IllegalStateException("解析Markdown失败");
         List<MarkdownChunk> chunks = new ArrayList<>();
-        MarkdownHeading markdownHeading = new MarkdownHeading();
+        MarkdownHeading heading = new MarkdownHeading();
         Node node = document.getFirstChild();
         if (node == null) return chunks;
-        split(node, markdownHeading, chunkSize, new StringBuilder(), chunks);
+        split(node, heading, chunkSize, new StringBuilder(), chunks);
         return chunks;
     }
 
@@ -55,35 +64,35 @@ public class MarkdownSplitter {
      * Markdown分片
      *
      * @param node 节点
-     * @param markdownHeading heading
+     * @param heading 标题
      * @param chunkSize 块大小
-     * @param buffer 文本buffer
+     * @param textBuilder 文本buffer
      * @param chunks 分片列表
      */
-    private static void split(Node node, MarkdownHeading markdownHeading, int chunkSize,
-                              StringBuilder buffer, List<MarkdownChunk> chunks) {
+    private static void split(Node node, MarkdownHeading heading, int chunkSize,
+                              StringBuilder textBuilder, List<MarkdownChunk> chunks) {
         if (node == null) return;
         if (node instanceof Heading) {
-            markdownHeading.add((Heading) node);
-            MarkdownChunk chunk = new MarkdownChunk(markdownHeading.getLevel(), markdownHeading.getText());
+            heading.add((Heading) node);
+            MarkdownChunk chunk = new MarkdownChunk(heading.getLevel(), heading.getText());
             pushChunk(chunk, chunks, chunkSize);
-            split(node.getNext(), markdownHeading, chunkSize, new StringBuilder(), chunks);
+            split(node.getNext(), heading, chunkSize, new StringBuilder(), chunks);
         } else if (node instanceof Paragraph) {
-            StringBuilder newBuffer = new StringBuilder();
-            split(node.getFirstChild(), markdownHeading, chunkSize, newBuffer, chunks);
+            StringBuilder builder = new StringBuilder();
+            split(node.getFirstChild(), heading, chunkSize, builder, chunks);
             List<MarkdownChunk> newChunks = buildChunk(MarkdownSliceType.PARAGRAPH,
-                    newBuffer.toString(), null, chunkSize, markdownHeading);
+                    builder.toString(), null, chunkSize, heading);
             pushChunks(newChunks, chunks, chunkSize);
-            split(node.getNext(), markdownHeading, chunkSize, new StringBuilder(), chunks);
+            split(node.getNext(), heading, chunkSize, new StringBuilder(), chunks);
         } else if (node instanceof ListBlock) {
-            handleSpecialNode(node, buffer, chunkSize, chunks, MarkdownSliceType.LIST, markdownHeading);
+            handleSpecialNode(node, textBuilder, chunkSize, chunks, MarkdownSliceType.LIST, heading);
         } else if (node instanceof HtmlBlockBase) {
-            handleSpecialNode(node, buffer, chunkSize, chunks, MarkdownSliceType.HTML, markdownHeading);
+            handleSpecialNode(node, textBuilder, chunkSize, chunks, MarkdownSliceType.HTML, heading);
         } else if (node instanceof Image) {
-            handleSpecialNode(node, buffer, chunkSize, chunks, MarkdownSliceType.IMAGE, markdownHeading);
+            handleSpecialNode(node, textBuilder, chunkSize, chunks, MarkdownSliceType.IMAGE, heading);
         } else {
-            buffer.append(node.getChars());
-            split(node.getNext(), markdownHeading, chunkSize, buffer, chunks);
+            textBuilder.append(node.getChars());
+            split(node.getNext(), heading, chunkSize, textBuilder, chunks);
         }
     }
 
@@ -91,28 +100,28 @@ public class MarkdownSplitter {
      * 处理特殊节点
      *
      * @param node 节点
-     * @param buffer 文本buffer
+     * @param textBuilder 文本buffer
      * @param chunkSize 块大小
      * @param chunks 分块结果
      * @param type 节点类型
-     * @param markdownHeading 标题
+     * @param heading 标题
      */
-    private static void handleSpecialNode(Node node, StringBuilder buffer, int chunkSize,
+    private static void handleSpecialNode(Node node, StringBuilder textBuilder, int chunkSize,
                                           List<MarkdownChunk> chunks, MarkdownSliceType type,
-                                          MarkdownHeading markdownHeading) {
-        if (buffer != null && !buffer.isEmpty()) {
+                                          MarkdownHeading heading) {
+        if (textBuilder != null && !textBuilder.isEmpty()) {
             List<MarkdownChunk> newChunks = buildChunk(MarkdownSliceType.PARAGRAPH,
-                    buffer.toString(), null, chunkSize, markdownHeading);
+                    textBuilder.toString(), null, chunkSize, heading);
             pushChunks(newChunks, chunks, chunkSize);
         }
         String url = node instanceof Image ? ((Image) node).getUrl().toString() : null;
-        List<MarkdownChunk> newChunks = buildChunk(type, node.getChars().toString(), url, chunkSize, markdownHeading);
+        List<MarkdownChunk> newChunks = buildChunk(type, node.getChars().toString(), url, chunkSize, heading);
         pushChunks(newChunks, chunks, chunkSize);
-        StringBuilder newBuffer = new StringBuilder();
-        split(node.getNext(), markdownHeading, chunkSize, newBuffer, chunks);
-        if (!newBuffer.isEmpty()) {
-            pushChunks(buildChunk(MarkdownSliceType.PARAGRAPH, newBuffer.toString(), null,
-                    chunkSize, markdownHeading), chunks, chunkSize);
+        StringBuilder builder = new StringBuilder();
+        split(node.getNext(), heading, chunkSize, builder, chunks);
+        if (!builder.isEmpty()) {
+            pushChunks(buildChunk(MarkdownSliceType.PARAGRAPH, builder.toString(), null,
+                    chunkSize, heading), chunks, chunkSize);
         }
     }
 
@@ -200,18 +209,18 @@ public class MarkdownSplitter {
      * @param textBuilder 文本构建器
      * @param text 点前段文本
      * @param chunks 分块列表
-     * @param markdownHeading 标题
+     * @param heading 标题
      * @param startOffset 句子起始偏移
      * @param endOffset 句子结束偏移
      * @param chunkSize 块大小
      * @return 文本构建器
      */
     private static StringBuilder handleSentence(StringBuilder textBuilder, String text,
-                                                List<MarkdownChunk> chunks, MarkdownHeading markdownHeading,
+                                                List<MarkdownChunk> chunks, MarkdownHeading heading,
                                                 int startOffset, int endOffset, int chunkSize) {
         if (textBuilder.length() + endOffset - startOffset > chunkSize) {
             MarkdownSlice slice = new MarkdownSlice(MarkdownSliceType.PARAGRAPH, textBuilder.toString());
-            chunks.add(new MarkdownChunk(markdownHeading.getLevel(), markdownHeading.getText(), slice));
+            chunks.add(new MarkdownChunk(heading.getLevel(), heading.getText(), slice));
             textBuilder = new StringBuilder();
         }
         textBuilder.append(text, startOffset, endOffset);
@@ -225,11 +234,11 @@ public class MarkdownSplitter {
      * @param text 分片文本
      * @param url URL
      * @param chunkSize 块大小
-     * @param markdownHeading heading
+     * @param heading 标题
      * @return 块列表
      */
     private static List<MarkdownChunk> buildChunk(MarkdownSliceType type, String text, String url,
-                                                  int chunkSize, MarkdownHeading markdownHeading) {
+                                                  int chunkSize, MarkdownHeading heading) {
         List<MarkdownChunk> chunks = new ArrayList<>();
         if (type == MarkdownSliceType.PARAGRAPH && text.length() > chunkSize) {
             int start = 0;
@@ -237,22 +246,22 @@ public class MarkdownSplitter {
             Matcher matcher = SENTENCE_END_PATTERN.matcher(text);
             while (matcher.find()) {
                 textBuilder = handleSentence(textBuilder, text, chunks,
-                        markdownHeading, start, matcher.end(), chunkSize);
+                        heading, start, matcher.end(), chunkSize);
                 start = matcher.end();
             }
             if (start < text.length()) {
-                textBuilder = handleSentence(textBuilder, text, chunks, markdownHeading,
+                textBuilder = handleSentence(textBuilder, text, chunks, heading,
                         start, text.length(), chunkSize);
             }
             if (!textBuilder.isEmpty()) {
                 MarkdownSlice slice = new MarkdownSlice(MarkdownSliceType.PARAGRAPH, textBuilder.toString());
-                chunks.add(new MarkdownChunk(markdownHeading.getLevel(), markdownHeading.getText(), slice));
+                chunks.add(new MarkdownChunk(heading.getLevel(), heading.getText(), slice));
             }
             return chunks;
         }
         MarkdownSlice slice = new MarkdownSlice(type, text);
         if (StringUtils.isNotEmpty(url)) slice.setUrl(url);
-        chunks.add(new MarkdownChunk(markdownHeading.getLevel(), markdownHeading.getText(), slice));
+        chunks.add(new MarkdownChunk(heading.getLevel(), heading.getText(), slice));
         return chunks;
     }
 
