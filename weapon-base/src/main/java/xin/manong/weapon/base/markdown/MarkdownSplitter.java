@@ -26,8 +26,10 @@ public class MarkdownSplitter {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkdownSplitter.class);
 
-    private static final int MIN_CHUNK_SIZE = 500;
+    private static final int DEFAULT_MIN_CHUNK_SIZE = 500;
     private static final Pattern SENTENCE_END_PATTERN = Pattern.compile("[。？！?!]|\\.\\s|\r?\n");
+
+    public static int minChunkSize = DEFAULT_MIN_CHUNK_SIZE;
 
     /**
      * 切分markdown文档
@@ -37,7 +39,8 @@ public class MarkdownSplitter {
      * @return 分块列表
      */
     public static List<MarkdownChunk> split(String source, int chunkSize) {
-        chunkSize = Math.max(chunkSize, MIN_CHUNK_SIZE);
+        if (minChunkSize <= 0) minChunkSize = DEFAULT_MIN_CHUNK_SIZE;
+        chunkSize = Math.max(chunkSize, minChunkSize);
         Document document = parseSource(source);
         if (document == null) throw new IllegalStateException("解析Markdown失败");
         List<MarkdownChunk> chunks = new ArrayList<>();
