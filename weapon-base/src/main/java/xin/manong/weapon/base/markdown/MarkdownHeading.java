@@ -15,7 +15,7 @@ import java.util.LinkedList;
  */
 public class MarkdownHeading {
 
-    private static final String HEADING_SEPARATOR = "^";
+    public static final String HEADING_SEPARATOR = "^";
     @Getter
     private int level;
     @Getter
