@@ -67,13 +67,25 @@ public class MarkdownChunk {
     }
 
     /**
-     * 构建Markdown块文本
+     * 获取块文本
+     * 标题+内容
      *
      * @return 块文本
      */
-    public String buildText() {
+    public String getChunkText() {
         StringBuilder builder = new StringBuilder();
         if (StringUtils.isNotEmpty(heading)) builder.append("# ").append(heading).append("\n");
+        builder.append(getChunkContent());
+        return builder.toString();
+    }
+
+    /**
+     * 获取块内容
+     *
+     * @return 块内容
+     */
+    public String getChunkContent() {
+        StringBuilder builder = new StringBuilder();
         for (MarkdownSlice slice : slices) {
             if (!builder.isEmpty()) builder.append("\n");
             builder.append(slice.getText());
@@ -130,9 +142,12 @@ public class MarkdownChunk {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("Heading[%d:%d]:", level, charNum)).append(heading).append("\n");
+        if (StringUtils.isNotEmpty(heading)) {
+            builder.append("#").append(heading).append(String.format("[LEVEL:%d,CHARS:%d]\n", level, charNum));
+        }
         for (MarkdownSlice slice : slices) {
-            builder.append("  ").append(slice.toString()).append("\n");
+            if (!builder.isEmpty()) builder.append("\n");
+            builder.append(slice.toString());
         }
         return builder.toString();
     }

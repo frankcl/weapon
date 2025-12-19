@@ -24,6 +24,6 @@ public class MarkdownSlice {
 
     @Override
     public String toString() {
-        return String.format("[%s:%d]%s", type.getName(), charNum, text);
+        return String.format("[%s,CHARS:%d]\n%s", type.getName(), charNum, text);
     }
 }

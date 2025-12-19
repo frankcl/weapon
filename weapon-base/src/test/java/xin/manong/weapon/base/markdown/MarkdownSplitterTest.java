@@ -16,6 +16,6 @@ public class MarkdownSplitterTest {
         long startTime = System.currentTimeMillis();
         List<MarkdownChunk> chunks = MarkdownSplitter.split(source, 3000);
         System.out.printf("Process time: %dms\n", System.currentTimeMillis() - startTime);
-        chunks.forEach(chunk -> System.out.println(chunk.buildText() + "\n"));
+        chunks.forEach(chunk -> System.out.println(chunk.getChunkText() + "\n"));
     }
 }
