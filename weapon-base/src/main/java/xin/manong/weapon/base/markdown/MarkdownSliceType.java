@@ -11,12 +11,11 @@ import lombok.Getter;
 @Getter
 public enum MarkdownSliceType {
 
+    UNKNOWN(0, "UNKNOWN"),
     PARAGRAPH(1, "PARAGRAPH"),
-    TABLE(2, "TABLE"),
-    LIST(3, "LIST"),
-    IMAGE(4, "IMAGE"),
-    HTML(5, "HTML"),
-    UNKNOWN(6, "UNKNOWN");
+    LIST(2, "LIST"),
+    IMAGE(3, "IMAGE"),
+    HTML(4, "HTML");
 
     private final int code;
     private final String name;
