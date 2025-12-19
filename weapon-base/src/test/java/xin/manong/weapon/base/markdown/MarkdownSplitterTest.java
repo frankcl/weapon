@@ -12,8 +12,10 @@ public class MarkdownSplitterTest {
 
     @Test
     public void testSplit() throws Exception {
-        String source = "/Users/frankcl/Downloads/0000300384482732b88cc3071c065dae.md";
+        String source = "/Users/frankcl/Downloads/00038739dacd88fa2fae94e37fa900f8.md";
+        long startTime = System.currentTimeMillis();
         List<MarkdownChunk> chunks = MarkdownSplitter.split(source, 3000);
+        System.out.printf("Process time: %dms\n", System.currentTimeMillis() - startTime);
         chunks.forEach(chunk -> System.out.println(chunk.buildText() + "\n"));
     }
 }
