@@ -22,15 +22,15 @@ import lombok.experimental.Accessors;
 public class RangeValue<T extends Number> {
 
     /**
-     * 是否包含下界，默认不包含
+     * 是否包含下界，默认包含
      */
     @JsonProperty("include_lower")
-    public boolean includeLower = false;
+    public boolean includeLower = true;
     /**
-     * 是否包含上界，默认不包含
+     * 是否包含上界，默认包含
      */
     @JsonProperty("include_upper")
-    public boolean includeUpper = false;
+    public boolean includeUpper = true;
     /**
      * 左区间
      */
@@ -46,6 +46,5 @@ public class RangeValue<T extends Number> {
     public RangeValue(T start, T end) {
         this.start = start;
         this.end = end;
-        this.includeLower = this.includeUpper = true;
     }
 }

@@ -27,6 +27,7 @@ public class RedisConfig {
 
     public Integer connectionPoolSize;
     public Integer timeout;
+    public String username;
     public String password;
     public String codecClassName;
     public Codec codec;

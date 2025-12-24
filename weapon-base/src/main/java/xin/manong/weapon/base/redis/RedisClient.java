@@ -125,6 +125,7 @@ public class RedisClient {
         if (config.connectionPoolSize != null && config.connectionPoolSize > 0) {
             serverConfig.setConnectionPoolSize(config.connectionPoolSize);
         }
+        if (!StringUtils.isEmpty(config.username)) serverConfig.setUsername(config.username);
         if (!StringUtils.isEmpty(config.password)) serverConfig.setPassword(config.password);
         return new RedisClient(Redisson.create(redissonConfig), RedisMode.SINGLE);
     }
@@ -195,6 +196,7 @@ public class RedisClient {
             baseConfig.setMasterConnectionPoolSize(config.connectionPoolSize);
             baseConfig.setSlaveConnectionPoolSize(config.connectionPoolSize);
         }
+        if (!StringUtils.isEmpty(config.username)) baseConfig.setPassword(config.username);
         if (!StringUtils.isEmpty(config.password)) baseConfig.setPassword(config.password);
     }
 
