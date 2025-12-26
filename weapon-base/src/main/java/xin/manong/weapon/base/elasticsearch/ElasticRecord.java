@@ -11,6 +11,7 @@ public class ElasticRecord<T> {
     public Long seqNo;
     public Long primaryTerm;
     public Long version;
+    public String index;
     public T value;
 
     public ElasticRecord(Long version, T value) {
@@ -27,5 +28,19 @@ public class ElasticRecord<T> {
     public ElasticRecord(Long seqNo, Long primaryTerm, Long version, T value) {
         this(seqNo, primaryTerm, value);
         this.version = version;
+    }
+
+    public ElasticRecord(Long seqNo, Long primaryTerm, Long version, T value, String index) {
+        this(seqNo, primaryTerm, version, value);
+        this.index = index;
+    }
+
+    /**
+     * 解包装
+     *
+     * @return 原始数据
+     */
+    public T unwrap() {
+        return value;
     }
 }

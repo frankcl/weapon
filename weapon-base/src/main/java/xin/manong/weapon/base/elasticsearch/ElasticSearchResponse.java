@@ -17,12 +17,26 @@ public class ElasticSearchResponse<T> {
     public Integer size = 10;
     public Long total;
     public String totalHitRelation;
-    public List<T> records;
+    public List<ElasticRecord<T>> records;
     public List<FieldValue> cursor;
 
     public ElasticSearchResponse() {
         total = 0L;
         totalHitRelation = "eq";
         records = new ArrayList<>();
+    }
+
+    /**
+     * 解包装
+     *
+     * @return 原始数据列表
+     */
+    public List<T> unwrapRecords() {
+        List<T> results = new ArrayList<>();
+        if (records == null) return results;
+        for (ElasticRecord<T> record : records) {
+            results.add(record.unwrap());
+        }
+        return results;
     }
 }

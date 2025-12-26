@@ -124,7 +124,7 @@ public class ElasticSearchClient {
             GetResponse<T> response = client.get(request, documentClass);
             if (!response.found()) return null;
             return new ElasticRecord<>(response.seqNo(), response.primaryTerm(),
-                    response.version(), response.source());
+                    response.version(), response.source(), response.index());
         } catch (Exception e) {
             logger.error("Get failed for id:{}, index:{}", id, index);
             logger.error(e.getMessage(), e);
@@ -526,7 +526,9 @@ public class ElasticSearchClient {
                 if (record instanceof ElasticHighlightRecord) {
                     ((ElasticHighlightRecord) record).injectHighlight(hit.highlight());
                 }
-                searchResponse.records.add(record);
+                ElasticRecord<T> elasticRecord = new ElasticRecord<>(
+                        hit.seqNo(), hit.primaryTerm(), hit.version(), record, hit.index());
+                searchResponse.records.add(elasticRecord);
 
             }
             if (!hits.isEmpty()) searchResponse.cursor = hits.get(hits.size() - 1).sort();
