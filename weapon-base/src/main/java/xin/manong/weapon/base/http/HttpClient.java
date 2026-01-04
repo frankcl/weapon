@@ -283,17 +283,16 @@ public class HttpClient {
      * @return 请求体
      */
     private RequestBody buildRequestBody(HttpRequest httpRequest) {
-        if (httpRequest.params == null || httpRequest.params.isEmpty()) {
-            return RequestBody.create("", null);
-        } else if (httpRequest.format == RequestFormat.FORM) {
+        if (httpRequest.format == RequestFormat.FORM) {
             FormBody.Builder builder = new FormBody.Builder();
+            if (httpRequest.params == null) return builder.build();
             for (Map.Entry<String, Object> entry : httpRequest.params.entrySet()) {
                 if (StringUtils.isEmpty(entry.getKey()) || entry.getValue() == null) continue;
                 builder.add(entry.getKey(), entry.getValue().toString());
             }
             return builder.build();
         } else {
-            JSONObject body = new JSONObject(httpRequest.params);
+            JSONObject body = httpRequest.params == null ? new JSONObject() : new JSONObject(httpRequest.params);
             return RequestBody.create(body.toJSONString(), MediaType.parse(MEDIA_TYPE_JSON));
         }
     }
