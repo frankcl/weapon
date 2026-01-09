@@ -39,7 +39,7 @@ public class HttpClient {
     private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
     private static final String ACCEPT_ALL = "*/*";
     private static final String CONNECTION_KEEP_ALIVE = "keep-alive";
-    private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
+    private static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
     private final HttpClientConfig config;
     private Proxy proxy;
