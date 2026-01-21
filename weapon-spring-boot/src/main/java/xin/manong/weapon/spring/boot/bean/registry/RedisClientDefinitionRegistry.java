@@ -40,45 +40,44 @@ public class RedisClientDefinitionRegistry extends ApplicationContextEnvironment
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind redis client map config failed");
+            logger.warn("Bind redis client map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
         for (Map.Entry<String, RedisClientConfig> entry : configMap.entrySet()) {
             RedisClientConfig config = entry.getValue();
             RedisMode redisMode = config.mode == null ? RedisMode.SINGLE : config.mode;
-            RootBeanDefinition beanDefinition = null;
-            switch (redisMode) {
-                case SINGLE:
+            RootBeanDefinition beanDefinition = switch (redisMode) {
+                case SINGLE -> {
                     RedisSingleConfig redisSingleConfig = JSON.parseObject(
                             JSON.toJSONString(config), RedisSingleConfig.class);
-                    beanDefinition = new RootBeanDefinition(RedisClient.class,
+                    yield new RootBeanDefinition(RedisClient.class,
                             () -> RedisClient.buildRedisClient(redisSingleConfig));
-                    break;
-                case MASTER_SLAVE:
+                }
+                case MASTER_SLAVE -> {
                     RedisMasterSlaveConfig redisMasterSlaveConfig = JSON.parseObject(
                             JSON.toJSONString(config), RedisMasterSlaveConfig.class);
-                    beanDefinition = new RootBeanDefinition(RedisClient.class,
+                    yield new RootBeanDefinition(RedisClient.class,
                             () -> RedisClient.buildRedisClient(redisMasterSlaveConfig));
-                    break;
-                case CLUSTER:
+                }
+                case CLUSTER -> {
                     RedisClusterConfig redisClusterConfig = JSON.parseObject(
                             JSON.toJSONString(config), RedisClusterConfig.class);
-                    beanDefinition = new RootBeanDefinition(RedisClient.class,
+                    yield new RootBeanDefinition(RedisClient.class,
                             () -> RedisClient.buildRedisClient(redisClusterConfig));
-                    break;
-                case SENTINEL:
+                }
+                case SENTINEL -> {
                     RedisSentinelConfig redisSentinelConfig = JSON.parseObject(
                             JSON.toJSONString(config), RedisSentinelConfig.class);
-                    beanDefinition = new RootBeanDefinition(RedisClient.class,
+                    yield new RootBeanDefinition(RedisClient.class,
                             () -> RedisClient.buildRedisClient(redisSentinelConfig));
-                    break;
-            }
+                }
+            };
             String name = String.format("%sRedisClient", entry.getKey());
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register redis client bean definition success for name[{}]", name);
+            logger.info("Register redis client bean definition success for name:{}", name);
         }
     }
 }

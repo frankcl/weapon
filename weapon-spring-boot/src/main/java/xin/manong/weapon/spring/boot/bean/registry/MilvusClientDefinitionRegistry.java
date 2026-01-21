@@ -9,53 +9,51 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.lang.NonNull;
-import xin.manong.weapon.aliyun.ons.ONSConsumerConfig;
-import xin.manong.weapon.spring.boot.bean.wrap.ONSConsumerBean;
-import xin.manong.weapon.spring.boot.configuration.ONSConsumerMapConfig;
+import xin.manong.weapon.base.milvus.MilvusClient;
+import xin.manong.weapon.base.milvus.MilvusClientConfig;
+import xin.manong.weapon.spring.boot.configuration.MilvusClientMapConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 阿里云ONS消息消费bean定义注册
+ * Milvus客户端bean定义注册
  *
  * @author frankcl
- * @date 2022-08-26 11:25:16
+ * @date 2026-01-12 13:38:19
  */
-public class ONSConsumerDefinitionRegistry extends AliyunBeanDefinitionRegistry
+public class MilvusClientDefinitionRegistry extends ApplicationContextEnvironmentAware
         implements BeanDefinitionRegistryPostProcessor {
 
-    private final static Logger logger = LoggerFactory.getLogger(ONSConsumerDefinitionRegistry.class);
-
-    private final static String BINDING_KEY = "weapon.aliyun.ons.consumer";
+    private static final Logger logger = LoggerFactory.getLogger(MilvusClientDefinitionRegistry.class);
+    private static final String BINDING_KEY = "weapon.common.milvus.client";
 
     @Override
     public void postProcessBeanDefinitionRegistry(@NonNull BeanDefinitionRegistry beanDefinitionRegistry)
             throws BeansException {
-        Map<String, ONSConsumerConfig> configMap = new HashMap<>();
+        Map<String, MilvusClientConfig> configMap = new HashMap<>();
         try {
-            ONSConsumerMapConfig config = Binder.get(environment).bind(
-                    BINDING_KEY, Bindable.of(ONSConsumerMapConfig.class)).get();
+            MilvusClientMapConfig config = Binder.get(environment).bind(
+                    BINDING_KEY, Bindable.of(MilvusClientMapConfig.class)).get();
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("Bind ONS consumer map config failed");
+            logger.warn("Bind milvus client map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
-        for (Map.Entry<String, ONSConsumerConfig> entry : configMap.entrySet()) {
-            String name = String.format("%sONSConsumer", entry.getKey());
-            ONSConsumerConfig config = entry.getValue();
-            fillSecret(config);
+        for (Map.Entry<String, MilvusClientConfig> entry : configMap.entrySet()) {
+            String name = String.format("%sMilvusClient", entry.getKey());
+            MilvusClientConfig config = entry.getValue();
             RootBeanDefinition beanDefinition = new RootBeanDefinition(
-                    ONSConsumerBean.class, () -> new ONSConsumerBean(config));
-            beanDefinition.setInitMethodName("start");
+                    MilvusClient.class, () -> new MilvusClient(config));
+            beanDefinition.setInitMethodName("open");
             beanDefinition.setEnforceInitMethod(true);
             beanDefinition.setLazyInit(false);
-            beanDefinition.setDestroyMethodName("stop");
+            beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("Register ONS consumer bean definition success for name:{}", name);
+            logger.info("Register milvus client bean definition success for name:{}", name);
         }
     }
 }

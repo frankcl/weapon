@@ -17,7 +17,7 @@ public class DynamicSecretInjector {
      */
     public static void inject(String value) {
         String[] keys = value.split("/");
-        if (keys.length < 2) throw new IllegalStateException(String.format("invalid aliyun secret key[%s]", value));
+        if (keys.length < 2) throw new IllegalStateException(String.format("Invalid Aliyun secret key:%s", value));
         DynamicSecret.accessKey = keys[0].trim();
         DynamicSecret.secretKey = keys[1].trim();
     }

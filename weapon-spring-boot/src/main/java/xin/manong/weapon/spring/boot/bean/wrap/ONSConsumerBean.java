@@ -42,14 +42,14 @@ public class ONSConsumerBean extends ONSConsumer implements InitializingBean, Ap
         List<Subscribe> subscribes = config.subscribes;
         for (Subscribe subscribe : subscribes) {
             if (StringUtils.isEmpty(subscribe.listenerName)) {
-                logger.warn("message listener config is not found for subscribe[{}/{}]",
+                logger.warn("Message listener config is not found for subscribe:{}/{}",
                         subscribe.topic, subscribe.tags);
                 continue;
             }
             Object bean = applicationContext.getBean(subscribe.listenerName);
             if (!(bean instanceof MessageListener)) {
-                logger.error("unexpected bean[{}], not MessageListener", bean.getClass().getName());
-                throw new Exception(String.format("unexpected bean[%s]", bean.getClass().getName()));
+                logger.error("Unexpected bean:{}, not MessageListener", bean.getClass().getName());
+                throw new Exception(String.format("Unexpected bean:%s", bean.getClass().getName()));
             }
             subscribe.listener = (MessageListener) bean;
         }

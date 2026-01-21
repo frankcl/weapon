@@ -39,7 +39,7 @@ public class ONSProducerDefinitionRegistry extends AliyunBeanDefinitionRegistry
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind ONS producer map config failed");
+            logger.warn("Bind ONS producer map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -54,7 +54,7 @@ public class ONSProducerDefinitionRegistry extends AliyunBeanDefinitionRegistry
             beanDefinition.setDestroyMethodName("destroy");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register ONS producer bean definition success for name[{}]", name);
+            logger.info("Register ONS producer bean definition success for name:{}", name);
         }
     }
 }

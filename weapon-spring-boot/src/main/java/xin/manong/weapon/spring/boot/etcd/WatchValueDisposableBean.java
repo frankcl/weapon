@@ -33,7 +33,7 @@ public abstract class WatchValueDisposableBean implements DisposableBean {
             if (watchValue == null || StringUtils.isEmpty(watchValue.key())) continue;
             String compositeKey = WatchValueInjector.integrateKey(watchValue);
             int n = etcdClient.removeWatch(compositeKey, new WatchValueConsumer(this, watchedField));
-            logger.info("remove watcher num[{}] for field[{}] of bean[{}], ",
+            logger.info("Remove watcher num:{} for field:{} of bean:{}",
                     n, watchedField.getName(), this.getClass().getName());
         }
     }

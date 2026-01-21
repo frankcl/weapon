@@ -31,8 +31,7 @@ public class WatchValueConsumer implements Consumer<WatchResponse> {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof WatchValueConsumer)) return false;
-        WatchValueConsumer other = (WatchValueConsumer) object;
+        if (!(object instanceof WatchValueConsumer other)) return false;
         return bean == other.bean && field.equals(other.field);
     }
 
@@ -47,14 +46,14 @@ public class WatchValueConsumer implements Consumer<WatchResponse> {
                 switch (eventType) {
                     case PUT:
                         String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
-                        logger.info("value changed for etcd key[{}]: {}", key, value);
+                        logger.info("Value changed for etcd key:{}, value is {}", key, value);
                         WatchValueInjector.inject(bean, field, value);
                         break;
                     case DELETE:
-                        logger.warn("etcd key[{}] is deleted", key);
+                        logger.warn("Etcd key:{} is deleted", key);
                         break;
                     default:
-                        logger.warn("unknown event type[{}] for etcd key[{}]", eventType.name(), key);
+                        logger.warn("Unknown event type:{} for etcd key:{}", eventType.name(), key);
                         break;
                 }
             } catch (Exception e) {

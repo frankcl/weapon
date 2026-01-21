@@ -40,8 +40,8 @@ public class DynamicSecretPostProcessor implements EnvironmentPostProcessor {
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         EtcdClientMapConfig clientMapConfig = parseEtcdConfig(environment);
         if (clientMapConfig == null) {
-            logger.error("etcd client map config is not found");
-            throw new IllegalStateException("etcd client map config is not found");
+            logger.error("Etcd client map config is not found");
+            throw new IllegalStateException("Etcd client map config is not found");
         }
         EtcdConfig etcdConfig = clientMapConfig.many == null || clientMapConfig.many.isEmpty() ?
                 clientMapConfig : clientMapConfig.many.get("default");
@@ -50,8 +50,8 @@ public class DynamicSecretPostProcessor implements EnvironmentPostProcessor {
         DynamicSecretInjector.inject(value);
         if (StringUtils.isEmpty(DynamicSecret.accessKey) ||
                 StringUtils.isEmpty(DynamicSecret.secretKey)) {
-            logger.error("access key or secret key are not config");
-            throw new IllegalStateException("access key or secret key are not config");
+            logger.error("Access key or secret key are not config");
+            throw new IllegalStateException("Access key or secret key are not config");
         }
         Consumer<WatchResponse> consumer = new DynamicSecretConsumer();
         etcdClient.addWatch(ETCD_KEY_AK_SK, consumer);

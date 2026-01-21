@@ -55,16 +55,16 @@ public class EtcdPropertySourceFactory implements PropertySourceFactory {
     private EtcdClient buildEtcdClient(String name, String sourceFile) throws IOException {
         Resource resource = new ClassPathResource(sourceFile);
         if (!resource.exists()) {
-            logger.warn("source file is not found for EtcdPropertySourceFactory: {}", sourceFile);
-            throw new IOException(String.format("source file is not found for EtcdPropertySourceFactory: %s", sourceFile));
+            logger.warn("Source file is not found for EtcdPropertySourceFactory: {}", sourceFile);
+            throw new IOException(String.format("Source file is not found for EtcdPropertySourceFactory: %s", sourceFile));
         }
         Yaml yaml = new Yaml();
         Map<String, Object> yamlConfigMap = yaml.load(resource.getInputStream());
         JSONObject json = JSON.parseObject(JSON.toJSONString(yamlConfigMap));
         Map<String, Object> configMap = (Map<String, Object>) JSONUtil.get(json, ETCD_CONFIG);
         if (configMap == null) {
-            logger.warn("etcd client config is not found for key[{}]", ETCD_CONFIG);
-            throw new IOException(String.format("etcd client config is not found for key[%s]", ETCD_CONFIG));
+            logger.warn("Etcd client config is not found for key:{}", ETCD_CONFIG);
+            throw new IOException(String.format("Etcd client config is not found for key:%s", ETCD_CONFIG));
         }
         EtcdClientMapConfig clientMapConfig = JSON.parseObject(JSON.toJSONString(configMap), EtcdClientMapConfig.class);
         EtcdConfig etcdConfig = getEtcdConfig(clientMapConfig, name);

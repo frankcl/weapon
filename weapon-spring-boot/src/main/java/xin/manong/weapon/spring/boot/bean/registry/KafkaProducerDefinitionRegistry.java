@@ -39,7 +39,7 @@ public class KafkaProducerDefinitionRegistry extends KafkaBeanDefinitionRegistry
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind kafka producer map config failed");
+            logger.warn("Bind kafka producer map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -54,7 +54,7 @@ public class KafkaProducerDefinitionRegistry extends KafkaBeanDefinitionRegistry
             beanDefinition.setDestroyMethodName("destroy");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register kafka producer bean definition success for name[{}]", name);
+            logger.info("Register kafka producer bean definition success for name:{}", name);
         }
     }
 }

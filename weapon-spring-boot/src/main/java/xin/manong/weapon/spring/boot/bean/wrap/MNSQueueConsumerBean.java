@@ -48,13 +48,13 @@ public class MNSQueueConsumerBean extends MNSQueueConsumer implements Initializi
      */
     private void setMnsClient() throws Exception {
         if (StringUtils.isEmpty(config.clientName)) {
-            logger.error("MNS client is not found for name[{}]", config.clientName);
+            logger.error("MNS client is not found for name:{}", config.clientName);
             throw new Exception(String.format("MNS client is not found for name[%s]", config.clientName));
         }
         Object bean = applicationContext.getBean(config.clientName);
         if (!(bean instanceof MNSClient)) {
-            logger.error("unexpected bean[{}], not MNSClient", bean.getClass().getName());
-            throw new Exception(String.format("unexpected bean[%s]", bean.getClass().getName()));
+            logger.error("Unexpected bean:{}, not MNSClient", bean.getClass().getName());
+            throw new Exception(String.format("Unexpected bean:%s", bean.getClass().getName()));
         }
         mnsClient = (MNSClient) bean;
     }

@@ -38,7 +38,7 @@ public class EtcdClientDefinitionRegistry extends ApplicationContextEnvironmentA
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind etcd client map config failed");
+            logger.warn("Bind etcd client map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -49,7 +49,7 @@ public class EtcdClientDefinitionRegistry extends ApplicationContextEnvironmentA
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register etcd client bean definition success for name[{}]", name);
+            logger.info("Register etcd client bean definition success for name:{}", name);
         }
     }
 }

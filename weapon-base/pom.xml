@@ -130,6 +130,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>io.milvus</groupId>
+            <artifactId>milvus-sdk-java</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>com.aspose</groupId>
             <artifactId>aspose-pdf</artifactId>
             <optional>true</optional>

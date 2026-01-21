@@ -37,13 +37,13 @@ public class OTSTunnelBean extends OTSTunnel implements InitializingBean, Applic
         List<OTSTunnelWorkerConfig> workerConfigs = config.workerConfigs;
         for (OTSTunnelWorkerConfig workerConfig : workerConfigs) {
             if (StringUtils.isEmpty(workerConfig.processor)) {
-                logger.warn("processor config is not found for tunnel[{}]", workerConfig.tunnel);
+                logger.warn("Processor config is not found for tunnel:{}", workerConfig.tunnel);
                 continue;
             }
             Object bean = applicationContext.getBean(workerConfig.processor);
             if (!(bean instanceof IChannelProcessor)) {
-                logger.error("unexpected bean[{}], not IChannelProcessor", bean.getClass().getName());
-                throw new Exception(String.format("unexpected bean[%s]", bean.getClass().getName()));
+                logger.error("Unexpected bean:{}, not IChannelProcessor", bean.getClass().getName());
+                throw new Exception(String.format("Unexpected bean:%s", bean.getClass().getName()));
             }
             workerConfig.channelProcessor = (IChannelProcessor) bean;
         }

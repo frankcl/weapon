@@ -39,7 +39,7 @@ public class OSSClientDefinitionRegistry extends AliyunBeanDefinitionRegistry
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind OSS client map config failed");
+            logger.warn("Bind OSS client map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -51,7 +51,7 @@ public class OSSClientDefinitionRegistry extends AliyunBeanDefinitionRegistry
             beanDefinition.setDestroyMethodName("close");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register OSS client bean definition success for name[{}]", name);
+            logger.info("Register OSS client bean definition success for name:{}", name);
         }
     }
 }

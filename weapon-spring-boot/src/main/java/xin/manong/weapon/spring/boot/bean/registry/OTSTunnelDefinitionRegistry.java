@@ -39,7 +39,7 @@ public class OTSTunnelDefinitionRegistry extends AliyunBeanDefinitionRegistry
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind OTS tunnel map config failed");
+            logger.warn("Bind OTS tunnel map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -55,7 +55,7 @@ public class OTSTunnelDefinitionRegistry extends AliyunBeanDefinitionRegistry
             beanDefinition.setDestroyMethodName("stop");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register OTS tunnel bean definition success for name[{}]", name);
+            logger.info("Register OTS tunnel bean definition success for name:{}", name);
         }
     }
 }

@@ -15,7 +15,7 @@ public class MarkdownSplitterTest {
         String source = "/Users/frankcl/Downloads/00038739dacd88fa2fae94e37fa900f8.md";
         long startTime = System.currentTimeMillis();
         List<MarkdownChunk> chunks = MarkdownSplitter.split(source, 3000);
-        System.out.printf("Process time: %dms\n", System.currentTimeMillis() - startTime);
-        chunks.forEach(chunk -> System.out.println(chunk.getChunkText() + "\n"));
+        System.out.printf("Chunk num:%d, process time: %dms\n", chunks.size(), System.currentTimeMillis() - startTime);
+        chunks.forEach(chunk -> System.out.println(chunk.getSeqNo() + " " + chunk.getChunkText() + "\n"));
     }
 }

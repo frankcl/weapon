@@ -17,6 +17,7 @@ public class MarkdownChunk {
 
     private int level;
     private int charNum;
+    private int seqNo;
     private String heading;
     private Deque<MarkdownSlice> slices;
 

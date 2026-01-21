@@ -43,12 +43,12 @@ public class WatchValueBeanProcessor implements BeanPostProcessor {
             String key = WatchValueInjector.integrateKey(watchValue);
             String value = etcdClient.get(key);
             if (value == null) {
-                logger.warn("key[{}] is not found from etcd", key);
+                logger.warn("Key:{} is not found from etcd", key);
                 continue;
             }
             WatchValueInjector.inject(bean, watchedField, value);
             etcdClient.addWatch(key, new WatchValueConsumer(bean, watchedField));
-            logger.info("inject value success for field[{}] of bean[{}]", watchedField.getName(), beanName);
+            logger.info("Inject value success for field:{} of bean:{}", watchedField.getName(), beanName);
         }
         return bean;
     }

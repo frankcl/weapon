@@ -31,7 +31,7 @@ public class AliyunSecretConfig {
         AliyunSecret secret = new AliyunSecret();
         secret.accessKey = accessKey;
         secret.secretKey = secretKey;
-        logger.info("build aliyun secret success for weapon starter");
+        logger.info("Build aliyun secret success for weapon starter");
         return secret;
     }
 }

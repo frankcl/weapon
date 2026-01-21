@@ -54,7 +54,7 @@ public class RocketMQConsumerDefinitionRegistry extends ApplicationContextEnviro
             beanDefinition.setDestroyMethodName("stop");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("Register RocketMQ consumer bean definition success for name[{}]", name);
+            logger.info("Register RocketMQ consumer bean definition success for name:{}", name);
         }
     }
 }

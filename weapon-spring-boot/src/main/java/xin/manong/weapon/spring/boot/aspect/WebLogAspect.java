@@ -93,7 +93,7 @@ public class WebLogAspect {
             }
             ThreadContext.commit(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
             if (webAspectLogger != null) webAspectLogger.commit(ThreadContext.getContext().featureMap);
-            else logger.warn("web aspect logger is null");
+            else logger.warn("Web aspect logger is null");
             ThreadContext.removeContext();
         }
     }

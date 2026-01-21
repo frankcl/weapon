@@ -42,8 +42,8 @@ public class RocketMQConsumerBean extends RocketMQConsumer implements Initializi
         }
         Object bean = applicationContext.getBean(config.listener);
         if (!(bean instanceof MessageListener)) {
-            logger.error("Unexpected bean[{}], not MessageListener", bean.getClass().getName());
-            throw new IllegalStateException(String.format("Unexpected bean[%s]", bean.getClass().getName()));
+            logger.error("Unexpected bean:{}, not MessageListener", bean.getClass().getName());
+            throw new IllegalStateException(String.format("Unexpected bean:%s", bean.getClass().getName()));
         }
         config.messageListener = (MessageListener) bean;
     }

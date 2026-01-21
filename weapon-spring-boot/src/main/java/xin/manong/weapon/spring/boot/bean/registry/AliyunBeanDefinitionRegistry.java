@@ -30,7 +30,7 @@ public abstract class AliyunBeanDefinitionRegistry extends ApplicationContextEnv
             if (aliyunSecret != null) return;
             aliyunSecret = Binder.get(environment).bind(BINDING_KEY, Bindable.of(AliyunSecret.class)).get();
         } catch (Exception e) {
-            logger.warn("bind aliyun secret failed");
+            logger.warn("Bind aliyun secret failed");
         }
     }
 
@@ -43,6 +43,6 @@ public abstract class AliyunBeanDefinitionRegistry extends ApplicationContextEnv
         bindSecret();
         boolean check = aliyunSecret != null && aliyunSecret.check();
         if (check) config.aliyunSecret = aliyunSecret;
-        if (!config.dynamic && !check) logger.warn("dynamic secret is not config");
+        if (!config.dynamic && !check) logger.warn("Dynamic secret is not config");
     }
 }

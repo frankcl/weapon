@@ -32,15 +32,15 @@ public class DynamicSecretConsumer implements Consumer<WatchResponse> {
                 switch (eventType) {
                     case PUT:
                         String value = keyValue.getValue().toString(StandardCharsets.UTF_8);
-                        logger.info("aliyun key changed for etcd key[{}]: {}", key, value);
+                        logger.info("Aliyun key changed for etcd key:{}, value is {}", key, value);
                         DynamicSecretInjector.inject(value);
                         RebuildManager.rebuild();
                         break;
                     case DELETE:
-                        logger.warn("aliyun key[{}] is deleted", key);
+                        logger.warn("Aliyun key:{} is deleted", key);
                         break;
                     default:
-                        logger.warn("unknown event type[{}] for etcd key[{}]", eventType.name(), key);
+                        logger.warn("Unknown event type:{} for etcd key:{}", eventType.name(), key);
                         break;
                 }
             } catch (Exception e) {

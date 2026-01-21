@@ -54,7 +54,7 @@ public class RocketMQProducerDefinitionRegistry extends ApplicationContextEnviro
             beanDefinition.setDestroyMethodName("destroy");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("Register RocketMQ producer bean definition success for name[{}]", name);
+            logger.info("Register RocketMQ producer bean definition success for name:{}", name);
         }
     }
 }

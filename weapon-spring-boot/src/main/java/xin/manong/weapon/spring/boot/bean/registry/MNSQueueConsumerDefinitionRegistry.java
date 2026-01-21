@@ -39,7 +39,7 @@ public class MNSQueueConsumerDefinitionRegistry extends AliyunBeanDefinitionRegi
             if (config.many == null || config.many.isEmpty()) configMap.put("default", config);
             else configMap.putAll(config.many);
         } catch (Exception e) {
-            logger.warn("bind MNS queue consumer map config failed");
+            logger.warn("Bind MNS queue consumer map config failed");
             logger.warn(e.getMessage(), e);
             return;
         }
@@ -54,7 +54,7 @@ public class MNSQueueConsumerDefinitionRegistry extends AliyunBeanDefinitionRegi
             beanDefinition.setDestroyMethodName("stop");
             beanDefinition.setEnforceDestroyMethod(true);
             beanDefinitionRegistry.registerBeanDefinition(name, beanDefinition);
-            logger.info("register MNS queue consumer bean definition success for name[{}]", name);
+            logger.info("Register MNS queue consumer bean definition success for name:{}", name);
         }
     }
 }

@@ -37,12 +37,12 @@ public class KafkaConsumerBean extends KafkaConsumeGroup implements Initializing
     @Override
     public void afterPropertiesSet() throws Exception {
         if (StringUtils.isEmpty(config.processorName)) {
-            logger.warn("record processor[{}] is not found", config.processorName);
+            logger.warn("Record processor:{} is not found", config.processorName);
         }
         Object bean = applicationContext.getBean(config.processorName);
         if (!(bean instanceof KafkaRecordProcessor)) {
-            logger.error("unexpected bean[{}], not KafkaRecordProcessor", bean.getClass().getName());
-            throw new Exception(String.format("unexpected bean[%s]", bean.getClass().getName()));
+            logger.error("Unexpected bean:{}, not KafkaRecordProcessor", bean.getClass().getName());
+            throw new Exception(String.format("Unexpected bean:%s", bean.getClass().getName()));
         }
         setProcessor((KafkaRecordProcessor) bean);
     }

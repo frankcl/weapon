@@ -147,6 +147,7 @@ public class MarkdownSplitter {
      */
     private static void pushChunk(MarkdownChunk newChunk, List<MarkdownChunk> chunks, int chunkSize) {
         if (chunks.isEmpty()) {
+            newChunk.setSeqNo(1);
             chunks.add(newChunk);
             return;
         }
@@ -171,6 +172,7 @@ public class MarkdownSplitter {
             return;
         }
         if (prevChunk.isEmpty()) chunks.remove(chunks.size() - 1);
+        newChunk.setSeqNo(chunks.size() + 1);
         chunks.add(newChunk);
     }
 
