@@ -38,15 +38,15 @@ public class KafkaConsumeConfig extends KafkaAuthSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (topics == null || topics.isEmpty()) {
-            logger.error("consume topics are empty");
+            logger.error("Consume topics are empty");
             return false;
         }
         if (StringUtils.isEmpty(servers)) {
-            logger.error("kafka servers are empty");
+            logger.error("Kafka servers are empty");
             return false;
         }
         if (StringUtils.isEmpty(groupId)) {
-            logger.error("subscribe group id is empty");
+            logger.error("Subscribe group id is empty");
             return false;
         }
         if (StringUtils.isEmpty(name)) name = "unknown_consumer";

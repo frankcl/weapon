@@ -57,7 +57,7 @@ public class MNSClient implements Rebuildable {
         logger.info("MNS client is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore MNS client rebuilding");
+            logger.warn("Secret is not changed, ignore MNS client rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
@@ -66,7 +66,7 @@ public class MNSClient implements Rebuildable {
         build();
         if (prevClient != null) prevClient.close();
         for (EventListener eventListener : eventListeners) {
-            eventListener.onRebuild(new RebuildEvent(this));
+            eventListener.onRebuild(new RebuildEvent<>(this));
         }
         logger.info("MNS client rebuild success");
     }
@@ -94,11 +94,11 @@ public class MNSClient implements Rebuildable {
      */
     public String sendQueueMessage(String queueName, byte[] messageBody) {
         if (StringUtils.isEmpty(queueName)) {
-            logger.error("queue name is empty");
+            logger.error("Queue name is empty");
             return null;
         }
         if (messageBody == null || messageBody.length == 0) {
-            logger.error("message body is empty");
+            logger.error("Message body is empty");
             return null;
         }
         try {
@@ -107,13 +107,13 @@ public class MNSClient implements Rebuildable {
             Message response = queue.putMessage(message);
             if (response.isErrorMessage()) {
                 ErrorMessageResult errorMessageResult = response.getErrorMessage();
-                logger.error("send message failed, code[{}] and cause[{}]",
+                logger.error("Send message failed, code:{} and cause:{}",
                         errorMessageResult.getErrorCode(), errorMessageResult.getErrorMessage());
                 return null;
             }
             return response.getMessageId();
         } catch (Exception e) {
-            logger.error("exception occurred when sending message, cause[{}]", e.getMessage());
+            logger.error("Exception occurred when sending message, cause:{}", e.getMessage());
             logger.error(e.getMessage(), e);
             return null;
         }

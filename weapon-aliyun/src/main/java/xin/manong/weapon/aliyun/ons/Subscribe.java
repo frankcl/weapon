@@ -44,11 +44,11 @@ public class Subscribe {
      */
     public boolean check() {
         if (StringUtils.isEmpty(topic)) {
-            logger.error("consume topic is empty");
+            logger.error("Consume topic is empty");
             return false;
         }
         if (listener == null) {
-            logger.error("message listener is not config");
+            logger.error("Message listener is not config");
             return false;
         }
         if (StringUtils.isEmpty(tags)) tags = DEFAULT_TAGS;

@@ -38,15 +38,15 @@ public class RocketMQProducerConfig {
      */
     public boolean check() {
         if (StringUtils.isEmpty(endpoints)) {
-            logger.error("server url is empty");
+            logger.error("Server url is empty");
             return false;
         }
         if (StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
-            logger.error("username is empty");
+            logger.error("Username is empty");
             return false;
         }
         if (!StringUtils.isEmpty(username) && StringUtils.isEmpty(password)) {
-            logger.error("password is empty");
+            logger.error("Password is empty");
             return false;
         }
         if (StringUtils.isEmpty(producerGroup)) producerGroup = DEFAULT_PRODUCER_GROUP;

@@ -39,7 +39,7 @@ public class ONSConsumerConfig extends DynamicSecretSupport {
         if (subscribes == null) subscribes = new ArrayList<>();
         for (Subscribe s : subscribes) {
             if (s.topic != null && s.topic.equals(subscribe.topic)) {
-                logger.warn("topic[{}] has been subscribed", subscribe.topic);
+                logger.warn("Topic:{} has been subscribed", subscribe.topic);
                 return;
             }
         }
@@ -54,15 +54,15 @@ public class ONSConsumerConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(serverURL)) {
-            logger.error("server url is empty");
+            logger.error("Server url is empty");
             return false;
         }
         if (StringUtils.isEmpty(consumeId)) {
-            logger.error("consume id is empty");
+            logger.error("Consume id is empty");
             return false;
         }
         if (subscribes == null || subscribes.isEmpty()) {
-            logger.error("missing subscribe list");
+            logger.error("Missing subscribe list");
             return false;
         }
         for (Subscribe subscribe : subscribes) if (!subscribe.check()) return false;

@@ -35,7 +35,7 @@ public class OTSTunnelConfig extends DynamicSecretSupport {
         if (workerConfigs == null) workerConfigs = new ArrayList<>();
         for (OTSTunnelWorkerConfig config : workerConfigs) {
             if (config.equals(workerConfig)) {
-                logger.warn("worker config[{}/{}] has existed", workerConfig.table, workerConfig.tunnel);
+                logger.warn("Worker config:{}/{} has existed", workerConfig.table, workerConfig.tunnel);
                 return false;
             }
         }
@@ -51,15 +51,15 @@ public class OTSTunnelConfig extends DynamicSecretSupport {
     public void removeTunnelWorkerConfig(OTSTunnelWorkerConfig workerConfig) {
         if (workerConfig == null) return;
         if (StringUtils.isEmpty(workerConfig.table)) {
-            logger.warn("table is null, ignore remove request");
+            logger.warn("Table is null, ignore remove request");
             return;
         }
         if (StringUtils.isEmpty(workerConfig.tunnel)) {
-            logger.warn("tunnel is null, ignore remove request");
+            logger.warn("Tunnel is null, ignore remove request");
             return;
         }
         if (!workerConfigs.remove(workerConfig)) {
-            logger.warn("tunnel worker[{}/{}] is not found", workerConfig.table, workerConfig.tunnel);
+            logger.warn("Tunnel worker:{}/{} is not found", workerConfig.table, workerConfig.tunnel);
         }
     }
 
@@ -71,11 +71,11 @@ public class OTSTunnelConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(instance)) {
-            logger.error("oss instance is empty");
+            logger.error("OSS instance is empty");
             return false;
         }
         if (StringUtils.isEmpty(endpoint)) {
-            logger.error("oss endpoint is empty");
+            logger.error("OSS endpoint is empty");
             return false;
         }
         for (OTSTunnelWorkerConfig workerConfig : workerConfigs) {

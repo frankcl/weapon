@@ -34,7 +34,7 @@ public class OSSClientConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(endpoint)) {
-            logger.error("endpoint is empty");
+            logger.error("Endpoint is empty");
             return false;
         }
         return true;

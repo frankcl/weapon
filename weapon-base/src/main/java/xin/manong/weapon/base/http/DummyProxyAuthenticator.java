@@ -19,8 +19,8 @@ public class DummyProxyAuthenticator implements Authenticator {
     private final String password;
 
     public DummyProxyAuthenticator(String username, String password) {
-        if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("username is empty");
-        if (StringUtils.isEmpty(password)) throw new IllegalArgumentException("password is empty");
+        if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("Username is empty");
+        if (StringUtils.isEmpty(password)) throw new IllegalArgumentException("Password is empty");
         this.username = username;
         this.password = password;
     }

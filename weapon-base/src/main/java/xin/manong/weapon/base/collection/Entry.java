@@ -34,8 +34,7 @@ public final class Entry<K, V> {
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Entry)) return false;
-        Entry<?, ?> e = (Entry<?, ?>) o;
+        if (!(o instanceof Entry<?, ?> e)) return false;
         return Objects.equals(key, e.getKey()) && Objects.equals(value, e.getValue());
     }
 

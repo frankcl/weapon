@@ -40,23 +40,23 @@ public class DataHubClient implements Rebuildable {
      * 关闭客户端实例
      */
     public void close() {
-        logger.info("data hub client is closing ...");
+        logger.info("DataHub client is closing ...");
         if (config.dynamic) RebuildManager.unregister(this);
-        logger.info("data hub client has been closed");
+        logger.info("DataHub client has been closed");
     }
 
     @Override
     public void rebuild() {
-        logger.info("data hub client is rebuilding ...");
+        logger.info("DataHub client is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore data hub client rebuilding");
+            logger.warn("Secret is not changed, ignore data hub client rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         build();
-        logger.info("data hub client rebuild success");
+        logger.info("DataHub client rebuild success");
     }
 
     /**
@@ -78,15 +78,15 @@ public class DataHubClient implements Rebuildable {
      */
     public boolean putRecords(String project, String topic, List<RecordEntry> recordEntries) {
         if (StringUtils.isEmpty(project)) {
-            logger.error("project is empty");
+            logger.error("Project is empty");
             return false;
         }
         if (StringUtils.isEmpty(topic)) {
-            logger.error("topic is empty");
+            logger.error("Topic is empty");
             return false;
         }
         if (recordEntries == null || recordEntries.isEmpty()) {
-            logger.warn("record entries are empty");
+            logger.warn("Record entries are empty");
             return false;
         }
         PutRecordsResult result = client.putRecords(project, topic, recordEntries, config.retryCnt);
@@ -102,8 +102,8 @@ public class DataHubClient implements Rebuildable {
      * @throws DatahubClientException 异常
      */
     public GetTopicResult getTopicInfo(String project, String topic) throws DatahubClientException {
-        if (StringUtils.isEmpty(project)) throw new DatahubClientException("project is empty");
-        if (StringUtils.isEmpty(topic)) throw new DatahubClientException("topic is empty");
+        if (StringUtils.isEmpty(project)) throw new DatahubClientException("Project is empty");
+        if (StringUtils.isEmpty(topic)) throw new DatahubClientException("Topic is empty");
         return client.getTopic(project, topic);
     }
 }

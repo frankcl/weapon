@@ -66,6 +66,6 @@ public interface EventListener {
         if (event instanceof ChangeEvent) onChange((ChangeEvent<?>) event);
         else if (event instanceof RebuildEvent) onRebuild((RebuildEvent<?>) event);
         else if (event instanceof ErrorEvent) onError((ErrorEvent) event);
-        else throw new UnsupportedOperationException("unsupported event: " + event.getClass().getName());
+        else throw new UnsupportedOperationException("Unsupported event: " + event.getClass().getName());
     }
 }

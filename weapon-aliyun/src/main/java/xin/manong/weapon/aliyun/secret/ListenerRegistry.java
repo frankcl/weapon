@@ -35,11 +35,11 @@ public class ListenerRegistry {
             if (currentEventListener != null && priority >= currentPriority) return;
             if (currentEventListener != null) {
                 currentEventListener.destroy();
-                logger.info("unregister dynamic secret listener: {}", currentEventListener.getClass().getName());
+                logger.info("Unregister dynamic secret listener: {}", currentEventListener.getClass().getName());
             }
             currentPriority = priority;
             currentEventListener = eventListener;
-            logger.info("register dynamic secret listener success: {}", eventListener.getClass().getName());
+            logger.info("Register dynamic secret listener success: {}", eventListener.getClass().getName());
         }
     }
 
@@ -50,9 +50,9 @@ public class ListenerRegistry {
         if (currentEventListener == null) return;
         try {
             currentEventListener.init();
-            logger.info("start dynamic secret listener success: {}", currentEventListener.getClass().getName());
+            logger.info("Start dynamic secret listener success: {}", currentEventListener.getClass().getName());
         } catch (Exception e) {
-            logger.error("start dynamic secret listener failed: {}", currentEventListener.getClass().getName());
+            logger.error("Start dynamic secret listener failed: {}", currentEventListener.getClass().getName());
             logger.error(e.getMessage(), e);
         }
     }

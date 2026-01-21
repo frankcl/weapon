@@ -133,7 +133,7 @@ public class ImageUtil {
         } catch (IIOException e) {
             ImageReader reader = getImageReader(byteArray, true);
             if (reader == null) {
-                logger.error("unsupported image format for reading, cause[{}]", e.getMessage());
+                logger.error("Unsupported image format for reading, cause:{}", e.getMessage());
                 return null;
             }
             try {
@@ -178,7 +178,7 @@ public class ImageUtil {
                 if (!raster || reader.canReadRaster()) break;
             }
             if (reader == null) {
-                logger.error("image reader is not found");
+                logger.error("Image reader is not found");
                 return null;
             }
             reader.setInput(imageInputStream);

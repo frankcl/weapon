@@ -71,7 +71,7 @@ public class JSONUtil {
                 JSONObject object = i < target.size() ? target.getJSONObject(i) : new JSONObject();
                 move(object, (JSONObject) o, key);
                 if (i >= target.size()) target.add(object);
-            } else throw new RuntimeException(String.format("unexpected object[%s]", o.getClass().getName()));
+            } else throw new RuntimeException(String.format("Unexpected object:%s", o.getClass().getName()));
         }
     }
 
@@ -99,7 +99,7 @@ public class JSONUtil {
                 move(object, (JSONObject) o, String.join(".",
                         Arrays.copyOfRange(splitKeys, 1, splitKeys.length)));
                 if (!target.containsKey(splitKeys[0])) target.put(splitKeys[0], object);
-            } else throw new RuntimeException(String.format("unexpected object[%s]", o.getClass().getName()));
+            } else throw new RuntimeException(String.format("Unexpected object:%s", o.getClass().getName()));
             return;
         }
         target.put(splitKeys[0], source.get(splitKeys[0]));
@@ -295,7 +295,7 @@ public class JSONUtil {
             try {
                 json.put(key, JSON.parse((String) v));
             } catch (Exception e) {
-                logger.warn("parse json failed for value[{}]", v);
+                logger.warn("Parse json failed for value:{}", v);
             }
         }
     }

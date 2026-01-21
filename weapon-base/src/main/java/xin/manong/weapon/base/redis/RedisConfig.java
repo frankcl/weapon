@@ -43,7 +43,7 @@ public class RedisConfig {
             try {
                 codec = (Codec) ReflectUtil.newInstance(codecClassName, new ReflectArgs());
             } catch (Exception e) {
-                logger.error("redisson codec[{}] is not found", codecClassName);
+                logger.error("Redisson codec:{} is not found", codecClassName);
                 logger.error(e.getMessage(), e);
                 return false;
             }

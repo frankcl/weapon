@@ -31,13 +31,13 @@ public class ONSProducer implements Rebuildable {
         logger.info("ONS producer is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
             DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore ONS producer rebuilding");
+            logger.warn("Secret is not changed, ignore ONS producer rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Producer prevProducer = producer;
-        if (!build()) throw new RuntimeException("rebuild ONS producer failed");
+        if (!build()) throw new RuntimeException("Rebuild ONS producer failed");
         if (prevProducer != null) prevProducer.shutdown();
         logger.info("ONS producer rebuild success");
     }
@@ -57,7 +57,7 @@ public class ONSProducer implements Rebuildable {
             producer = ONSFactory.createProducer(properties);
             producer.start();
         } catch (Exception e) {
-            logger.error("build ONS producer failed");
+            logger.error("Build ONS producer failed");
             return false;
         }
         return true;
@@ -101,14 +101,14 @@ public class ONSProducer implements Rebuildable {
      */
     public SendResult send(Message message) {
         if (message == null) {
-            logger.error("send message is null");
+            logger.error("Send message is null");
             return null;
         }
         for (int i = 0; i < config.retryCnt; i++) {
             try {
                 return producer.send(message);
             } catch (Exception e) {
-                logger.error("send message failed for topic[{}], retry {} times", message.getTopic(), i + 1);
+                logger.error("Send message failed for topic:{}, retry {} times", message.getTopic(), i + 1);
                 logger.error(e.getMessage(), e);
             }
         }

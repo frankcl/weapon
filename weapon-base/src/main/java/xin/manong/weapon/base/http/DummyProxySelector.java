@@ -38,6 +38,6 @@ public class DummyProxySelector extends ProxySelector {
 
     @Override
     public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-        logger.warn("connect proxy failed");
+        logger.warn("Connect proxy failed");
     }
 }

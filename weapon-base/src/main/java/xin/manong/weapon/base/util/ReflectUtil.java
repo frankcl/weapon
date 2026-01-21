@@ -32,13 +32,13 @@ public class ReflectUtil {
     public static <T extends Annotation> T getFieldAnnotation(Field field, Class<T> annotationClass) {
         try {
             if (!field.isAnnotationPresent(annotationClass)) {
-                logger.error("annotation[{}] is not found for field[{}]", annotationClass.getName(), field.getName());
+                logger.error("Annotation:{} is not found for field:{}", annotationClass.getName(), field.getName());
                 return null;
             }
             Annotation annotation = field.getAnnotation(annotationClass);
             return annotationClass.cast(annotation);
         } catch (Exception e) {
-            logger.error("get annotation[{}] failed of field[{}]", annotationClass.getName(), field.getName());
+            logger.error("Get annotation:{} failed of field:{}", annotationClass.getName(), field.getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -76,7 +76,7 @@ public class ReflectUtil {
             field.setAccessible(true);
             return field.get(object);
         } catch (Exception e) {
-            logger.error("get value failed for field[{}] of class[{}]", fieldName, object.getClass().getName());
+            logger.error("Get value failed for field:{} of class:{}", fieldName, object.getClass().getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -96,7 +96,7 @@ public class ReflectUtil {
             field.setAccessible(true);
             field.set(object, fieldValue);
         } catch (Exception e) {
-            logger.error("set value failed for field[{}] of class[{}]", fieldName, object.getClass().getName());
+            logger.error("Set value failed for field:{} of class:{}", fieldName, object.getClass().getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -116,7 +116,7 @@ public class ReflectUtil {
         try {
             return method.invoke(object, args == null ? null : args.values);
         } catch (Exception e) {
-            logger.error("invoke method[{}] failed for class[{}]", method.getName(), object.getClass().getName());
+            logger.error("Invoke method:{} failed for class:{}", method.getName(), object.getClass().getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }

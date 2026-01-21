@@ -66,13 +66,13 @@ public class MNSQueueConsumerBean extends MNSQueueConsumer implements Initializi
      */
     private void setMessageProcessor() throws Exception {
         if (StringUtils.isEmpty(config.processorName)) {
-            logger.error("message processor is not found for name[{}]", config.processorName);
-            throw new Exception(String.format("message processor is not found for name[%s]", config.processorName));
+            logger.error("Message processor is not found for name:{}", config.processorName);
+            throw new Exception(String.format("Message processor is not found for name:%s", config.processorName));
         }
         Object bean = applicationContext.getBean(config.processorName);
         if (!(bean instanceof MessageProcessor)) {
-            logger.error("unexpected bean[{}], not MessageProcessor", bean.getClass().getName());
-            throw new Exception(String.format("unexpected bean[%s]", bean.getClass().getName()));
+            logger.error("Unexpected bean:{}, not MessageProcessor", bean.getClass().getName());
+            throw new Exception(String.format("Unexpected bean:%s", bean.getClass().getName()));
         }
         processor = (MessageProcessor) bean;
     }

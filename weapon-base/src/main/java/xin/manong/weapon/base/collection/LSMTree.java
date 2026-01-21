@@ -89,13 +89,13 @@ public class LSMTree<T> {
     public void addRecord(T record) throws IOException {
         if (record == null) throw new NullPointerException();
         if (!recordClass.isAssignableFrom(record.getClass())) {
-            logger.error("record class[{}] is not compatible for {}",
+            logger.error("Record class:{} is not compatible for {}",
                     record.getClass().getName(), recordClass.getName());
             throw new IllegalArgumentException("not compatible class");
         }
         if (state != State.PREPARE) {
-            logger.error("unsupported operation[ADD] for state[{}]", state.name());
-            throw new IllegalStateException(String.format("inappropriate state[%s] for adding", state.name()));
+            logger.error("Unsupported operation[ADD] for state:{}", state.name());
+            throw new IllegalStateException(String.format("Inappropriate state:%s for adding", state.name()));
         }
         memoryCachedRecords.add(record);
         if (memoryCachedRecords.size() < maxCacheRecordNum) return;
@@ -116,7 +116,7 @@ public class LSMTree<T> {
             heap = new PriorityQueue<>(dumpFiles.size() + 1, readerComparator);
             if (!memoryCachedRecords.isEmpty()) {
                 MemoryReader<T> memoryReader = new MemoryReader<>(memoryCachedRecords, comparator);
-                if (!memoryReader.open()) throw new RuntimeException("open memory reader failed");
+                if (!memoryReader.open()) throw new RuntimeException("Open memory reader failed");
                 if (memoryReader.read() != null) heap.add(memoryReader);
                 else memoryReader.close();
             }
@@ -124,10 +124,10 @@ public class LSMTree<T> {
             state = State.SORT;
         }
         if (state != State.SORT) {
-            logger.error("unsupported operation[GET] for state[{}]", state.name());
-            throw new IllegalStateException(String.format("inappropriate state[%s] for getting", state.name()));
+            logger.error("Unsupported operation[GET] for state:{}", state.name());
+            throw new IllegalStateException(String.format("Inappropriate state:%s for getting", state.name()));
         }
-        while (!heap.isEmpty()) {
+        if (!heap.isEmpty()) {
             RecordReader<T> recordReader = heap.poll();
             T record = recordReader.peak();
             if (recordReader.read() != null) heap.add(recordReader);
@@ -160,7 +160,7 @@ public class LSMTree<T> {
         dumpFiles.clear();
         heap.clear();
         state = State.CLOSED;
-        logger.info("close external sorter");
+        logger.info("Close external sorter");
     }
 
     /**
@@ -216,7 +216,7 @@ public class LSMTree<T> {
     private void buildHeap(List<String> dumpFiles, PriorityQueue<RecordReader<T>> priorityQueue) {
         for (String dumpFile : dumpFiles) {
             DumpReader<T> dumpReader = new DumpReader<>(dumpFile, recordClass, kryo);
-            if (!dumpReader.open()) throw new RuntimeException(String.format("open dump file[%s] failed", dumpFile));
+            if (!dumpReader.open()) throw new RuntimeException(String.format("Open dump file:%s failed", dumpFile));
             if (dumpReader.read() != null) priorityQueue.add(dumpReader);
             else dumpReader.close();
         }
@@ -235,7 +235,7 @@ public class LSMTree<T> {
             String fileName = dumpFile.getName();
             if (dumpFile.isDirectory() || !fileName.startsWith(DUMP_FILE_PREFIX) ||
                     !fileName.endsWith(DUMP_FILE_SUFFIX)) continue;
-            if (dumpFile.delete()) logger.info("sweep dump file[{}]", fileName);
+            if (dumpFile.delete()) logger.info("Sweep dump file:{}", fileName);
         }
     }
 

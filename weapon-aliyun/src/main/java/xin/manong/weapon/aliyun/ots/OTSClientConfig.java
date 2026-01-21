@@ -37,11 +37,11 @@ public class OTSClientConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(endpoint)) {
-            logger.error("endpoint is empty");
+            logger.error("Endpoint is empty");
             return false;
         }
         if (StringUtils.isEmpty(instance)) {
-            logger.error("instance is empty");
+            logger.error("Instance is empty");
             return false;
         }
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;

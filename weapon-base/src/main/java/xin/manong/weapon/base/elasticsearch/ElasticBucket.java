@@ -62,7 +62,7 @@ public class ElasticBucket<T> {
      */
     public void flatBucketMap() {
         if (bucketMap == null || bucketMap.isEmpty()) return;
-        if (bucketMap.size() > 1) throw new UnsupportedOperationException("unsupported flat bucket map");
+        if (bucketMap.size() > 1) throw new UnsupportedOperationException("Unsupported flat bucket map");
         for (List<ElasticBucket<?>> bucketList : bucketMap.values()) {
             buckets = bucketList;
             for (ElasticBucket<?> bucket : bucketList) bucket.flatBucketMap();

@@ -29,13 +29,13 @@ public class ElasticSearchClientConfig {
      */
     public boolean check() {
         if (StringUtils.isEmpty(serverURL)) {
-            logger.error("server url is empty");
+            logger.error("Server url is empty");
             return false;
         }
         try {
             new URL(serverURL);
         } catch (MalformedURLException e) {
-            logger.error("server url:{} is invalid", serverURL);
+            logger.error("Server url:{} is invalid", serverURL);
             return false;
         }
         return true;

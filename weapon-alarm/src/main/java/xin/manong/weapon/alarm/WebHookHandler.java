@@ -35,7 +35,7 @@ public class WebHookHandler {
     public final String encryptDingWebHookURL(String webHookURL, String webHookSecret) {
         if (StringUtils.isEmpty(webHookURL)) return null;
         if (StringUtils.isEmpty(webHookSecret)) {
-            logger.warn("web hook secret is empty");
+            logger.warn("Webhook secret is empty");
             return webHookURL;
         }
         Long timestamp = System.currentTimeMillis();

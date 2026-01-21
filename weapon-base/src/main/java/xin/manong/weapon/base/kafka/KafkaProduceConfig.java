@@ -31,7 +31,7 @@ public class KafkaProduceConfig extends KafkaAuthSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(servers)) {
-            logger.error("kafka servers are empty");
+            logger.error("Kafka servers are empty");
             return false;
         }
         if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;

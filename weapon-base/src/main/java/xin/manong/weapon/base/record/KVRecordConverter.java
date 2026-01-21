@@ -57,7 +57,7 @@ public class KVRecordConverter {
                     String jsonStr = JSON.toJSONString(value, SerializerFeature.DisableCircularReferenceDetect);
                     json.put(key, jsonStr.startsWith("[") ? JSON.parseArray(jsonStr) : JSON.parseObject(jsonStr));
                 } catch (Exception e) {
-                    logger.error("convert java object to JSON failed for type[{}]", value.getClass().getName());
+                    logger.error("Convert java object to JSON failed for type:{}", value.getClass().getName());
                     logger.error(e.getMessage(), e);
                     json.put(key, value);
                 }

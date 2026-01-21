@@ -42,7 +42,7 @@ public class KafkaConsumer implements Runnable {
      * @return 启动成功返回true，否则返回false
      */
     public boolean start() {
-        logger.info("kafka consumer[{}] is starting ...", name);
+        logger.info("Kafka consumer:{} is starting ...", name);
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.servers);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, config.groupId);
@@ -63,7 +63,7 @@ public class KafkaConsumer implements Runnable {
         running = true;
         consumeThread = new Thread(this, name);
         consumeThread.start();
-        logger.info("kafka consumer[{}] has been started", name);
+        logger.info("Kafka consumer:{} has been started", name);
         return true;
     }
 
@@ -71,7 +71,7 @@ public class KafkaConsumer implements Runnable {
      * 停止kafka消费线程
      */
     public void stop() {
-        logger.info("kafka consumer[{}] is stopping ...", name);
+        logger.info("Kafka consumer:{} is stopping ...", name);
         running = false;
         if (consumeThread != null && consumeThread.isAlive()) consumeThread.interrupt();
         try {
@@ -80,7 +80,7 @@ public class KafkaConsumer implements Runnable {
             logger.error(e.getMessage(), e);
         }
         if (consumer != null) consumer.close();
-        logger.info("kafka consumer[{}] has been stopped", name);
+        logger.info("Kafka consumer:{} has been stopped", name);
     }
 
     @Override
@@ -99,13 +99,13 @@ public class KafkaConsumer implements Runnable {
                         consumer.commitAsync(offsets, (partitionOffsetMap, exception) -> {
                             if (exception == null) return;
                             partitionOffsetMap.forEach((p, offsetMeta) -> logger.warn(
-                                    "commit failed for topic[{}], partition[{}] and offset[{}]",
+                                    "Commit failed for topic:{}, partition:{} and offset:{}",
                                     p.topic(), p.partition(), offsetMeta.offset()));
                         });
                     }
                 }
             } catch (Throwable e) {
-                logger.error("process kafka message failed");
+                logger.error("Process kafka message failed");
                 logger.error(e.getMessage(), e);
             }
         }

@@ -30,7 +30,7 @@ public class OTSSearchRequest {
     public Query query;
 
     public static class Builder {
-        private OTSSearchRequest request;
+        private final OTSSearchRequest request;
 
         public Builder() {
             request = new OTSSearchRequest();
@@ -141,15 +141,15 @@ public class OTSSearchRequest {
         if (limit == null || limit <= 0) limit = DEFAULT_LIMIT;
         if (searchTimeoutMs == null || searchTimeoutMs <= 0) limit = DEFAULT_SEARCH_TIMEOUT_MS;
         if (StringUtils.isEmpty(tableName)) {
-            logger.error("table name is empty");
+            logger.error("Table name is empty");
             return false;
         }
         if (StringUtils.isEmpty(indexName)) {
-            logger.error("index name is empty");
+            logger.error("Index name is empty");
             return false;
         }
         if (query == null) {
-            logger.error("search query is null");
+            logger.error("Search query is null");
             return false;
         }
         return true;

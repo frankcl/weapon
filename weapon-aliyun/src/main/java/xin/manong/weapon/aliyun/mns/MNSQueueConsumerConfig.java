@@ -30,7 +30,7 @@ public class MNSQueueConsumerConfig {
      */
     public boolean check() {
         if (StringUtils.isEmpty(queueName)) {
-            logger.error("queue name is empty");
+            logger.error("Queue name is empty");
             return false;
         }
         if (threadNum <= 0) threadNum = DEFAULT_THREAD_NUM;

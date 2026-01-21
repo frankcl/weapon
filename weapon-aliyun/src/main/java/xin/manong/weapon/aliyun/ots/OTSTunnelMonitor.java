@@ -48,14 +48,14 @@ public class OTSTunnelMonitor implements Runnable {
         running = true;
         workThread = new Thread(this, "TunnelMonitor");
         workThread.start();
-        logger.info("tunnel monitor has been started");
+        logger.info("Tunnel monitor has been started");
     }
 
     /**
      * 停止监控
      */
     public void stop() {
-        logger.info("tunnel monitor is stopping ...");
+        logger.info("Tunnel monitor is stopping ...");
         running = false;
         if (workThread.isAlive()) workThread.interrupt();
         try {
@@ -63,7 +63,7 @@ public class OTSTunnelMonitor implements Runnable {
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.info("tunnel monitor has been stopped");
+        logger.info("Tunnel monitor has been stopped");
     }
 
     @SuppressWarnings("BusyWait")
@@ -71,7 +71,7 @@ public class OTSTunnelMonitor implements Runnable {
     public void run() {
         while (running) {
             for (OTSTunnelWorkerConfig workerConfig : tunnelConfig.workerConfigs) check(workerConfig);
-            logger.info("tunnel monitor is running, sleep {} ms", CHECK_TIME_INTERVAL_MS);
+            logger.info("Tunnel monitor is running, sleep {} ms", CHECK_TIME_INTERVAL_MS);
             try {
                 Thread.sleep(CHECK_TIME_INTERVAL_MS);
             } catch (InterruptedException e) {
@@ -96,7 +96,7 @@ public class OTSTunnelMonitor implements Runnable {
             if (consumeTimestamp <= 0) continue;
             long timeInterval = currentTimestamp - consumeTimestamp;
             if (timeInterval < workerConfig.maxConsumeDelayMs) continue;
-            logger.warn("consume delay[{}] for channel[{}] in tunnel[{}] of table[{}]", timeInterval,
+            logger.warn("Consume delay:{} for channel:{} in tunnel:{} of table:{}", timeInterval,
                     channel.getChannelId(), workerConfig.tunnel, workerConfig.table);
             delayChannelNum++;
         }

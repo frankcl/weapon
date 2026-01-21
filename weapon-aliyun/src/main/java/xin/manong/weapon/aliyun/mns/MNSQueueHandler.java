@@ -34,18 +34,18 @@ public class MNSQueueHandler implements Runnable {
      * 启动
      */
     public void start() {
-        logger.info("MNS queue handler[{}] is starting ...", name);
+        logger.info("MNS queue handler:{} is starting ...", name);
         running = true;
         workThread = new Thread(this, name);
         workThread.start();
-        logger.info("MNS queue handler[{}] has been started", name);
+        logger.info("MNS queue handler:{} has been started", name);
     }
 
     /**
      * 停止
      */
     public void stop() {
-        logger.info("MNS queue handler[{}] is stopping ...", name);
+        logger.info("MNS queue handler:{} is stopping ...", name);
         running = false;
         if (workThread.isAlive()) workThread.interrupt();
         try {
@@ -53,7 +53,7 @@ public class MNSQueueHandler implements Runnable {
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.info("MNS queue handler[{}] has been stopped", name);
+        logger.info("MNS queue handler:{} has been stopped", name);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class MNSQueueHandler implements Runnable {
                     queue.deleteMessage(message.getReceiptHandle());
                     continue;
                 }
-                logger.warn("process message failed for id[{}]", message.getMessageId());
+                logger.warn("Process message failed for id:{}", message.getMessageId());
             } catch (Throwable e) {
-                logger.error("process message failed");
+                logger.error("Process message failed");
                 logger.error(e.getMessage(), e);
             }
         }

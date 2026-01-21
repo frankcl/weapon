@@ -67,7 +67,7 @@ public class KVRecords implements Serializable {
      */
     public KVRecord getRecord(int index) {
         if (index < 0 || index >= getRecordCount()) {
-            logger.error("index[{}] out of record range[{}, {})", index, 0, getRecordCount());
+            logger.error("Index:{} out of record range[{}, {})", index, 0, getRecordCount());
             return null;
         }
         return kvRecords.get(index);

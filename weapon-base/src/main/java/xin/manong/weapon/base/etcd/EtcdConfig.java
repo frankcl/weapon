@@ -32,11 +32,11 @@ public class EtcdConfig {
     public boolean check() {
         if (connectTimeoutMs <= 0) connectTimeoutMs = 5000L;
         if (endpoints == null || endpoints.isEmpty()) {
-            logger.error("endpoint is empty");
+            logger.error("Endpoint is empty");
             return false;
         }
         if (StringUtils.isNotEmpty(username) && StringUtils.isEmpty(password)) {
-            logger.error("password is empty");
+            logger.error("Password is empty");
             return false;
         }
         return true;

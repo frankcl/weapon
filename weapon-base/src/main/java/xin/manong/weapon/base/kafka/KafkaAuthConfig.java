@@ -52,7 +52,7 @@ public class KafkaAuthConfig {
         }
         if (StringUtils.isEmpty(securityProtocol) ||
                 !SECURITY_PROTOCOLS.contains(securityProtocol)) {
-            logger.error("security protocol[{}] is invalid", securityProtocol);
+            logger.error("Security protocol:{} is invalid", securityProtocol);
             return false;
         }
         return true;

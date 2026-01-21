@@ -107,7 +107,7 @@ public class KVRecord implements Serializable {
      */
     public void put(String key, Object value) {
         if (key == null || value == null) return;
-        if (fieldMap.containsKey(key)) logger.debug("key[{}] has existed, overwrite it", key);
+        if (fieldMap.containsKey(key)) logger.debug("Key:{} has existed, overwrite it", key);
         fieldMap.put(key, value);
     }
 
@@ -130,13 +130,13 @@ public class KVRecord implements Serializable {
      * @param <T> 数据类型
      */
     public <T> T get(String key, Class<T> clazz) {
-        if (clazz == null) throw new RuntimeException("convert class is null");
+        if (clazz == null) throw new RuntimeException("Convert class is null");
         Object object = get(key);
         if (object == null) return null;
         try {
             return clazz.cast(object);
         } catch (ClassCastException e) {
-            logger.error("field[{}] is not an instance of class[{}]", key, clazz.getName());
+            logger.error("Field:{} is not an instance of class:{}", key, clazz.getName());
             logger.error(e.getMessage(), e);
             return null;
         }
@@ -202,8 +202,7 @@ public class KVRecord implements Serializable {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof KVRecord)) return false;
-        KVRecord kvRecord = (KVRecord) object;
+        if (!(object instanceof KVRecord kvRecord)) return false;
         return id.equals(kvRecord.id);
     }
 

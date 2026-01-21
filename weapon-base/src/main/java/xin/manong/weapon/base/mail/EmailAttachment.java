@@ -63,7 +63,7 @@ public class EmailAttachment {
                 fileName = url.getPath();
                 fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
             } catch (MalformedURLException e) {
-                logger.debug("file is not valid URL");
+                logger.debug("File is not valid URL");
             }
         }
     }

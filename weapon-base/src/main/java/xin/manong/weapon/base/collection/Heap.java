@@ -36,7 +36,7 @@ public class Heap<E> implements Iterable<E> {
     }
 
     public Heap(int initCapacity, Comparator<? super E> comparator) {
-        if (initCapacity < 1) throw new IllegalArgumentException("init capacity is invalid");
+        if (initCapacity < 1) throw new IllegalArgumentException("Init capacity is invalid");
         this.elements = new Object[initCapacity];
         this.comparator = comparator;
         this.size = 0;
@@ -140,7 +140,7 @@ public class Heap<E> implements Iterable<E> {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < size; i++) {
-            if (builder.length() != 0) builder.append(",");
+            if (!builder.isEmpty()) builder.append(",");
             builder.append(elements[i].toString());
         }
         builder.insert(0, "[").append("]");
@@ -155,7 +155,7 @@ public class Heap<E> implements Iterable<E> {
      */
     private E removeAt(int i) {
         if (i < 0 || i > size - 1) {
-            throw new ArrayIndexOutOfBoundsException(String.format("index[%d] out of range[0, %d)", i, size));
+            throw new ArrayIndexOutOfBoundsException(String.format("Index:%d out of range[0, %d)", i, size));
         }
         E removedElement = (E) elements[i];
         E e = (E) elements[--size];

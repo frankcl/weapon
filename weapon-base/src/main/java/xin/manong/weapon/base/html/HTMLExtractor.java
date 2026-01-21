@@ -64,7 +64,7 @@ public class HTMLExtractor {
      */
     public static Element mainHTMLElement(String html, String url) {
         if (StringUtils.isEmpty(html)) {
-            logger.error("page HTML is empty");
+            logger.error("Page HTML is empty");
             return null;
         }
         Document document = StringUtils.isEmpty(url) ? Jsoup.parse(html) : Jsoup.parse(html, url);
@@ -137,7 +137,7 @@ public class HTMLExtractor {
         }
         StringBuilder builder = new StringBuilder();
         for (Element element : htmlElements) {
-            if (builder.length() > 0) builder.append("\n");
+            if (!builder.isEmpty()) builder.append("\n");
             builder.append(element.outerHtml());
         }
         return builder.toString();
@@ -152,8 +152,7 @@ public class HTMLExtractor {
      */
     private static List<Element> buildHTMLElements(Node node) {
         List<Element> htmlElements = new ArrayList<>();
-        if (node instanceof TextNode) {
-            TextNode textNode = (TextNode) node;
+        if (node instanceof TextNode textNode) {
             if (textNode.text().trim().isEmpty()) return htmlElements;
             Node parentNode = node.parent();
             boolean block = parentNode instanceof Element &&
@@ -161,8 +160,7 @@ public class HTMLExtractor {
             Element htmlElement = new Element(block ? TAG_NAME_PARAGRAPH : TAG_NAME_SPAN);
             htmlElement.appendChild(node.clone());
             htmlElements.add(htmlElement);
-        } else if (node instanceof Element) {
-            Element element = (Element) node;
+        } else if (node instanceof Element element) {
             String tagName = element.tagName();
             if (!isVisible(element)) return htmlElements;
             if (tagName.equals(TAG_NAME_BR)) {
@@ -281,13 +279,11 @@ public class HTMLExtractor {
      * @param htmlNode HTML节点
      */
     private static void computeScore(HTMLNode htmlNode) {
-        if (htmlNode.node instanceof TextNode) {
-            TextNode textNode = (TextNode) htmlNode.node;
+        if (htmlNode.node instanceof TextNode textNode) {
             int textCount = textNode.text().trim().length();
             htmlNode.textCount = textCount;
             if (textCount > 0) htmlNode.segmentTextCounts.add(textCount);
-        } else if (htmlNode.node instanceof Element) {
-            Element element = (Element) htmlNode.node;
+        } else if (htmlNode.node instanceof Element element) {
             String tagName = element.tagName();
             if (!isVisible(element) || tagName.equals(TAG_NAME_BR)) return;
             for (Node childNode : element.childNodes()) {

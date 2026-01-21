@@ -41,7 +41,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
     }
 
     public BTree(int m, Comparator<? super K> comparator) {
-        if (m < 3) throw new IllegalArgumentException("m must be greater than 2");
+        if (m < 3) throw new IllegalArgumentException("Input m must be greater than 2");
         this.size = 0;
         this.m = Math.min(m, MAX_M);
         this.n = (this.m - 1) / 2 + 1;
@@ -198,7 +198,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
             throw new NullPointerException();
         }
         if (compare(startKey, endKey, comparator) > 0) {
-            throw new IllegalArgumentException("start key is greater than end key");
+            throw new IllegalArgumentException("Start key is greater than end key");
         }
         List<V> values = new ArrayList<>();
         if (root == null) return values;
@@ -224,7 +224,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         Leaf leaf = getFirstLeaf();
         while (leaf != null && leaf.entries != null) {
             for (Entry<K, V> entry : leaf.entries) {
-                if (builder.length() > 0) builder.append(",");
+                if (!builder.isEmpty()) builder.append(",");
                 builder.append(entry.getKey()).append("=").append(entry.getValue());
             }
             leaf = leaf.next;
@@ -381,7 +381,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         K maxKey = node.getMaxKey();
         Entry<K, Node> siblingEntry = parent.getAvailableSibling(maxKey);
         if (siblingEntry == null) {
-            throw new RuntimeException(String.format("sibling not found for key[%s]", maxKey.toString()));
+            throw new RuntimeException(String.format("Sibling not found for key:%s", maxKey.toString()));
         }
         Node sibling = siblingEntry.getValue();
         if (sibling.getChildCount() > n) {
@@ -664,7 +664,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          */
         public List<Node> split() {
             if (children == null || children.size() < m) {
-                throw new RuntimeException(String.format("not allowed to be split for node[%d]",
+                throw new RuntimeException(String.format("Not allowed to be split for node:%d",
                         children == null ? 0 : children.size()));
             }
             int pos = (int) Math.ceil(children.size() * 1.0 / 2);
@@ -686,9 +686,9 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         public Node merge(Node node) {
             if (node == null) throw new NullPointerException();
             if (node.children == null || node.children.isEmpty()) {
-                throw new IllegalArgumentException("merged node is empty");
+                throw new IllegalArgumentException("Merged node is empty");
             }
-            if (node.parent != parent) throw new IllegalArgumentException("parent of merged node is not valid");
+            if (node.parent != parent) throw new IllegalArgumentException("Parent of merged node is not valid");
             int c = compareTo(node);
             Node newNode = new Node(comparator);
             if (c < 0) {
@@ -730,7 +730,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
             for (int i = 0; i < children.size(); i++) {
                 Entry<K, Node> entry = children.get(i);
                 int c = compare(child.getKey(), entry.getKey(), comparator);
-                if (c == 0) throw new RuntimeException(String.format("child has existed for key[%s]", child.getKey()));
+                if (c == 0) throw new RuntimeException(String.format("Child has existed for key:%s", child.getKey()));
                 else if (c > 0) continue;
                 pos = i;
                 break;
@@ -904,10 +904,10 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
          */
         @Override
         public Node merge(Node node) {
-            if (!node.isLeaf()) throw new IllegalArgumentException("not leaf");
+            if (!node.isLeaf()) throw new IllegalArgumentException("Not leaf");
             Leaf leaf = (Leaf) node;
             if (leaf.entries == null || leaf.entries.isEmpty()) {
-                throw new IllegalArgumentException("merged leaf is empty");
+                throw new IllegalArgumentException("Merged leaf is empty");
             }
             int c = compareTo(leaf);
             Leaf prevLeaf = c < 0 ? prev : leaf.prev;
@@ -933,7 +933,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
         @Override
         public List<Node> split() {
             if (entries == null || entries.size() < m) {
-                throw new IllegalStateException(String.format("not allowed to be split for leaf[%d]",
+                throw new IllegalStateException(String.format("Not allowed to be split for leaf:%d",
                         entries == null ? 0 : entries.size()));
             }
             Leaf prevLeaf = prev;
@@ -1037,7 +1037,7 @@ public class BTree<K, V> implements Iterable<Entry<K, V>> {
 
         @Override
         public int compareTo(Node node) {
-            if (!node.isLeaf()) throw new IllegalArgumentException("node is not leaf");
+            if (!node.isLeaf()) throw new IllegalArgumentException("Node is not leaf");
             return super.compareTo(node);
         }
     }

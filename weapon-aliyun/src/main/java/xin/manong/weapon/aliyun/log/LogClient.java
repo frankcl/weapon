@@ -48,11 +48,11 @@ public class LogClient implements Rebuildable {
      * @return 成功返回true，否则返回false
      */
     public boolean init() {
-        logger.info("log client is init ...");
+        logger.info("Log client is init ...");
         if (!config.check()) return false;
         if (!build()) return false;
         if (config.dynamic) RebuildManager.register(this);
-        logger.info("log client has finished init");
+        logger.info("Log client has finished init");
         return true;
     }
 
@@ -60,7 +60,7 @@ public class LogClient implements Rebuildable {
      * 销毁
      */
     public void destroy() {
-        logger.info("log client is destroying ...");
+        logger.info("Log client is destroying ...");
         if (config.dynamic) RebuildManager.unregister(this);
         try {
             if (producer != null) producer.close();
@@ -68,29 +68,29 @@ public class LogClient implements Rebuildable {
             logger.error(e.getMessage(), e);
         }
         if (client != null) client.shutdown();
-        logger.info("log client has been destroyed");
+        logger.info("Log client has been destroyed");
     }
 
     @Override
     public void rebuild() {
-        logger.info("log client is rebuilding ...");
+        logger.info("Log client is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore log client rebuilding");
+            logger.warn("Secret is not changed, ignore log client rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
         config.aliyunSecret.secretKey = DynamicSecret.secretKey;
         Client prevClient = client;
         Producer prevProducer = producer;
-        if (!build()) throw new RuntimeException("rebuild log client failed");
+        if (!build()) throw new RuntimeException("Rebuild log client failed");
         try {
             if (prevProducer != null) prevProducer.close();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         if (prevClient != null) prevClient.shutdown();
-        logger.info("log client rebuild success");
+        logger.info("Log client rebuild success");
     }
 
     /**
@@ -146,15 +146,15 @@ public class LogClient implements Rebuildable {
      */
     public void push(String project, String logStore, KVRecords kvRecords) {
         if (StringUtils.isEmpty(project)) {
-            logger.error("project is empty");
+            logger.error("Project is empty");
             return;
         }
         if (StringUtils.isEmpty(logStore)) {
-            logger.error("log store is empty");
+            logger.error("Log store is empty");
             return;
         }
         if (kvRecords == null || kvRecords.isEmpty()) {
-            logger.error("push records are empty");
+            logger.error("Push records are empty");
             return;
         }
         buildProjectClient(project);
@@ -178,8 +178,8 @@ public class LogClient implements Rebuildable {
      */
     public LogSearchResponse search(LogSearchRequest request) {
         if (request == null || !request.check()) {
-            logger.error("search request is not valid");
-            return LogSearchResponse.buildError("search request is not valid");
+            logger.error("Search request is not valid");
+            return LogSearchResponse.buildError("Search request is not valid");
         }
         GetLogsRequest getLogsRequest = new GetLogsRequest(request.project, request.logStore,
                 (int) (request.startTime / 1000), (int) (request.stopTime / 1000), request.topic,
@@ -187,8 +187,8 @@ public class LogClient implements Rebuildable {
         try {
             GetLogsResponse getLogsResponse = client.GetLogs(getLogsRequest);
             if (getLogsResponse == null) {
-                logger.error("search response is null");
-                return LogSearchResponse.buildError("search response is null");
+                logger.error("Search response is null");
+                return LogSearchResponse.buildError("Search response is null");
             }
             KVRecords kvRecords = new KVRecords();
             List<QueriedLog> queriedLogs = getLogsResponse.getLogs();

@@ -107,7 +107,7 @@ public class MNSQueueConsumer implements Rebuildable, EventListener {
             return false;
         }
         if (processor == null) {
-            logger.error("message processor is not set");
+            logger.error("Message processor is not set");
             return false;
         }
         CloudQueue queue = mnsClient.getQueue(config.getQueueName());

@@ -35,15 +35,15 @@ public class EmailSendConfig {
             throw new IllegalArgumentException("SMTP服务地址未设置");
         }
         if (StringUtils.isEmpty(username)) {
-            logger.error("username is not set for sending email");
+            logger.error("Username is not set for sending email");
             throw new IllegalArgumentException("用户名未设置");
         }
         if (StringUtils.isEmpty(password)) {
-            logger.error("password is not set for sending email");
+            logger.error("Password is not set for sending email");
             throw new IllegalArgumentException("密码未设置");
         }
         if (StringUtils.isEmpty(from)) {
-            logger.error("send from is not set for sending email");
+            logger.error("Send from is not set for sending email");
             throw new IllegalArgumentException("发件人地址为空");
         }
     }

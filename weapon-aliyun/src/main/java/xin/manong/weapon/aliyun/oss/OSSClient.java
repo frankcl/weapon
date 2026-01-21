@@ -45,7 +45,7 @@ public class OSSClient implements Rebuildable {
 
     public OSSClient(OSSClientConfig config) {
         this.config = config;
-        if (!this.config.check()) throw new RuntimeException("oss client config is invalid");
+        if (!this.config.check()) throw new RuntimeException("OSS client config is invalid");
         build();
         if (this.config.dynamic) RebuildManager.register(this);
     }
@@ -65,7 +65,7 @@ public class OSSClient implements Rebuildable {
         logger.info("OSS client is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore OSS client rebuilding");
+            logger.warn("Secret is not changed, ignore OSS client rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
@@ -131,7 +131,7 @@ public class OSSClient implements Rebuildable {
         try {
             OSSObject ossObject = instance.getObject(request);
             if (ossObject == null || ossObject.getObjectContent() == null) {
-                logger.warn("oss object is not found for key[{}] and bucket[{}]",
+                logger.warn("OSS object is not found for key:{} and bucket:{}",
                         request.getKey(), request.getBucketName());
                 return null;
             }
@@ -154,10 +154,10 @@ public class OSSClient implements Rebuildable {
         for (int i = 0; i < config.retryCnt; i++) {
             byte[] content = getObjectOnce(request);
             if (content != null) return content;
-            logger.warn("get oss object failed for key[{}] and bucket[{}], retry {} times",
+            logger.warn("Get OSS object failed for key:{} and bucket:{}, retry {} times",
                     key, bucket, i + 1);
         }
-        logger.error("get oss object failed for key[{}] and bucket[{}]", key, bucket);
+        logger.error("Get OSS object failed for key:{} and bucket:{}", key, bucket);
         return null;
     }
 
@@ -171,7 +171,7 @@ public class OSSClient implements Rebuildable {
      */
     public boolean putObject(String bucket, String key, byte[] content) {
         if (content == null || content.length == 0) {
-            logger.warn("put content is empty for bucket[{}] and key[{}]", bucket, key);
+            logger.warn("Put content is empty for bucket:{} and key:{}", bucket, key);
             return false;
         }
         for (int i = 0; i < config.retryCnt; i++) {
@@ -191,12 +191,12 @@ public class OSSClient implements Rebuildable {
      */
     public boolean putObject(String bucket, String key, InputStream inputStream) {
         if (inputStream == null) {
-            logger.error("input stream is null");
+            logger.error("Input stream is null");
             return false;
         }
         PutObjectResult result = instance.putObject(bucket, key, inputStream);
         if (result == null || StringUtils.isEmpty(result.getETag())) {
-            logger.error("put object failed for bucket[{}] and key[{}]", bucket, key);
+            logger.error("Put object failed for bucket:{} and key:{}", bucket, key);
             return false;
         }
         return true;
@@ -314,26 +314,26 @@ public class OSSClient implements Rebuildable {
     public static OSSMeta parseURL(String ossURL) {
         String host = CommonUtil.getHost(ossURL);
         if (StringUtils.isEmpty(host)) {
-            logger.error("parse host failed for url[{}]", ossURL);
+            logger.error("Parse host failed for url:{}", ossURL);
             return null;
         }
         int from = host.indexOf(".");
         if (from == -1) {
-            logger.error("parse bucket failed for url[{}]", ossURL);
+            logger.error("Parse bucket failed for url:{}", ossURL);
             return null;
         }
         OSSMeta ossMeta = new OSSMeta();
         ossMeta.bucket = host.substring(0, from);
         int to = host.indexOf(".", from + 1);
         if (to == -1) {
-            logger.error("parse region failed for url[{}]", ossURL);
+            logger.error("Parse region failed for url:{}", ossURL);
             return null;
         }
         ossMeta.region = host.substring(from + 1, to);
         if (ossMeta.region.startsWith("oss-")) ossMeta.region = ossMeta.region.substring("oss-".length());
         String key = parseKey(ossURL);
         if (StringUtils.isEmpty(key)) {
-            logger.error("parse key failed for url[{}]", ossURL);
+            logger.error("Parse key failed for url:{}", ossURL);
             return null;
         }
         ossMeta.key = key;
@@ -348,7 +348,7 @@ public class OSSClient implements Rebuildable {
      */
     public static String buildURL(OSSMeta ossMeta) {
         if (ossMeta == null || !ossMeta.check()) {
-            logger.error("oss meta is null or invalid");
+            logger.error("OSS meta is null or invalid");
             return null;
         }
         return String.format(ossMeta.region.startsWith("oss-") ? "http://%s.%s.%s/%s" : "http://%s.oss-%s.%s/%s",
@@ -386,7 +386,7 @@ public class OSSClient implements Rebuildable {
             from = PREFIX_HTTPS.length();
         }
         if (from == -1) {
-            logger.error("invalid protocol for url[{}]", ossURL);
+            logger.error("Invalid protocol for url:{}", ossURL);
             return null;
         }
         int index = ossURL.indexOf("/", from);

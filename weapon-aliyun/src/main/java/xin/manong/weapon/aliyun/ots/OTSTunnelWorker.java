@@ -34,7 +34,7 @@ public class OTSTunnelWorker {
                            TunnelClient tunnelClient) {
         this.config = config;
         this.tunnelClient = tunnelClient;
-        if (!check()) throw new RuntimeException("invalid OTS tunnel worker config");
+        if (!check()) throw new RuntimeException("Invalid OTS tunnel worker config");
     }
 
     /**
@@ -56,7 +56,7 @@ public class OTSTunnelWorker {
      * @return 启动成功返回true，否则返回false
      */
     public boolean start() {
-        logger.info("OTS tunnel worker[{}/{}] is starting ...", config.table, config.tunnel);
+        logger.info("OTS tunnel worker:{}/{} is starting ...", config.table, config.tunnel);
         DescribeTunnelRequest request = new DescribeTunnelRequest(config.table, config.tunnel);
         try {
             DescribeTunnelResponse response = tunnelClient.describeTunnel(request);
@@ -70,11 +70,11 @@ public class OTSTunnelWorker {
             worker = new TunnelWorker(tunnelInfo.getTunnelId(), tunnelClient, workerConfig);
             worker.connectAndWorking();
         } catch (Exception e) {
-            logger.error("start OTS tunnel worker[{}/{}] failed", config.table, config.tunnel);
+            logger.error("Start OTS tunnel worker:{}/{} failed", config.table, config.tunnel);
             logger.error(e.getMessage(), e);
             return false;
         }
-        logger.info("OTS tunnel worker[{}/{}] has been started", config.table, config.tunnel);
+        logger.info("OTS tunnel worker:{}/{} has been started", config.table, config.tunnel);
         return true;
     }
 
@@ -82,10 +82,10 @@ public class OTSTunnelWorker {
      * 停止OTS通道worker
      */
     public void stop() {
-        logger.info("OTS tunnel worker[{}/{}] is stopping ...", config.table, config.tunnel);
+        logger.info("OTS tunnel worker:{}/{} is stopping ...", config.table, config.tunnel);
         if (worker != null) worker.shutdown();
         if (workerConfig != null) workerConfig.shutdown();
-        logger.info("OTS tunnel worker[{}/{}] has been stopped", config.table, config.tunnel);
+        logger.info("OTS tunnel worker:{}/{} has been stopped", config.table, config.tunnel);
     }
 
     /**
@@ -96,14 +96,14 @@ public class OTSTunnelWorker {
      * @return 线程池执行器实例
      */
     private ThreadPoolExecutor createThreadPoolExecutor(String name, int threadNum) {
-        logger.info("create thread pool executor[{}:{}]", name, threadNum);
+        logger.info("Create thread pool executor:{}, thread num:{}]", name, threadNum);
         return new ThreadPoolExecutor(threadNum, threadNum, 60L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(16), new ThreadFactory() {
             private final AtomicInteger counter = new AtomicInteger();
             @SuppressWarnings("NullableProblems")
             public Thread newThread(Runnable task) {
                 String threadName = String.format("%s-%d", name, this.counter.getAndIncrement());
-                logger.info("create channel receiver thread[{}] success", threadName);
+                logger.info("Create channel receiver thread:{} success", threadName);
                 return new Thread(task, threadName);
             }
         }, new ThreadPoolExecutor.CallerRunsPolicy());

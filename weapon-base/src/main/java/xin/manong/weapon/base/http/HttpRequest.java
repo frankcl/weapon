@@ -178,27 +178,27 @@ public class HttpRequest {
      */
     public boolean check() {
         if (StringUtils.isEmpty(requestURL)) {
-            logger.error("request url is empty");
+            logger.error("Request url is empty");
             return false;
         }
         if (method == null) {
-            logger.error("http request method is null");
+            logger.error("Http request method is null");
             return false;
         }
         if (method == RequestMethod.POST && format == null) {
-            logger.error("http post body format is null");
+            logger.error("Http post body format is null");
             return false;
         }
         if (method == RequestMethod.PUT && format == null) {
-            logger.error("http put body format is null");
+            logger.error("Http put body format is null");
             return false;
         }
         if (method == RequestMethod.DELETE && format == null) {
-            logger.error("http delete body format is null");
+            logger.error("Http delete body format is null");
             return false;
         }
         if (method == RequestMethod.PATCH && format == null) {
-            logger.error("http patch body format is null");
+            logger.error("Http patch body format is null");
             return false;
         }
         return true;

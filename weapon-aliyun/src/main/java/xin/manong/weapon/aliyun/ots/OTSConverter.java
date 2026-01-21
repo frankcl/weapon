@@ -54,9 +54,11 @@ public class OTSConverter {
      */
     @SuppressWarnings("unchecked")
     public static <T> T convertKVRecordToJavaObject(KVRecord kvRecord, Class<T> javaClass) {
-        if (kvRecord == null || javaClass == null) throw new RuntimeException("convert record or java class is null");
+        if (kvRecord == null || javaClass == null) {
+            throw new IllegalArgumentException("Convert record or java class is null");
+        }
         Map<String, Object> keyMap = kvRecord.getKeyMap();
-        if (keyMap.isEmpty()) throw new RuntimeException("missing keys");
+        if (keyMap.isEmpty()) throw new IllegalArgumentException("Missing keys");
         Map<String, Object> fieldMap = kvRecord.getFieldMap();
         T javaObject = (T) ReflectUtil.newInstance(javaClass, null);
         List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(javaClass,
@@ -67,8 +69,8 @@ public class OTSConverter {
             assert primaryKey != null;
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             if (!keyMap.containsKey(keyName)) {
-                logger.error("primary key[{}] is not found from record", keyName);
-                throw new RuntimeException(String.format("primary key[%s] is not found from record", keyName));
+                logger.error("Primary key:{} is not found from record", keyName);
+                throw new IllegalArgumentException(String.format("Primary key:%s is not found from record", keyName));
             }
             ReflectUtil.setFieldValue(javaObject, primaryKeyField.getName(), keyMap.get(keyName));
         }
@@ -123,11 +125,11 @@ public class OTSConverter {
      * @return 成功返回keyMap，否则抛出异常
      */
     public static Map<String, Object> convertJavaObjectToKeyMap(Object javaObject) {
-        if (javaObject == null) throw new RuntimeException("convert java object is null");
+        if (javaObject == null) throw new IllegalArgumentException("Convert java object is null");
         List<Field> primaryKeyFields = ReflectUtil.getAnnotatedFields(
                 javaObject.getClass(), xin.manong.weapon.aliyun.ots.annotation.PrimaryKey.class);
         if (primaryKeyFields.isEmpty()) {
-            throw new RuntimeException(String.format("primary keys are not annotated for java object[%s]",
+            throw new IllegalArgumentException(String.format("Primary keys are not annotated for java object:%s",
                     javaObject.getClass().getName()));
         }
         Map<String, Object> keyMap = new HashMap<>();
@@ -138,7 +140,8 @@ public class OTSConverter {
             String keyName = StringUtils.isEmpty(primaryKey.name()) ? primaryKeyField.getName() : primaryKey.name();
             Object value = ReflectUtil.getFieldValue(javaObject, primaryKeyField.getName());
             if (!checkColumn(value)) {
-                throw new RuntimeException(String.format("primary key[%s] is invalid", primaryKeyField.getName()));
+                throw new IllegalArgumentException(String.format(
+                        "Primary key:%s is invalid", primaryKeyField.getName()));
             }
             keyMap.put(keyName, value);
         }
@@ -152,7 +155,7 @@ public class OTSConverter {
      * @return 如果成功返回转换结果，否则抛出RuntimeException
      */
     public static KVRecord convertRecord(Row row) {
-        if (row == null) throw new RuntimeException("convert row is null");
+        if (row == null) throw new IllegalArgumentException("Convert row is null");
         KVRecord kvRecord = new KVRecord();
         PrimaryKey primaryKey = row.getPrimaryKey();
         for (PrimaryKeyColumn primaryKeyColumn : primaryKey.getPrimaryKeyColumns()) {
@@ -174,8 +177,8 @@ public class OTSConverter {
      * @return 如果成功返回转换结果，否则抛出RuntimeException
      */
     public static Row convertRecord(KVRecord kvRecord) {
-        if (kvRecord == null || kvRecord.isEmpty()) throw new RuntimeException("convert record is null or empty");
-        if (CollectionUtils.isEmpty(kvRecord.getKeys())) throw new RuntimeException("convert keys are empty");
+        if (kvRecord == null || kvRecord.isEmpty()) throw new IllegalArgumentException("Convert record is null or empty");
+        if (CollectionUtils.isEmpty(kvRecord.getKeys())) throw new IllegalArgumentException("Convert keys are empty");
         Map<String, Object> keyMap = new HashMap<>(), columnMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : kvRecord.getFieldMap().entrySet()) {
             String key = entry.getKey();
@@ -188,7 +191,7 @@ public class OTSConverter {
                 else columnMap.put(key, value);
             }
         }
-        if (keyMap.size() != kvRecord.getKeys().size()) throw new RuntimeException("missing primary keys");
+        if (keyMap.size() != kvRecord.getKeys().size()) throw new IllegalArgumentException("Missing primary keys");
         return new Row(convertPrimaryKey(keyMap), convertColumns(columnMap));
     }
 
@@ -217,7 +220,7 @@ public class OTSConverter {
      * @return 如果成功返回转换结果，否则抛出RuntimeException
      */
     public static PrimaryKey convertPrimaryKey(Map<String, Object> keyMap) {
-        if (keyMap == null || keyMap.isEmpty()) throw new RuntimeException("primary keys are empty");
+        if (keyMap == null || keyMap.isEmpty()) throw new IllegalArgumentException("Primary keys are empty");
         PrimaryKeyBuilder builder = PrimaryKeyBuilder.createPrimaryKeyBuilder();
         for (Map.Entry<String, Object> entry : keyMap.entrySet()) {
             Object value = entry.getValue();
@@ -266,7 +269,7 @@ public class OTSConverter {
      * @return 如果成功返回转换结果，否则抛出RuntimeException
      */
     public static List<Column> convertColumns(Map<String, Object> columnMap) {
-        if (columnMap == null || columnMap.isEmpty()) throw new RuntimeException("column map is empty");
+        if (columnMap == null || columnMap.isEmpty()) throw new IllegalArgumentException("Column map is empty");
         List<Column> columns = new ArrayList<>();
         for (Map.Entry<String, Object> entry : columnMap.entrySet()) {
             Object value = entry.getValue();
@@ -316,7 +319,7 @@ public class OTSConverter {
         if (columnValue == null || field == null) return null;
         if (checkColumn(field.getType())) return columnValue;
         if (!(columnValue instanceof String)) {
-            logger.warn("expected value type[{}] for column[{}], actual value type[{}]",
+            logger.warn("Expected value type:{} for column:{}, actual value type:{}",
                     String.class.getName(), field.getName(), columnValue.getClass().getName());
             return null;
         }
@@ -346,7 +349,7 @@ public class OTSConverter {
      * @param <T> 列表模版参数
      */
     private static <T> TypeReference<ArrayList<T>> buildListTypeReference(Class<T> valueClass) {
-        return new TypeReference<ArrayList<T>>(valueClass) {};
+        return new TypeReference<>(valueClass) {};
     }
 
     /**
@@ -359,7 +362,7 @@ public class OTSConverter {
      * @param <V> Map模版参数value
      */
     private static <K, V> TypeReference<HashMap<K, V>> buildMapTypeReference(Class<K> keyClass, Class<V> valueClass) {
-        return new TypeReference<HashMap<K, V>>(keyClass, valueClass) {};
+        return new TypeReference<>(keyClass, valueClass) {};
     }
 
     /**
@@ -389,8 +392,8 @@ public class OTSConverter {
         if (keyValue instanceof byte[]) return;
         if (keyValue == PrimaryKeyValue.INF_MIN) return;
         if (keyValue == PrimaryKeyValue.INF_MAX) return;
-        logger.error("unexpected primary key type[{}]", keyValue.getClass().getName());
-        throw new RuntimeException(String.format("unexpected primary key type[%s]", keyValue.getClass().getName()));
+        logger.error("Unexpected primary key type:{}", keyValue.getClass().getName());
+        throw new RuntimeException(String.format("Unexpected primary key type:%s", keyValue.getClass().getName()));
     }
 
     /**
@@ -407,7 +410,7 @@ public class OTSConverter {
         if (columnValue instanceof Long) return true;
         if (columnValue instanceof Boolean) return true;
         if (columnValue instanceof byte[]) return true;
-        logger.warn("unexpected column value type[{}]", columnValue.getClass().getName());
+        logger.warn("Unexpected column value type:{}", columnValue.getClass().getName());
         return false;
     }
 
@@ -443,7 +446,7 @@ public class OTSConverter {
         } else if (primaryKeyType == PrimaryKeyType.INTEGER) {
             return primaryKeyValue.asLong();
         }
-        throw new RuntimeException(String.format("invalid primary key type[%s]", primaryKeyType.name()));
+        throw new RuntimeException(String.format("Invalid primary key type:%s", primaryKeyType.name()));
     }
 
     /**
@@ -465,6 +468,6 @@ public class OTSConverter {
         } else if (columnType == ColumnType.STRING) {
             return columnValue.asString();
         }
-        throw new RuntimeException(String.format("invalid column value type[%s]", columnType.name()));
+        throw new RuntimeException(String.format("Invalid column value type:%s", columnType.name()));
     }
 }

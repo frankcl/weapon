@@ -38,7 +38,7 @@ public class EtcdClient {
     private final WatchErrorConsumer watchErrorConsumer;
 
     public EtcdClient(EtcdConfig config) {
-        if (config == null || !config.check()) throw new IllegalArgumentException("etcd config is invalid");
+        if (config == null || !config.check()) throw new IllegalArgumentException("Etcd config is invalid");
         ClientBuilder builder = Client.builder().endpoints(config.endpoints.toArray(new String[0])).
                 user(ByteSequence.from(config.username, StandardCharsets.UTF_8)).
                 password(ByteSequence.from(config.password, StandardCharsets.UTF_8)).
@@ -77,7 +77,7 @@ public class EtcdClient {
         LockApproval approval = new LockApproval(request);
         if (!grantLease(request, approval)) return null;
         if (!acquireLock(request, approval, timeout)) return null;
-        logger.debug("apply lock:{} success", request.getKey());
+        logger.debug("Apply lock:{} success", request.getKey());
         return approval;
     }
 
@@ -94,9 +94,9 @@ public class EtcdClient {
             }
             approval.removeObserver();
             if (approval.getLeaseId() != null) client.getLeaseClient().revoke(approval.getLeaseId()).get();
-            logger.debug("release lock:{} success", approval.getKey());
+            logger.debug("Release lock:{} success", approval.getKey());
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("release lock:{} failed", approval.getKey());
+            logger.error("Release lock:{} failed", approval.getKey());
             logger.error(e.getMessage(), e);
         }
     }
@@ -120,7 +120,7 @@ public class EtcdClient {
             }
             return true;
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("grant lease failed");
+            logger.error("Grant lease failed");
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -147,12 +147,12 @@ public class EtcdClient {
         } catch (TimeoutException e) {
             approval.removeObserver();
             client.getLeaseClient().revoke(approval.getLeaseId());
-            logger.debug("acquire lock:{} timeout", request.getKey());
+            logger.debug("Acquire lock:{} timeout", request.getKey());
             return false;
         } catch (InterruptedException | ExecutionException e) {
             approval.removeObserver();
             client.getLeaseClient().revoke(approval.getLeaseId());
-            logger.error("acquire lock:{} failed", request.getKey());
+            logger.error("Acquire lock:{} failed", request.getKey());
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -172,7 +172,7 @@ public class EtcdClient {
             List<KeyValue> keys = client.getKVClient().get(byteSequence, getOption).get().getKvs();
             return keys.stream().map(keyValue -> keyValue.getKey().toString(StandardCharsets.UTF_8)).sorted().toList();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("get keys with prefix:{} failed", prefix);
+            logger.error("Get keys with prefix:{} failed", prefix);
             logger.error(e.getMessage(), e);
             return new ArrayList<>();
         }
@@ -187,7 +187,7 @@ public class EtcdClient {
     public String get(String key) {
         try {
             if (StringUtils.isEmpty(key)) {
-                logger.error("getting key is empty");
+                logger.error("Getting key is empty");
                 return null;
             }
             GetResponse response = client.getKVClient().get(ByteSequence.from(key, StandardCharsets.UTF_8)).get();
@@ -195,7 +195,7 @@ public class EtcdClient {
             if (kvs == null || kvs.isEmpty()) return null;
             return kvs.get(0).getValue().toString(StandardCharsets.UTF_8);
         } catch (ExecutionException | InterruptedException e) {
-            logger.error("get key:{} failed", key);
+            logger.error("Get key:{} failed", key);
             logger.error(e.getMessage(), e);
             return null;
         }
@@ -211,14 +211,14 @@ public class EtcdClient {
     public boolean put(String key, String value) {
         try {
             if (StringUtils.isEmpty(key) || StringUtils.isEmpty(value)) {
-                logger.error("putting key or value is empty");
+                logger.error("Putting key or value is empty");
                 return false;
             }
             client.getKVClient().put(ByteSequence.from(key, StandardCharsets.UTF_8),
                     ByteSequence.from(value, StandardCharsets.UTF_8)).get();
             return true;
         } catch (ExecutionException | InterruptedException e) {
-            logger.error("put key:{} and value:{} failed", key, value);
+            logger.error("Putting key:{} and value:{} failed", key, value);
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -227,13 +227,13 @@ public class EtcdClient {
     public boolean delete(String key) {
         try {
             if (StringUtils.isEmpty(key)) {
-                logger.error("deleting key is empty");
+                logger.error("Deleting key is empty");
                 return false;
             }
             client.getKVClient().delete(ByteSequence.from(key, StandardCharsets.UTF_8)).get();
             return true;
         } catch (ExecutionException | InterruptedException e) {
-            logger.error("delete key:{} failed", key);
+            logger.error("Deleting key:{} failed", key);
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -380,7 +380,7 @@ public class EtcdClient {
 
         @Override
         public void accept(Throwable throwable) {
-            logger.error("error occurred when watching: {}", throwable.getMessage());
+            logger.error("Error occurred when watching: {}", throwable.getMessage());
             logger.error(throwable.getMessage(), throwable);
         }
     }

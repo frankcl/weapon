@@ -57,23 +57,23 @@ public class WM {
         if (patterns != null) tempPatterns.addAll(patterns);
         tempPatterns.removeIf(pattern -> pattern == null || pattern.isEmpty());
         if (tempPatterns.isEmpty()) {
-            logger.error("match patterns are empty");
-            throw new RuntimeException("匹配模式为空");
+            logger.error("Match patterns are empty");
+            throw new IllegalArgumentException("匹配模式为空");
         }
         try {
             readWriteLock.writeLock().lock();
             this.patterns = tempPatterns;
             for (String pattern : this.patterns) m = Math.min(m, pattern.length());
             if (m == 0 || m == Integer.MAX_VALUE) {
-                logger.error("invalid min pattern size[{}]", m);
-                throw new RuntimeException(String.format("非法最小模式长度[%d]", m));
+                logger.error("Invalid min pattern size:{}", m);
+                throw new IllegalArgumentException(String.format("非法最小模式长度:%d", m));
             }
             if (B > m) {
-                logger.warn("block size[{}] is longer than min pattern size[{}], set block size[{}]", B, m, m);
+                logger.warn("Block size:{} is longer than min pattern size:{}, set block size:{}", B, m, m);
                 B = m;
             }
             if (p > m) {
-                logger.warn("prefix[{}] is longer than min pattern size[{}], set prefix[{}]", p, m, m);
+                logger.warn("prefix:{} is longer than min pattern size:{}, set prefix:{}", p, m, m);
                 p = m;
             }
             int prefixTableSize = CommonUtil.findNextPrime(patterns.size() * 10);
@@ -127,8 +127,8 @@ public class WM {
      */
     public void rebuild(List<String> patterns) {
         if (patterns == null || patterns.isEmpty()) {
-            logger.error("rebuild patterns are empty");
-            throw new RuntimeException("重建模式不能为空");
+            logger.error("Rebuild patterns are empty");
+            throw new IllegalArgumentException("重建模式不能为空");
         }
         build(patterns);
     }
@@ -142,7 +142,7 @@ public class WM {
     public List<MatchResult> search(String text) {
         Map<Integer, MatchResult> matchMap = new HashMap<>();
         if (text == null || text.isEmpty()) {
-            logger.warn("search text is empty");
+            logger.warn("Search text is empty");
             return new ArrayList<>();
         }
         try {

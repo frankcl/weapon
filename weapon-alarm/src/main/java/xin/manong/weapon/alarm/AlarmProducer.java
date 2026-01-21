@@ -36,17 +36,17 @@ public abstract class AlarmProducer {
      * @return 启动成功返回true，否则返回false
      */
     public final boolean start() {
-        logger.info("alarm producer is starting ...");
+        logger.info("Alarm producer is starting ...");
         if (config == null || !config.check()) {
-            logger.error("config is invalid");
+            logger.error("Config is invalid");
             return false;
         }
         if (!init()) {
-            logger.error("init alarm producer failed");
+            logger.error("Init alarm producer failed");
             return false;
         }
         combiner.start();
-        logger.info("alarm producer has been started");
+        logger.info("Alarm producer has been started");
         return true;
     }
 
@@ -54,10 +54,10 @@ public abstract class AlarmProducer {
      * 停止报警生产发送服务
      */
     public final void stop() {
-        logger.info("alarm producer is stopping ...");
+        logger.info("Alarm producer is stopping ...");
         combiner.stop();
         destroy();
-        logger.info("alarm producer has been stopped");
+        logger.info("Alarm producer has been stopped");
     }
 
     /**
@@ -68,11 +68,11 @@ public abstract class AlarmProducer {
      */
     public final boolean submit(Alarm alarm) {
         if (alarm == null || StringUtils.isEmpty(alarm.content)) {
-            logger.warn("alarm is invalid, ignore it");
+            logger.warn("Alarm is invalid, ignore it");
             return false;
         }
         if (!queue.offer(alarm)) {
-            logger.warn("alarm queue is full, ignore it");
+            logger.warn("Alarm queue is full, ignore it");
             return false;
         }
         return true;

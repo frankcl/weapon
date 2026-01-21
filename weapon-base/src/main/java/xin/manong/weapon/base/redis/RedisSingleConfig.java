@@ -27,7 +27,7 @@ public class RedisSingleConfig extends RedisConfig {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(address)) {
-            logger.error("node address is empty for single mode");
+            logger.error("Node address is empty for single mode");
             return false;
         }
         address = fillAddress(address);

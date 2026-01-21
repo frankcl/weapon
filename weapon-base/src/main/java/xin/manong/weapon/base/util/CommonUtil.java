@@ -78,7 +78,7 @@ public class CommonUtil {
             URL url = new URL(str);
             return url.getHost();
         } catch (MalformedURLException e) {
-            logger.warn("malformed url[{}]", str);
+            logger.warn("Malformed url:{}", str);
             return "";
         }
     }
@@ -221,7 +221,7 @@ public class CommonUtil {
      * @return 浮点数
      */
     public static double round(double v, int n) {
-        if (n < 0) throw new IllegalArgumentException(String.format("n[%d] must be greater than 0", n));
+        if (n < 0) throw new IllegalArgumentException(String.format("n:%d must be greater than 0", n));
         BigDecimal bigDecimal = new BigDecimal(v);
         return bigDecimal.setScale(n, RoundingMode.HALF_UP).doubleValue();
     }
@@ -261,7 +261,7 @@ public class CommonUtil {
      */
     public static int computeGCD(int m, int n) {
         if (m < 0 || n < 0) {
-            throw new IllegalArgumentException("input num must be greater than zero");
+            throw new IllegalArgumentException("Input num must be greater than zero");
         }
         if (m == 0) return n;
         if (n == 0) return m;
@@ -287,7 +287,7 @@ public class CommonUtil {
      */
     public static int computeLCM(int m, int n) {
         if (m < 0 || n < 0) {
-            throw new IllegalArgumentException("input num must be greater than zero");
+            throw new IllegalArgumentException("Input num must be greater than zero");
         }
         return m * n / computeGCD(m, n);
     }

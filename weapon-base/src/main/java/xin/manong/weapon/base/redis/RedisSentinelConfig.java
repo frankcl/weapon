@@ -30,11 +30,11 @@ public class RedisSentinelConfig extends RedisConfig {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(masterName)) {
-            logger.error("master name is empty for sentinel mode");
+            logger.error("Master name is empty for sentinel mode");
             return false;
         }
         if (sentinelAddresses == null || sentinelAddresses.isEmpty()) {
-            logger.error("sentinel addresses are empty for sentinel mode");
+            logger.error("Sentinel addresses are empty for sentinel mode");
             return false;
         }
         sentinelAddresses = fillAddress(sentinelAddresses);

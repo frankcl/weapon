@@ -34,15 +34,15 @@ class DumpReader<T> implements RecordReader<T> {
     @Override
     public boolean open() {
         if (input != null) {
-            logger.warn("dump reader has been opened for file[{}]", dumpFile);
+            logger.warn("Dump reader has been opened for file:{}", dumpFile);
             return false;
         }
         try {
             input = new Input(new FileInputStream(dumpFile));
-            logger.info("open dump reader success for file[{}]", dumpFile);
+            logger.info("Open dump reader success for file:{}", dumpFile);
             return true;
         } catch (IOException e) {
-            logger.error("open dump reader failed for file[{}]", dumpFile);
+            logger.error("Open dump reader failed for file:{}", dumpFile);
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -52,7 +52,7 @@ class DumpReader<T> implements RecordReader<T> {
     public void close() {
         if (input == null) return;
         input.close();
-        logger.info("close dump reader success for file[{}]", dumpFile);
+        logger.info("Close dump reader success for file:{}", dumpFile);
     }
 
     @Override

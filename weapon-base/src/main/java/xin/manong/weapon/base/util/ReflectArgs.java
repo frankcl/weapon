@@ -27,7 +27,7 @@ public class ReflectArgs {
     private void check() {
         if (values == null && types == null) return;
         if (values == null || types == null || types.length != values.length) {
-            throw new RuntimeException("argument type and value not consistent");
+            throw new IllegalArgumentException("Argument type and value not consistent");
         }
     }
 }

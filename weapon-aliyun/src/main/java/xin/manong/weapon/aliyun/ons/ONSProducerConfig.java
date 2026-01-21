@@ -32,7 +32,7 @@ public class ONSProducerConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(serverURL)) {
-            logger.error("server url is empty");
+            logger.error("Server url is empty");
             return false;
         }
         return true;

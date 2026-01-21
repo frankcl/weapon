@@ -34,15 +34,15 @@ public class LogSearchRequest {
      */
     public boolean check() {
         if (StringUtils.isEmpty(project)) {
-            logger.error("project is empty");
+            logger.error("Project is empty");
             return false;
         }
         if (StringUtils.isEmpty(logStore)) {
-            logger.error("log store is empty");
+            logger.error("Log store is empty");
             return false;
         }
         if (StringUtils.isEmpty(query)) {
-            logger.error("search query is empty");
+            logger.error("Search query is empty");
             return false;
         }
         if (stopTime == null || stopTime <= 0) stopTime = System.currentTimeMillis();

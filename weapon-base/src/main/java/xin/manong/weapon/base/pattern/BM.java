@@ -39,8 +39,8 @@ public class BM {
      */
     public void rebuild(String pattern) {
         if (pattern == null || pattern.isEmpty()) {
-            logger.error("rebuild pattern is empty");
-            throw new RuntimeException("重建匹配模式为空");
+            logger.error("Rebuild pattern is empty");
+            throw new IllegalArgumentException("重建匹配模式为空");
         }
         build(pattern);
     }
@@ -54,7 +54,7 @@ public class BM {
     @SuppressWarnings("StatementWithEmptyBody")
     public MatchResult search(String text) {
         if (text == null || text.isEmpty()) {
-            logger.warn("search text is empty");
+            logger.warn("Search text is empty");
             return null;
         }
         try {
@@ -86,8 +86,8 @@ public class BM {
      */
     private void build(String pattern) {
         if (pattern == null || pattern.isEmpty()) {
-            logger.error("pattern is empty");
-            throw new RuntimeException("匹配模式为空");
+            logger.error("Pattern is empty");
+            throw new IllegalArgumentException("匹配模式为空");
         }
         try {
             readWriteLock.writeLock().lock();

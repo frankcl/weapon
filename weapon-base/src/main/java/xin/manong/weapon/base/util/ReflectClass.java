@@ -63,7 +63,7 @@ class ReflectClass {
                 return field;
             }
         } catch (Exception e) {
-            logger.error("get field[{}] failed for class[{}]", fieldName, clazz.getName());
+            logger.error("Get field:{} failed for class:{}", fieldName, clazz.getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -88,7 +88,7 @@ class ReflectClass {
                 return method;
             }
         } catch (Exception e) {
-            logger.error("get method[{}] failed for class[{}]", key, clazz.getName());
+            logger.error("Get method:{} failed for class:{}", key, clazz.getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -112,7 +112,7 @@ class ReflectClass {
                 return constructor;
             }
         } catch (Exception e) {
-            logger.error("get constructor[{}] failed for class[{}]", key, clazz.getName());
+            logger.error("Get constructor:{} failed for class:{}", key, clazz.getName());
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }

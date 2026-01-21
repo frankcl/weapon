@@ -131,7 +131,7 @@ public class ByteArrayUtil {
      */
     public static int distance(byte[] byteArray1, byte[] byteArray2) {
         if (byteArray1.length != byteArray2.length) {
-            throw new IllegalArgumentException(String.format("array length is not consistent[%d vs %d]",
+            throw new IllegalArgumentException(String.format("Array length is not consistent:%d vs %d",
                     byteArray1.length, byteArray2.length));
         }
         int count = 0;

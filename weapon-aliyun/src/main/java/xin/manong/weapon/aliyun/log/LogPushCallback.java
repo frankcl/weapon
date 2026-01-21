@@ -29,7 +29,7 @@ public class LogPushCallback implements Callback {
     @Override
     public void onCompletion(Result result) {
         if (result.isSuccessful()) return;
-        logger.warn("push record[{}] failed for project[{}] and log store[{}]",
+        logger.warn("Push record:{} failed for project:{} and log store:{}",
                 logItem.ToJsonString(), project, logStore);
     }
 }

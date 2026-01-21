@@ -115,7 +115,7 @@ public class RedisClient {
      * @return Redis客户端
      */
     public static RedisClient buildRedisClient(RedisSingleConfig config) {
-        if (config == null || !config.check()) throw new RuntimeException("config is invalid for single server mode");
+        if (config == null || !config.check()) throw new IllegalArgumentException("Config is invalid for single server mode");
         Config redissonConfig = new Config();
         if (config.codec != null) redissonConfig.setCodec(config.codec);
         SingleServerConfig serverConfig = redissonConfig.useSingleServer();
@@ -137,7 +137,7 @@ public class RedisClient {
      * @return redis客户端
      */
     public static RedisClient buildRedisClient(RedisClusterConfig config) {
-        if (config == null || !config.check()) throw new RuntimeException("config is invalid for clustering mode");
+        if (config == null || !config.check()) throw new IllegalArgumentException("Config is invalid for clustering mode");
         Config redissonConfig = new Config();
         if (config.codec != null) redissonConfig.setCodec(config.codec);
         ClusterServersConfig serverConfig = redissonConfig.useClusterServers();
@@ -154,7 +154,7 @@ public class RedisClient {
      * @return redis客户端
      */
     public static RedisClient buildRedisClient(RedisMasterSlaveConfig config) {
-        if (config == null || !config.check()) throw new RuntimeException("config is invalid for master/slave mode");
+        if (config == null || !config.check()) throw new IllegalArgumentException("Config is invalid for master/slave mode");
         Config redissonConfig = new Config();
         if (config.codec != null) redissonConfig.setCodec(config.codec);
         MasterSlaveServersConfig serverConfig = redissonConfig.useMasterSlaveServers();
@@ -173,7 +173,7 @@ public class RedisClient {
      * @return redis客户端
      */
     public static RedisClient buildRedisClient(RedisSentinelConfig config) {
-        if (config == null || !config.check()) throw new RuntimeException("config is invalid for sentinel mode");
+        if (config == null || !config.check()) throw new IllegalArgumentException("Config is invalid for sentinel mode");
         Config redissonConfig = new Config();
         if (config.codec != null) redissonConfig.setCodec(config.codec);
         SentinelServersConfig serverConfig = redissonConfig.useSentinelServers();
@@ -208,7 +208,7 @@ public class RedisClient {
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryLock(String key, Long expiredSeconds) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         RLock lock = redissonClient.getLock(key);
         try {
             return lock.tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
@@ -225,7 +225,7 @@ public class RedisClient {
      * @param key 锁key
      */
     public void unlock(String key) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         try {
             RLock lock = redissonClient.getLock(key);
             lock.unlock();
@@ -242,7 +242,7 @@ public class RedisClient {
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryReadLock(String key, Long expiredSeconds) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         try {
             return readWriteLock.readLock().tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
@@ -259,7 +259,7 @@ public class RedisClient {
      * @param key 锁key
      */
     public void unLockRead(String key) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         readWriteLock.readLock().unlock();
     }
@@ -272,7 +272,7 @@ public class RedisClient {
      * @return 加锁成功返回true，否则返回false
      */
     public boolean tryWriteLock(String key, Long expiredSeconds) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         try {
             return readWriteLock.writeLock().tryLock(0, expiredSeconds == null ? -1 : (expiredSeconds <= 0 ?
@@ -289,7 +289,7 @@ public class RedisClient {
      * @param key 锁key
      */
     public void unLockWrite(String key) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("lock key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Lock key is not allowed to be empty");
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(key);
         readWriteLock.writeLock().unlock();
     }
@@ -311,7 +311,7 @@ public class RedisClient {
      */
     public RTransaction buildTransaction(TransactionOptions options) {
         if (options == null) {
-            logger.warn("transaction options are null, using default");
+            logger.warn("Transaction options are null, using default");
             return buildTransaction();
         }
         return redissonClient.createTransaction(options);
@@ -324,7 +324,7 @@ public class RedisClient {
      * @return 限速器实例
      */
     public RRateLimiter getRateLimiter(String key) {
-        if (StringUtils.isEmpty(key)) throw new RuntimeException("rate limiter key is not allowed to be empty");
+        if (StringUtils.isEmpty(key)) throw new IllegalArgumentException("Rate limiter key is not allowed to be empty");
         return redissonClient.getRateLimiter(key);
     }
 

@@ -19,7 +19,7 @@ public class MemoryMonitor {
     public MemoryMonitor(MemoryMonitorConfig config) {
         this.lastForceFullGCTime = 0L;
         this.config = config;
-        if (config == null) throw new RuntimeException("memory monitor config is null");
+        if (config == null) throw new IllegalArgumentException("Memory monitor config is null");
     }
 
     /**
@@ -33,7 +33,7 @@ public class MemoryMonitor {
             Memory memory = getCurrentMemory();
             double useMemoryRatio = memory.useMemory * 1.0d / memory.maxHeapMemory;
             if (useMemoryRatio >= config.minForceFullGCMemoryRatio && interval >= config.minForceFullGCInterval) {
-                logger.info("force fullGC for use memory ratio[{}], current memory[{}]", useMemoryRatio, memory);
+                logger.info("Force fullGC for use memory ratio:{}, current memory:{}", useMemoryRatio, memory);
                 System.gc();
                 lastForceFullGCTime = System.currentTimeMillis();
             }

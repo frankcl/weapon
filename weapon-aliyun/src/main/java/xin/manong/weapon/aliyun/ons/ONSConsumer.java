@@ -45,10 +45,10 @@ public class ONSConsumer implements Rebuildable {
                 consumer.subscribe(subscribe.topic, subscribe.tags, subscribe.listener);
             }
             consumer.start();
-            logger.info("build ONS consumer success");
+            logger.info("Build ONS consumer success");
             return true;
         } catch (Exception e) {
-            logger.error("build ONS consumer failed");
+            logger.error("Build ONS consumer failed");
             logger.error(e.getMessage(), e);
             return false;
         }
@@ -76,7 +76,7 @@ public class ONSConsumer implements Rebuildable {
         logger.info("ONS consumer is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore ONS consumer rebuilding");
+            logger.warn("Secret is not changed, ignore ONS consumer rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
@@ -84,9 +84,9 @@ public class ONSConsumer implements Rebuildable {
         Consumer prevConsumer = consumer;
         if (prevConsumer != null) prevConsumer.shutdown();
         for (EventListener eventListener : eventListeners) {
-            eventListener.onRebuild(new RebuildEvent(this));
+            eventListener.onRebuild(new RebuildEvent<>(this));
         }
-        if (!build()) throw new RuntimeException("rebuild ONS consumer failed");
+        if (!build()) throw new RuntimeException("Rebuild ONS consumer failed");
         logger.info("ONS consumer rebuild success");
     }
 

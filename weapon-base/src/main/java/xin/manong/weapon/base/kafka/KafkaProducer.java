@@ -35,9 +35,9 @@ public class KafkaProducer {
      * @return 成功返回true，否则返回false
      */
     public boolean init() {
-        logger.info("kafka producer is init ...");
+        logger.info("Kafka producer is init ...");
         if (config == null || !config.check()) {
-            logger.error("kafka producer config is invalid");
+            logger.error("Kafka producer config is invalid");
             return false;
         }
         Properties properties = new Properties();
@@ -54,7 +54,7 @@ public class KafkaProducer {
             properties.put(KafkaAuthConfig.SASL_JAAS_CONFIG, config.authConfig.saslJaasConfig);
         }
         producer = new org.apache.kafka.clients.producer.KafkaProducer<>(properties);
-        logger.info("kafka producer init success");
+        logger.info("Kafka producer init success");
         return true;
     }
 
@@ -62,9 +62,9 @@ public class KafkaProducer {
      * 销毁kafka消息生产
      */
     public void destroy() {
-        logger.info("kafka producer is destroying ...");
+        logger.info("Kafka producer is destroying ...");
         if (producer != null) producer.close();
-        logger.info("kafka producer has been destroyed");
+        logger.info("Kafka producer has been destroyed");
     }
 
     /**
@@ -77,11 +77,11 @@ public class KafkaProducer {
      */
     public RecordMetadata send(String key, byte[] message, String topic, RecordHeaders headers) {
         if (StringUtils.isEmpty(topic)) {
-            logger.error("send kafka topic is empty");
+            logger.error("Send kafka topic is empty");
             return null;
         }
         if (message == null || message.length == 0) {
-            logger.error("send message is empty, ignore it");
+            logger.error("Send message is empty, ignore it");
             return null;
         }
         ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(topic, null, null,
@@ -90,7 +90,7 @@ public class KafkaProducer {
         try {
             return future.get();
         } catch (Exception e) {
-            logger.error("get response failed for sending message");
+            logger.error("Get response failed for sending message");
             logger.error(e.getMessage(), e);
             return null;
         }

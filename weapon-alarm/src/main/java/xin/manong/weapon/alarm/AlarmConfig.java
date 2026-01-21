@@ -38,18 +38,18 @@ public class AlarmConfig {
      */
     public boolean check() {
         if (StringUtils.isEmpty(producerClass)) {
-            logger.error("alarm producer class is empty");
+            logger.error("Alarm producer class is empty");
             return false;
         }
         if (channelReceiverMap == null || channelReceiverMap.isEmpty()) {
-            logger.error("alarm channel receiver mapping is empty");
+            logger.error("Alarm channel receiver mapping is empty");
             return false;
         }
         for (Map.Entry<AlarmChannel, List<String>> entry : channelReceiverMap.entrySet()) {
             AlarmChannel alarmChannel = entry.getKey();
             List<String> receivers = entry.getValue();
             if (receivers == null || receivers.isEmpty()) {
-                logger.error("alarm receivers are empty for channel[{}]", alarmChannel.name());
+                logger.error("Alarm receivers are empty for channel:{}", alarmChannel.name());
                 return false;
             }
         }

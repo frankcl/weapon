@@ -49,19 +49,19 @@ public class OSSMeta {
      */
     public boolean check() {
         if (StringUtils.isEmpty(region)) {
-            logger.error("region is empty");
+            logger.error("Region is empty");
             return false;
         }
         if (StringUtils.isEmpty(bucket)) {
-            logger.error("bucket is empty");
+            logger.error("Bucket is empty");
             return false;
         }
         if (StringUtils.isEmpty(key)) {
-            logger.error("key is empty");
+            logger.error("Key is empty");
             return false;
         }
         if (key.startsWith("/")) {
-            logger.error("oss key is not allowed to start with '/'");
+            logger.error("OSS key is not allowed to start with '/'");
             return false;
         }
         return true;

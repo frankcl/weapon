@@ -38,8 +38,8 @@ public class HttpProxy extends Proxy {
     public HttpProxy(Type type, SocketAddress socketAddress,
                      String username, String password) {
         this(type, socketAddress);
-        if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("username is empty");
-        if (StringUtils.isEmpty(password)) throw new IllegalArgumentException("password is empty");
+        if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("Username is empty");
+        if (StringUtils.isEmpty(password)) throw new IllegalArgumentException("Password is empty");
         this.username = username;
         this.password = password;
     }

@@ -30,7 +30,7 @@ public class RedisClusterConfig extends RedisConfig {
     public boolean check() {
         if (!super.check()) return false;
         if (nodeAddresses == null || nodeAddresses.isEmpty()) {
-            logger.error("node addresses are empty for clustering mode");
+            logger.error("Node addresses are empty for clustering mode");
             return false;
         }
         nodeAddresses = fillAddress(nodeAddresses);

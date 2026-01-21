@@ -27,11 +27,11 @@ public class AliyunSecret {
      */
     public boolean check() {
         if (StringUtils.isEmpty(accessKey)) {
-            logger.error("access key is empty");
+            logger.error("Access key is empty");
             return false;
         }
         if (StringUtils.isEmpty(secretKey)) {
-            logger.error("secret key is empty");
+            logger.error("Secret key is empty");
             return false;
         }
         return true;

@@ -45,11 +45,11 @@ public class RebuildManager {
         synchronized (RebuildManager.class) {
             for (Rebuildable object : rebuildObjects) {
                 if (object != rebuildObject) continue;
-                logger.warn("rebuild object[{}] has been registered, ignore it", rebuildObject.getClass().getName());
+                logger.warn("Rebuild object:{} has been registered, ignore it", rebuildObject.getClass().getName());
                 return;
             }
             rebuildObjects.add(rebuildObject);
-            logger.info("register rebuild object success[{}]", rebuildObject.getClass().getName());
+            logger.info("Register rebuild object success:{}", rebuildObject.getClass().getName());
         }
     }
 
@@ -65,7 +65,7 @@ public class RebuildManager {
             while (iterator.hasNext()) {
                 Rebuildable object = iterator.next();
                 if (object != rebuildObject) continue;
-                logger.info("unregister rebuild object success[{}]", rebuildObject.getClass().getName());
+                logger.info("Unregister rebuild object success:{}", rebuildObject.getClass().getName());
                 iterator.remove();
                 return;
             }

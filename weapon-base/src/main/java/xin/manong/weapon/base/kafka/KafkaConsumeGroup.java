@@ -34,13 +34,13 @@ public class KafkaConsumeGroup {
      * @return 启动成功返回true，否则返回false
      */
     public boolean start() {
-        logger.info("kafka consume group[{}] is starting ...", config == null ? null : config.name);
+        logger.info("Kafka consume group:{} is starting ...", config == null ? null : config.name);
         if (config == null || !config.check()) {
-            logger.error("kafka consume config is invalid");
+            logger.error("Kafka consume config is invalid");
             return false;
         }
         if (processor == null) {
-            logger.error("kafka record processor is null");
+            logger.error("Kafka record processor is null");
             return false;
         }
         consumers = new KafkaConsumer[config.consumeThreadNum];
@@ -48,11 +48,11 @@ public class KafkaConsumeGroup {
             String name = String.format("%s_%d", config.name, i);
             consumers[i] = new KafkaConsumer(name, config, processor);
             if (!consumers[i].start()) {
-                logger.error("start kafka consumer[{}] failed", name);
+                logger.error("Start kafka consumer:{} failed", name);
                 return false;
             }
         }
-        logger.info("kafka consume group[{}] has been started", config.name);
+        logger.info("Kafka consume group:{} has been started", config.name);
         return true;
     }
 
@@ -60,10 +60,10 @@ public class KafkaConsumeGroup {
      * 停止kafka消费组
      */
     public void stop() {
-        logger.info("kafka consume group[{}] is stopping ...", config.name);
+        logger.info("Kafka consume group:{} is stopping ...", config.name);
         for (int i = 0; consumers != null && i < consumers.length; i++) {
             consumers[i].stop();
         }
-        logger.info("kafka consume group[{}] has been stopped", config.name);
+        logger.info("Kafka consume group:{} has been stopped", config.name);
     }
 }

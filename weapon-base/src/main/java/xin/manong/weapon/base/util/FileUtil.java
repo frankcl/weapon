@@ -76,14 +76,14 @@ public class FileUtil {
             }
             return output.toByteArray();
         } catch (Exception e) {
-            logger.error("read failed for file[{}]", filePath);
+            logger.error("Read failed for file:{}", filePath);
             logger.error(e.getMessage(), e);
             return null;
         } finally {
             try {
                 output.close();
             } catch (IOException e) {
-                logger.error("close output stream failed");
+                logger.error("Close output stream failed");
                 logger.error(e.getMessage(), e);
             }
         }

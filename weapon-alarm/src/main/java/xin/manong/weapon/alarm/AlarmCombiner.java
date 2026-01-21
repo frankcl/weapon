@@ -37,24 +37,24 @@ public class AlarmCombiner implements Runnable {
      * 启动报警监控
      */
     public final void start() {
-        logger.info("alarm combiner is starting ...");
+        logger.info("Alarm combiner is starting ...");
         if (running || (thread != null && thread.isAlive())) {
-            logger.warn("alarm combiner has been started");
+            logger.warn("Alarm combiner has been started");
             return;
         }
         running = true;
         thread = new Thread(this, NAME);
         thread.start();
-        logger.info("alarm combiner has been started");
+        logger.info("Alarm combiner has been started");
     }
 
     /**
      * 停止报警监控
      */
     public final void stop() {
-        logger.info("alarm combiner is stopping ...");
+        logger.info("Alarm combiner is stopping ...");
         if (!running || thread == null || !thread.isAlive()) {
-            logger.warn("alarm combiner has been stopped");
+            logger.warn("Alarm combiner has been stopped");
             return;
         }
         running = false;
@@ -64,7 +64,7 @@ public class AlarmCombiner implements Runnable {
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
-        logger.info("alarm combiner has been stopped");
+        logger.info("Alarm combiner has been stopped");
     }
 
     @SuppressWarnings("BusyWait")
@@ -74,13 +74,13 @@ public class AlarmCombiner implements Runnable {
             try {
                 List<Alarm> alarms = batchGet();
                 if (alarms.isEmpty()) {
-                    logger.info("no alarm, sleep {} ms", config.asyncAlarmIntervalMs);
+                    logger.info("No alarm, sleep {} ms", config.asyncAlarmIntervalMs);
                     Thread.sleep(config.asyncAlarmIntervalMs);
                     continue;
                 }
                 List<Alarm> combinedAlarms = combine(alarms);
                 for (Alarm alarm : combinedAlarms) producer.send(alarm);
-                logger.info("process alarm num[{}], sleep {} ms", alarms.size(), config.asyncAlarmIntervalMs);
+                logger.info("Process alarm num:{}, sleep {} ms", alarms.size(), config.asyncAlarmIntervalMs);
                 Thread.sleep(config.asyncAlarmIntervalMs);
             } catch (Throwable t) {
                 logger.warn(t.getMessage(), t);

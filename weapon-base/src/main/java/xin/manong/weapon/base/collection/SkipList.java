@@ -50,7 +50,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
     }
 
     public SkipList(int maxLevel, Comparator<? super K> comparator) {
-        if (maxLevel <= 0) throw new IllegalArgumentException(String.format("illegal max level[%d]", maxLevel));
+        if (maxLevel <= 0) throw new IllegalArgumentException(String.format("Illegal max level:%d", maxLevel));
         this.level = 0;
         this.size = 0;
         this.random = new Random();
@@ -210,7 +210,7 @@ public class SkipList<K, V> implements Iterable<Entry<K, V>> {
         StringBuilder builder = new StringBuilder();
         Node<K, V> node = headNode.nextNodes[0];
         while (node != tailNode) {
-            if (builder.length() != 0) builder.append(",");
+            if (!builder.isEmpty()) builder.append(",");
             builder.append(node.entry);
             node = node.nextNodes[0];
         }

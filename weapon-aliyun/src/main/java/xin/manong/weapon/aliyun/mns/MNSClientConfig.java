@@ -36,7 +36,7 @@ public class MNSClientConfig extends DynamicSecretSupport {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(endpoint)) {
-            logger.error("endpoint is empty");
+            logger.error("Endpoint is empty");
             return false;
         }
         if (maxConnections <= 0) maxConnections = DEFAULT_MAX_CONNECTIONS;

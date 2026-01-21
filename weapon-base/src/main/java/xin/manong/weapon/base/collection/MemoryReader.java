@@ -31,13 +31,13 @@ class MemoryReader<T> implements RecordReader<T> {
     public boolean open() {
         cursor = 0;
         memoryCachedRecords.sort(comparator);
-        logger.info("open memory reader success");
+        logger.info("Open memory reader success");
         return true;
     }
 
     @Override
     public void close() {
-        logger.info("close memory reader success");
+        logger.info("Close memory reader success");
     }
 
     @Override

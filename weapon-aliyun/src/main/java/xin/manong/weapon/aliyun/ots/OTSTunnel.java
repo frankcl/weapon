@@ -71,7 +71,7 @@ public class OTSTunnel implements Rebuildable {
         logger.info("OTS tunnel is rebuilding ...");
         if (DynamicSecret.accessKey.equals(config.aliyunSecret.accessKey) &&
                 DynamicSecret.secretKey.equals(config.aliyunSecret.secretKey)) {
-            logger.warn("secret is not changed, ignore OTS tunnel rebuilding");
+            logger.warn("Secret is not changed, ignore OTS tunnel rebuilding");
             return;
         }
         config.aliyunSecret.accessKey = DynamicSecret.accessKey;
@@ -83,9 +83,9 @@ public class OTSTunnel implements Rebuildable {
         workerMap.clear();
         if (prevClient != null) prevClient.shutdown();
         for (EventListener eventListener : eventListeners) {
-            eventListener.onRebuild(new RebuildEvent(this));
+            eventListener.onRebuild(new RebuildEvent<>(this));
         }
-        if (!build()) throw new RuntimeException("rebuild OTS tunnel failed");
+        if (!build()) throw new RuntimeException("Rebuild OTS tunnel failed");
         logger.info("OTS tunnel rebuild success");
     }
 
@@ -138,12 +138,12 @@ public class OTSTunnel implements Rebuildable {
      */
     public boolean startTunnelWorker(OTSTunnelWorkerConfig workerConfig) {
         if (workerConfig == null || !workerConfig.check()) {
-            logger.error("invalid OTS tunnel worker config");
+            logger.error("Invalid OTS tunnel worker config");
             return false;
         }
         String key = DigestUtils.md5Hex(String.format("%s_%s", workerConfig.table, workerConfig.tunnel));
         if (workerMap.containsKey(key)) {
-            logger.warn("tunnel worker[{}/{}] has existed", workerConfig.table, workerConfig.tunnel);
+            logger.warn("Tunnel worker:{}/{} has existed", workerConfig.table, workerConfig.tunnel);
             return false;
         }
         if (!config.addTunnelWorkerConfig(workerConfig)) return false;
@@ -164,17 +164,17 @@ public class OTSTunnel implements Rebuildable {
     public void stopTunnelWorker(OTSTunnelWorkerConfig workerConfig) {
         if (workerConfig == null) return;
         if (StringUtils.isEmpty(workerConfig.table)) {
-            logger.warn("table is null, ignore remove request");
+            logger.warn("Table is null, ignore remove request");
             return;
         }
         if (StringUtils.isEmpty(workerConfig.tunnel)) {
-            logger.warn("tunnel is null, ignore remove request");
+            logger.warn("Tunnel is null, ignore remove request");
             return;
         }
         String key = DigestUtils.md5Hex(String.format("%s_%s", workerConfig.table, workerConfig.tunnel));
         OTSTunnelWorker worker = workerMap.remove(key);
         if (worker == null) {
-            logger.warn("tunnel worker[{}/{}] is not found", workerConfig.table, workerConfig.tunnel);
+            logger.warn("Tunnel worker:{}/{} is not found", workerConfig.table, workerConfig.tunnel);
             return;
         }
         worker.stop();

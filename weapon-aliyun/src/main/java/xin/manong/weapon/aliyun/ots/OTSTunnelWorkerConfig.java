@@ -44,15 +44,15 @@ public class OTSTunnelWorkerConfig {
      */
     public boolean check() {
         if (channelProcessor == null) {
-            logger.error("channel processor is null");
+            logger.error("Channel processor is null");
             return false;
         }
         if (StringUtils.isEmpty(table)) {
-            logger.error("table is empty");
+            logger.error("Table is empty");
             return false;
         }
         if (StringUtils.isEmpty(tunnel)) {
-            logger.error("tunnel is empty");
+            logger.error("Tunnel is empty");
             return false;
         }
         if (consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
@@ -65,8 +65,7 @@ public class OTSTunnelWorkerConfig {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof OTSTunnelWorkerConfig)) return false;
-        OTSTunnelWorkerConfig workerConfig = (OTSTunnelWorkerConfig) object;
+        if (!(object instanceof OTSTunnelWorkerConfig workerConfig)) return false;
         return Objects.equals(workerConfig.table, table) && Objects.equals(workerConfig.tunnel, tunnel);
     }
 

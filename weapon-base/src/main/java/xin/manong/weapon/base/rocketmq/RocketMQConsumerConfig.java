@@ -48,7 +48,7 @@ public class RocketMQConsumerConfig {
         if (subscribes == null) subscribes = new ArrayList<>();
         for (RocketMQSubscribe s : subscribes) {
             if (s.topic != null && s.topic.equals(subscribe.topic)) {
-                logger.warn("topic[{}] has been subscribed", subscribe.topic);
+                logger.warn("Topic:{} has been subscribed", subscribe.topic);
                 return;
             }
         }

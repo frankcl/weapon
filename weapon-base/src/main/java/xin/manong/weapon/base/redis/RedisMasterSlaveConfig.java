@@ -30,12 +30,12 @@ public class RedisMasterSlaveConfig extends RedisConfig {
     public boolean check() {
         if (!super.check()) return false;
         if (StringUtils.isEmpty(masterAddress)) {
-            logger.error("master address is empty for master/slave mode");
+            logger.error("Master address is empty for master/slave mode");
             return false;
         }
         masterAddress = fillAddress(masterAddress);
         if (slaveAddresses == null || slaveAddresses.isEmpty()) {
-            logger.error("slave addresses are empty for master/slave mode");
+            logger.error("Slave addresses are empty for master/slave mode");
             return false;
         }
         slaveAddresses = fillAddress(slaveAddresses);
