@@ -59,6 +59,7 @@
 | commons-collections4 | org.apache.commons         |      4.4       |  false   |
 | commons-lang3        | org.apache.commons         |     3.19.0     |  false   |
 | commons-validator    | commons-validator          |     1.10.1     |  false   |
+| elasticsearch-java   | co.elastic.clients         |     8.13.4     |   true   |
 | fastjson             | com.alibaba                |     2.0.35     |  false   |
 | hanlp                | com.hankcs                 | portable-1.7.8 |   true   |
 | imageio-webp         | com.twelvemonkeys.imageio  |     3.12.0     |  false   |
@@ -68,6 +69,7 @@
 | jsoup                | org.jsoup                  |     1.15.3     |   true   |
 | kafka-clients        | org.apache.kafka           |     4.0.0      |   true   |
 | kryo                 | com.esotericsoftware       |     5.6.2      |   true   |
+| milvus-sdk-java      | io.milvus                  |     2.6.12     |   true   |
 | okhttp3              | com.squareup.okhttp3       |     4.12.0     |   true   |
 | ons-client           | com.aliyun.openservices    |  2.0.8.Final   |   true   |
 | redisson             | org.redisson               |     3.38.1     |   true   | 
