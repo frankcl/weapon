@@ -40,11 +40,11 @@
 
 | 工件                 | 分组         | 最新版本  | 是否必须 | 说明                     |
 |:-------------------|:-----------|:------|:-----|:-----------------------|
-| weapon-base        | xin.manong | 0.2.7 | 否    | 基础开发工具                 |
-| weapon-aliyun      | xin.manong | 0.2.7 | 否    | 阿里云工具                  |
-| weapon-spring-boot | xin.manong | 0.2.7 | 否    | spring boot增强工具        |
-| weapon-jersey      | xin.manong | 0.2.7 | 否    | jersey web service增强工具 |
-| weapon-alarm       | xin.manong | 0.2.7 | 否    | 报警接口定义，引入使用实现自定义报警     |
+| weapon-base        | xin.manong | 0.2.8 | 否    | 基础开发工具                 |
+| weapon-aliyun      | xin.manong | 0.2.8 | 否    | 阿里云工具                  |
+| weapon-spring-boot | xin.manong | 0.2.8 | 否    | spring boot增强工具        |
+| weapon-jersey      | xin.manong | 0.2.8 | 否    | jersey web service增强工具 |
+| weapon-alarm       | xin.manong | 0.2.8 | 否    | 报警接口定义，引入使用实现自定义报警     |
 
 ## 依赖三方库信息
 
