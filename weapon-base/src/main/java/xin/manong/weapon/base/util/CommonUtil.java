@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -65,6 +67,37 @@ public class CommonUtil {
     public static String timeToString(long timestamp, String format) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(StringUtils.isEmpty(format) ? DEFAULT_TIME_FORMAT : format);
         return dateFormat.format(new Date(timestamp));
+    }
+
+    /**
+     * 编码URL
+     *
+     * @param inputURL 输入URL
+     * @return 编码后URL
+     */
+    public static String encodeURL(String inputURL) {
+        try {
+            URL url = new URL(inputURL);
+            String query = url.getQuery();
+            String encodedURL = String.format("%s://%s%s", url.getProtocol(), url.getHost(), url.getPath());
+            if (StringUtils.isEmpty(query)) return encodedURL;
+            String[] queryParts = query.split("&");
+            StringBuilder builder = new StringBuilder();
+            for (String queryPart : queryParts) {
+                int pos = queryPart.indexOf("=");
+                String key = pos == -1 ? queryPart.trim() : queryPart.substring(0, pos).trim();
+                if (StringUtils.isEmpty(key)) continue;
+                String value = pos == -1 ? "" : queryPart.substring(pos + 1).trim();
+                value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+                if (!builder.isEmpty()) builder.append("&");
+                if (StringUtils.isEmpty(value)) builder.append(key);
+                else builder.append(String.format("%s=%s", key, value));
+            }
+            return builder.isEmpty() ? encodedURL : encodedURL + "?" + builder;
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage(), e);
+            return inputURL;
+        }
     }
 
     /**

@@ -13,6 +13,26 @@ import java.util.Objects;
 public class CommonUtilTest {
 
     @Test
+    public void testEncodeURL() {
+        {
+            String inputURL = "https://www.sina.com.cn/a/b.html?a=1&b=2";
+            Assert.assertEquals(inputURL, CommonUtil.encodeURL(inputURL));
+        }
+        {
+            String inputURL = "https://www.sina.com.cn/a/b.html?a=1";
+            Assert.assertEquals(inputURL, CommonUtil.encodeURL(inputURL));
+        }
+        {
+            String inputURL = "https://www.sina.com.cn/a/b.html";
+            Assert.assertEquals(inputURL, CommonUtil.encodeURL(inputURL));
+        }
+        {
+            String inputURL = "https://www.sina.com.cn/a/b.html?a=1%r&b=2";
+            Assert.assertEquals("https://www.sina.com.cn/a/b.html?a=1%25r&b=2", CommonUtil.encodeURL(inputURL));
+        }
+    }
+
+    @Test
     public void testCharacterOccurrence() {
         Assert.assertEquals(0, CommonUtil.characterOccurrence("adfa", 'g'));
         Assert.assertEquals(2, CommonUtil.characterOccurrence("adfa", 'a'));

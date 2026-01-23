@@ -32,7 +32,6 @@ public class HttpClient {
     public static final String HEADER_CONNECTION = "Connection";
     public static final String HEADER_ACCEPT = "Accept";
     public static final String HEADER_HOST = "Host";
-    public static final String HEADER_REFERER = "Referer";
     public static final String HEADER_READ_TIMEOUT = "Read-Timeout";
     public static final String HEADER_WRITE_TIMEOUT = "Write-Timeout";
     public static final String HEADER_CONNECT_TIMEOUT = "Connect-Timeout";
@@ -172,37 +171,6 @@ public class HttpClient {
         int pos = requestURL.indexOf("?");
         return pos == -1 ? String.format("%s?%s", requestURL, builder) : (requestURL.endsWith("&") ?
                String.format("%s%s", requestURL, builder) : String.format("%s&%s", requestURL, builder));
-    }
-
-    /**
-     * 编码URL
-     *
-     * @param inputURL 输入URL
-     * @return 编码后URL
-     */
-    private String encodeURL(String inputURL) {
-        try {
-            URL url = new URL(inputURL);
-            String query = url.getQuery();
-            String encodedURL = String.format("%s://%s%s", url.getProtocol(), url.getHost(), url.getPath());
-            if (StringUtils.isEmpty(query)) return encodedURL;
-            String[] queryParts = query.split("&");
-            StringBuilder builder = new StringBuilder();
-            for (String queryPart : queryParts) {
-                int pos = queryPart.indexOf("=");
-                String key = pos == -1 ? queryPart.trim() : queryPart.substring(0, pos).trim();
-                if (StringUtils.isEmpty(key)) continue;
-                String value = pos == -1 ? "" : queryPart.substring(pos + 1).trim();
-                value = URLEncoder.encode(value, StandardCharsets.UTF_8);
-                if (!builder.isEmpty()) builder.append("&");
-                if (StringUtils.isEmpty(value)) builder.append(key);
-                else builder.append(String.format("%s=%s", key, value));
-            }
-            return builder.isEmpty() ? encodedURL : encodedURL + "?" + builder;
-        } catch (MalformedURLException e) {
-            logger.error(e.getMessage(), e);
-            return inputURL;
-        }
     }
 
     /**
@@ -346,10 +314,6 @@ public class HttpClient {
             builder.addHeader(HEADER_ACCEPT, ACCEPT_ALL);
         }
         if (httpRequest.headers == null || httpRequest.headers.isEmpty()) return;
-        if (httpRequest.headers.containsKey(HEADER_REFERER)) {
-            String referer = encodeURL(httpRequest.headers.get(HEADER_REFERER));
-            httpRequest.headers.put(HEADER_REFERER, referer);
-        }
         for (Map.Entry<String, String> entry : httpRequest.headers.entrySet()) {
             if (StringUtils.isEmpty(entry.getKey()) || entry.getValue() == null) continue;
             builder.addHeader(entry.getKey(), entry.getValue());
