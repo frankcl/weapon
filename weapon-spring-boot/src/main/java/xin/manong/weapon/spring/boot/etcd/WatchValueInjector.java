@@ -1,5 +1,6 @@
 package xin.manong.weapon.spring.boot.etcd;
 
+import org.apache.commons.lang3.StringUtils;
 import xin.manong.weapon.base.etcd.EtcdClient;
 import xin.manong.weapon.base.util.ReflectUtil;
 
@@ -28,6 +29,8 @@ public class WatchValueInjector {
         while (namespace.endsWith("/")) namespace = namespace.substring(0, namespace.length() - 1);
         String key = watchValue.key();
         while (key.startsWith("/")) key = key.substring(1);
+        if (StringUtils.isEmpty(namespace)) return key;
+        if (StringUtils.isEmpty(key)) return namespace;
         return String.format("%s/%s", namespace, key);
     }
 
