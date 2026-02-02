@@ -17,5 +17,19 @@ public class MarkdownSplitterTest {
         List<MarkdownChunk> chunks = MarkdownSplitter.split(source, 3000);
         System.out.printf("Chunk num:%d, process time: %dms\n", chunks.size(), System.currentTimeMillis() - startTime);
         chunks.forEach(chunk -> System.out.println(chunk.getSeqNo() + " " + chunk.getChunkText() + "\n"));
+        chunks.forEach(chunk -> {
+            List<String> images = chunk.getImages();
+            if (!images.isEmpty()) {
+                System.out.println(chunk.getSeqNo() + " " + chunk.getHeading());
+                System.out.println(images);
+            }
+        });
+        chunks.forEach(chunk -> {
+            List<String> htmLs = chunk.getHTMLs();
+            if (!htmLs.isEmpty()) {
+                System.out.println(chunk.getSeqNo() + " " + chunk.getHeading());
+                System.out.println(htmLs);
+            }
+        });
     }
 }

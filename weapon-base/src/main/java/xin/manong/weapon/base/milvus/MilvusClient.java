@@ -131,24 +131,21 @@ public class MilvusClient {
      * 删除数据
      *
      * @param request 删除请求
-     * @return 成功返回true，否则返回false
+     * @return 成功删除数量
      */
-    public boolean delete(MilvusDeleteRequest request) {
+    public long delete(MilvusDeleteRequest request) {
         request.check();
         DeleteReq.DeleteReqBuilder builder = DeleteReq.builder().collectionName(request.collection);
         if (StringUtils.isNotEmpty(request.database)) builder.databaseName(request.database);
         if (StringUtils.isNotEmpty(request.partition)) builder.partitionName(request.partition);
-        builder.ids(List.of(request.id));
+        if (request.ids != null && !request.ids.isEmpty()) builder.ids(request.ids);
+        if (StringUtils.isNotEmpty(request.filter)) builder.filter(request.filter);
         try {
             DeleteResp response = client.delete(builder.build());
-            if (response.getDeleteCnt() != 1) {
-                logger.error("Delete data failed");
-                return false;
-            }
-            return true;
+            return response.getDeleteCnt();
         } catch (Exception e) {
             logger.error("Delete data failed", e);
-            return false;
+            return 0L;
         }
     }
 

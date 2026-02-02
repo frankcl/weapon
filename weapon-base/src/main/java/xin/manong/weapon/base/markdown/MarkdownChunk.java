@@ -3,8 +3,10 @@ package xin.manong.weapon.base.markdown;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Markdown块
@@ -92,6 +94,36 @@ public class MarkdownChunk {
             builder.append(slice.getText());
         }
         return builder.toString();
+    }
+
+    /**
+     * 获取图片列表
+     *
+     * @return 图片列表
+     */
+    public List<String> getImages() {
+        List<String> images = new ArrayList<>();
+        for (MarkdownSlice slice : slices) {
+            if (slice.getType() != MarkdownSliceType.IMAGE) continue;
+            String url = slice.getUrl();
+            if (StringUtils.isNotEmpty(url)) images.add(url);
+        }
+        return images;
+    }
+
+    /**
+     * 获取HTML列表
+     *
+     * @return HTML列表
+     */
+    public List<String> getHTMLs() {
+        List<String> htmlList = new ArrayList<>();
+        for (MarkdownSlice slice : slices) {
+            if (slice.getType() != MarkdownSliceType.HTML) continue;
+            String text = slice.getText();
+            if (StringUtils.isNotEmpty(text)) htmlList.add(text);
+        }
+        return htmlList;
     }
 
     /**

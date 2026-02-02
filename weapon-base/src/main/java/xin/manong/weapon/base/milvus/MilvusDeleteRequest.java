@@ -1,5 +1,9 @@
 package xin.manong.weapon.base.milvus;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+
 /**
  * 数据插入请求
  *
@@ -8,13 +12,15 @@ package xin.manong.weapon.base.milvus;
  */
 public class MilvusDeleteRequest extends MilvusRequest {
 
-    public Object id;
+    public List<Object> ids;
+    public String filter;
 
     private MilvusDeleteRequest() {}
 
     private MilvusDeleteRequest(MilvusDeleteRequest request) {
         super(request);
-        id = request.id;
+        ids = request.ids;
+        filter = request.filter;
     }
 
     /**
@@ -22,7 +28,12 @@ public class MilvusDeleteRequest extends MilvusRequest {
      */
     public void check() {
         super.check();
-        if (id == null) throw new IllegalArgumentException("Delete data id is null");
+        if ((ids == null || ids.isEmpty()) && StringUtils.isEmpty(filter)) {
+            throw new IllegalArgumentException("Delete data ids and filter are both not set");
+        }
+        if ((ids != null && !ids.isEmpty()) && StringUtils.isNotEmpty(filter)) {
+            throw new IllegalArgumentException("Delete data ids and filter can not be both set");
+        }
     }
 
     /**
@@ -39,11 +50,22 @@ public class MilvusDeleteRequest extends MilvusRequest {
         /**
          * 设置数据ID
          *
-         * @param id 数据ID
+         * @param ids 数据ID
          * @return 构建器
          */
-        public Builder id(Object id) {
-            delegate.id = id;
+        public Builder id(List<Object> ids) {
+            delegate.ids = ids;
+            return this;
+        }
+
+        /**
+         * 设置过滤表达式
+         *
+         * @param filter 过滤表达式
+         * @return 构建器
+         */
+        public Builder filterExpression(String filter) {
+            delegate.filter = filter;
             return this;
         }
 
