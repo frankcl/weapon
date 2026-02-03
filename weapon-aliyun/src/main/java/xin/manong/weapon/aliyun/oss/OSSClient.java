@@ -171,7 +171,7 @@ public class OSSClient implements Rebuildable {
      */
     public boolean putObject(String bucket, String key, byte[] content) {
         if (content == null || content.length == 0) {
-            logger.warn("Put content is empty for bucket:{} and key:{}", bucket, key);
+            logger.warn("Put content is empty");
             return false;
         }
         for (int i = 0; i < config.retryCnt; i++) {
@@ -179,6 +179,48 @@ public class OSSClient implements Rebuildable {
             if (putObject(bucket, key, inputStream)) return true;
         }
         return false;
+    }
+
+    /**
+     * 上传数据，返回ETag
+     *
+     * @param bucket bucket
+     * @param key key
+     * @param content 内容
+     * @return 成功返回ETag，否则返回null
+     */
+    public String putObjectReturnETag(String bucket, String key, byte[] content) {
+        if (content == null || content.length == 0) {
+            logger.warn("Put content is empty for return ETag");
+            return null;
+        }
+        for (int i = 0; i < config.retryCnt; i++) {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
+            String etag = putObjectReturnETag(bucket, key, inputStream);
+            if (StringUtils.isNotEmpty(etag)) return etag;
+        }
+        return null;
+    }
+
+    /**
+     * 上传数据，返回ETag
+     *
+     * @param bucket bucket
+     * @param key key
+     * @param inputStream 输入流
+     * @return 成功返回ETag，否则返回null
+     */
+    public String putObjectReturnETag(String bucket, String key, InputStream inputStream) {
+        if (inputStream == null) {
+            logger.error("Input stream is null");
+            return null;
+        }
+        PutObjectResult result = instance.putObject(bucket, key, inputStream);
+        if (result == null || StringUtils.isEmpty(result.getETag())) {
+            logger.error("Put object failed for bucket:{} and key:{}", bucket, key);
+            return null;
+        }
+        return result.getETag();
     }
 
     /**
@@ -190,16 +232,7 @@ public class OSSClient implements Rebuildable {
      * @return 成功返回true，否则返回false
      */
     public boolean putObject(String bucket, String key, InputStream inputStream) {
-        if (inputStream == null) {
-            logger.error("Input stream is null");
-            return false;
-        }
-        PutObjectResult result = instance.putObject(bucket, key, inputStream);
-        if (result == null || StringUtils.isEmpty(result.getETag())) {
-            logger.error("Put object failed for bucket:{} and key:{}", bucket, key);
-            return false;
-        }
-        return true;
+        return StringUtils.isNotEmpty(putObjectReturnETag(bucket, key, inputStream));
     }
 
     /**
