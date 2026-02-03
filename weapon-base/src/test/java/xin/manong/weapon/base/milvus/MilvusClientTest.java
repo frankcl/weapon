@@ -136,13 +136,13 @@ public class MilvusClientTest {
         }
         {
             MilvusDeleteRequest.Builder builder = new MilvusDeleteRequest.Builder();
-            builder.collection(collection).database(database).id("def");
-            Assert.assertTrue(client.delete(builder.build()));
+            builder.collection(collection).database(database).id(List.of("def"));
+            client.delete(builder.build());
         }
         {
             MilvusDeleteRequest.Builder builder = new MilvusDeleteRequest.Builder();
-            builder.collection(collection).database(database).id("abc");
-            Assert.assertTrue(client.delete(builder.build()));
+            builder.collection(collection).database(database).id(List.of("abc"));
+            client.delete(builder.build());
         }
     }
 }

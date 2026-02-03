@@ -1,5 +1,6 @@
 package xin.manong.weapon.base.markdown;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,6 +48,7 @@ public class MarkdownChunk {
      *
      * @return 为空返回true，否则返回false
      */
+    @JSONField(serialize = false)
     public boolean isEmpty() {
         return slices == null || slices.isEmpty();
     }
@@ -56,6 +58,7 @@ public class MarkdownChunk {
      *
      * @return 第一个分片
      */
+    @JSONField(serialize = false)
     public MarkdownSlice getFirstSlice() {
         return slices == null || slices.isEmpty() ? null : slices.getFirst();
     }
@@ -65,6 +68,7 @@ public class MarkdownChunk {
      *
      * @return 最后一个分片
      */
+    @JSONField(serialize = false)
     public MarkdownSlice getLastSlice() {
         return slices == null || slices.isEmpty() ? null : slices.getLast();
     }
@@ -75,6 +79,7 @@ public class MarkdownChunk {
      *
      * @return 块文本
      */
+    @JSONField(serialize = false)
     public String getChunkText() {
         StringBuilder builder = new StringBuilder();
         if (StringUtils.isNotEmpty(heading)) builder.append("# ").append(heading).append("\n");
@@ -87,6 +92,7 @@ public class MarkdownChunk {
      *
      * @return 块内容
      */
+    @JSONField(serialize = false)
     public String getChunkContent() {
         StringBuilder builder = new StringBuilder();
         for (MarkdownSlice slice : slices) {
@@ -101,6 +107,7 @@ public class MarkdownChunk {
      *
      * @return 图片列表
      */
+    @JSONField(serialize = false)
     public List<String> getImages() {
         List<String> images = new ArrayList<>();
         for (MarkdownSlice slice : slices) {
@@ -116,6 +123,7 @@ public class MarkdownChunk {
      *
      * @return HTML列表
      */
+    @JSONField(serialize = false)
     public List<String> getHTMLs() {
         List<String> htmlList = new ArrayList<>();
         for (MarkdownSlice slice : slices) {
@@ -153,6 +161,7 @@ public class MarkdownChunk {
      *
      * @return 最后一个片段，如果为空返回null
      */
+    @JSONField(serialize = false)
     public MarkdownSlice removeLastSlice() {
         if (slices == null || slices.isEmpty()) return null;
         MarkdownSlice lastSlice = slices.removeLast();
@@ -165,6 +174,7 @@ public class MarkdownChunk {
      *
      * @return 第一个片段，如果为空返回null
      */
+    @JSONField(serialize = false)
     public MarkdownSlice removeFirstSlice() {
         if (slices == null || slices.isEmpty()) return null;
         MarkdownSlice firstSlice = slices.removeFirst();
