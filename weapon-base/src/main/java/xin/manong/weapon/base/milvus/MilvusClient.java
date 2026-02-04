@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.service.collection.request.AlterCollectionPropertiesReq;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.request.DropCollectionReq;
 import io.milvus.v2.service.collection.request.ListCollectionsReq;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Milvus客户端
@@ -224,7 +226,7 @@ public class MilvusClient {
         CreateDatabaseReq.CreateDatabaseReqBuilder builder = CreateDatabaseReq.builder();
         builder.databaseName(database);
         client.createDatabase(builder.build());
-        logger.info("Create database {} success", StringUtils.isEmpty(database) ? "default" : database);
+        logger.info("Create database:{} success", StringUtils.isEmpty(database) ? "default" : database);
         return true;
     }
 
@@ -237,7 +239,7 @@ public class MilvusClient {
         DropDatabaseReq.DropDatabaseReqBuilder builder = DropDatabaseReq.builder();
         builder.databaseName(database);
         client.dropDatabase(builder.build());
-        logger.info("Delete database {} success", StringUtils.isEmpty(database) ? "default" : database);
+        logger.info("Delete database:{} success", StringUtils.isEmpty(database) ? "default" : database);
     }
 
     /**
@@ -256,7 +258,7 @@ public class MilvusClient {
         if (StringUtils.isNotEmpty(database)) listBuilder.databaseName(database);
         ListCollectionsResp listResponse = client.listCollectionsV2(listBuilder.build());
         if (listResponse.getCollectionNames().contains(collection)) {
-            logger.error("Collection {} already exists", collection);
+            logger.error("Collection:{} already exists", collection);
             return false;
         }
         CreateCollectionReq.CreateCollectionReqBuilder builder = CreateCollectionReq.builder();
@@ -264,9 +266,29 @@ public class MilvusClient {
         if (StringUtils.isNotEmpty(database)) builder.databaseName(database);
         if (indexParams != null && !indexParams.isEmpty()) builder.indexParams(indexParams);
         client.createCollection(builder.build());
-        logger.info("Create collection {} success for database:{}",
+        logger.info("Create collection:{} success for database:{}",
                 collection, StringUtils.isEmpty(database) ? "default" : database);
         return true;
+    }
+
+    /**
+     * 修改collection属性
+     *
+     * @param collection collection集合
+     * @param database 数据库
+     * @param properties 属性
+     */
+    public void alterCollectionProperties(String collection,
+                                          String database,
+                                          Map<String, String> properties) {
+        AlterCollectionPropertiesReq.AlterCollectionPropertiesReqBuilder builder =
+                AlterCollectionPropertiesReq.builder();
+        builder.collectionName(collection);
+        builder.properties(properties);
+        if (StringUtils.isNotEmpty(database)) builder.databaseName(database);
+        client.alterCollectionProperties(builder.build());
+        logger.info("Alter collection:{} properties success for database:{}",
+                collection, StringUtils.isEmpty(database) ? "default" : database);
     }
 
     /**
@@ -280,7 +302,7 @@ public class MilvusClient {
         builder.collectionName(collection);
         if (StringUtils.isNotEmpty(database)) builder.databaseName(database);
         client.dropCollection(builder.build());
-        logger.info("Delete collection {} success for database:{}",
+        logger.info("Delete collection:{} success for database:{}",
                 collection, StringUtils.isEmpty(database) ? "default" : database);
     }
 }

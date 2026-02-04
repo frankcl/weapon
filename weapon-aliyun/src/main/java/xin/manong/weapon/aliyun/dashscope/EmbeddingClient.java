@@ -60,9 +60,12 @@ public class EmbeddingClient {
     public Double[] textEmbedding(TextEmbeddingRequest request) {
         if (request == null) throw new IllegalArgumentException("Text embedding request is null");
         if (!request.check()) throw new IllegalArgumentException("Invalid text embedding request");
-        if (StringUtils.isEmpty(DashScopeApiKey.apiKey)) throw new IllegalArgumentException("Api key is not config");
+        if (StringUtils.isEmpty(request.apiKey) && StringUtils.isEmpty(DashScopeApiKey.apiKey)) {
+            throw new IllegalArgumentException("Api key is not config");
+        }
         TextEmbeddingParam.TextEmbeddingParamBuilder<?, ?> builder = TextEmbeddingParam.builder().
-                text(request.text).dimension(request.dimension).model(request.model).apiKey(DashScopeApiKey.apiKey).
+                text(request.text).dimension(request.dimension).model(request.model).
+                apiKey(StringUtils.isNotEmpty(request.apiKey) ? request.apiKey : DashScopeApiKey.apiKey).
                 textType(request.textType).outputType(TextEmbeddingParam.OutputType.DENSE);
         if (request.textType == TextEmbeddingParam.TextType.QUERY &&
                 StringUtils.isNotEmpty(request.instruct)) {

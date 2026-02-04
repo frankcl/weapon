@@ -20,6 +20,7 @@ public class TextEmbeddingRequest {
     public String text;
     public String instruct;
     public String model;
+    public String apiKey;
     public Integer dimension = DEFAULT_DIMENSION;
     public TextEmbeddingParam.TextType textType = TextEmbeddingParam.TextType.DOCUMENT;
 
