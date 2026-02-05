@@ -19,8 +19,8 @@ import java.util.List;
 public class MarkdownChunk {
 
     private int level;
-    private int charNum;
-    private int seqNo;
+    private int chars;
+    private int number;
     private String heading;
     private Deque<MarkdownSlice> slices;
 
@@ -32,7 +32,7 @@ public class MarkdownChunk {
     public MarkdownChunk(int level, String heading) {
         this.level = level;
         this.heading = heading;
-        this.charNum = 0;
+        this.chars = 0;
         this.slices = new LinkedList<>();
     }
 
@@ -40,7 +40,7 @@ public class MarkdownChunk {
         this(level, heading);
         this.slices = new LinkedList<>();
         this.slices.add(slice);
-        this.charNum = this.slices.stream().mapToInt(MarkdownSlice::getCharNum).sum();
+        this.chars = this.slices.stream().mapToInt(MarkdownSlice::getChars).sum();
     }
 
     /**
@@ -96,7 +96,8 @@ public class MarkdownChunk {
     public String getChunkContent() {
         StringBuilder builder = new StringBuilder();
         for (MarkdownSlice slice : slices) {
-            if (!builder.isEmpty()) builder.append("\n");
+            String text = slice.getText();
+            if (!builder.isEmpty() && !text.startsWith("  \n")) builder.append("\n");
             builder.append(slice.getText());
         }
         return builder.toString();
@@ -143,7 +144,7 @@ public class MarkdownChunk {
         if (slice == null) return;
         if (slices == null) slices = new LinkedList<>();
         slices.add(slice);
-        charNum += slice.getCharNum();
+        chars += slice.getChars();
     }
 
     /**
@@ -165,7 +166,7 @@ public class MarkdownChunk {
     public MarkdownSlice removeLastSlice() {
         if (slices == null || slices.isEmpty()) return null;
         MarkdownSlice lastSlice = slices.removeLast();
-        charNum -= lastSlice.getCharNum();
+        chars -= lastSlice.getChars();
         return lastSlice;
     }
 
@@ -178,7 +179,7 @@ public class MarkdownChunk {
     public MarkdownSlice removeFirstSlice() {
         if (slices == null || slices.isEmpty()) return null;
         MarkdownSlice firstSlice = slices.removeFirst();
-        charNum -= firstSlice.getCharNum();
+        chars -= firstSlice.getChars();
         return firstSlice;
     }
 
@@ -186,7 +187,7 @@ public class MarkdownChunk {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (StringUtils.isNotEmpty(heading)) {
-            builder.append("#").append(heading).append(String.format("[LEVEL:%d,CHARS:%d]\n", level, charNum));
+            builder.append("#").append(heading).append(String.format("[LEVEL:%d,CHARS:%d]\n", level, chars));
         }
         for (MarkdownSlice slice : slices) {
             if (!builder.isEmpty()) builder.append("\n");
