@@ -1,5 +1,6 @@
 package xin.manong.weapon.aliyun.dashscope;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author frankcl
  * @date 2026-02-03 11:33:28
  */
+@Data
 public class EmbeddingClientConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddingClientConfig.class);
