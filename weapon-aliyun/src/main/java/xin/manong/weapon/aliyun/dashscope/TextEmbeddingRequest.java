@@ -25,6 +25,84 @@ public class TextEmbeddingRequest {
     public TextEmbeddingParam.TextType textType = TextEmbeddingParam.TextType.DOCUMENT;
 
     /**
+     * 请求构建器
+     */
+    public static class Builder {
+
+        private final TextEmbeddingRequest delegate;
+
+        public Builder() {
+            delegate = new TextEmbeddingRequest();
+        }
+
+        /**
+         * 设置embedding文本
+         *
+         * @param text embedding文本
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder text(String text) {
+            delegate.text = text;
+            return this;
+        }
+
+        /**
+         * 设置模型
+         *
+         * @param model 模型
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder model(String model) {
+            delegate.model = model;
+            return this;
+        }
+
+        /**
+         * 设置指令
+         *
+         * @param instruct 指令
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder instruct(String instruct) {
+            delegate.instruct = instruct;
+            return this;
+        }
+
+        /**
+         * 设置维数
+         *
+         * @param dimension 维数
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder dimension(Integer dimension) {
+            delegate.dimension = dimension;
+            return this;
+        }
+
+        /**
+         * 设置API key
+         *
+         * @param apiKey API key
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder apiKey(String apiKey) {
+            delegate.apiKey = apiKey;
+            return this;
+        }
+
+        /**
+         * 设置embedding文本类型
+         *
+         * @param textType 文本类型
+         * @return 构建器
+         */
+        public TextEmbeddingRequest.Builder textType(TextEmbeddingParam.TextType textType) {
+            delegate.textType = textType;
+            return this;
+        }
+    }
+
+    /**
      * 检测有效性
      *
      * @return 有效返回true，否则返回false
