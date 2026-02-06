@@ -3,7 +3,7 @@
     <parent>
         <artifactId>weapon</artifactId>
         <groupId>xin.manong</groupId>
-        <version>0.3.0</version>
+        <version>0.3.1</version>
     </parent>
     <packaging>jar</packaging>
     <name>weapon-spring-boot</name>

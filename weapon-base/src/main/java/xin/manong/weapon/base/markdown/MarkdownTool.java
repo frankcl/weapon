@@ -89,12 +89,12 @@ public class MarkdownTool {
     private static List<MarkdownChunk> buildChunk(MarkdownSliceType type, String text,
                                                   MarkdownHeading heading, String url,
                                                   MarkdownOptions options) {
-        if (type == MarkdownSliceType.PARAGRAPH && text.length() > options.chunkSize) {
-            return chunkingLongText(text, options.chunkSize, heading);
-        } else if (type == MarkdownSliceType.PARAGRAPH && options.minParagraphLength != null &&
-                text.length() <= options.minParagraphLength) {
-            logger.debug("Filter short paragraph:{}", text);
-            return List.of();
+        if (type == MarkdownSliceType.PARAGRAPH) {
+            if (options.minParagraphLength != null && text.length() <= options.minParagraphLength) {
+                logger.debug("Filter short paragraph:{}", text);
+                return List.of();
+            }
+            if (text.length() > options.chunkSize) return chunkingLongText(text, options.chunkSize, heading);
         }
         MarkdownSlice slice = new MarkdownSlice(type, text);
         if (StringUtils.isNotEmpty(url)) slice.setUrl(url);
@@ -168,24 +168,47 @@ public class MarkdownTool {
         if (options.minParagraphLength != null && node.getChars().length() <= options.minParagraphLength) return;
         Node child = node.getFirstChild();
         while (child != null) {
-            chunkingNode(child, textBuilder, heading, chunks, options);
-            child = child.getNext();
+            child = processNode(child, textBuilder, heading, chunks, options);
+            if (child != null) child = child.getNext();
         }
         if (!textBuilder.isEmpty()) textBuilder.append("\n");
     }
 
     /**
-     * 节点分块
+     * 填充图片描述文本
+     *
+     * @param node 图片节点
+     * @param nodeText 节点文本构建器
+     * @return 存在返回文本节点，否则返回null
+     */
+    private static Node fillImageText(Node node, StringBuilder nodeText) {
+        Node textNode = null;
+        if (!(node instanceof Image)) return textNode;
+        while (true) {
+            node = node.getNext();
+            if (!(node instanceof HardLineBreak) && !(node instanceof Emphasis)) return textNode;
+            String text = node.getChars().toString();
+            node = node.getNext();
+            if (!(node instanceof Text)) return textNode;
+            nodeText.append(text).append(node.getChars());
+            textNode = node;
+        }
+    }
+
+    /**
+     * 处理节点
      *
      * @param node 节点
      * @param textBuilder 文本构建器
      * @param heading 标题
      * @param chunks 分块列表
      * @param options 选项
+     * @return 当前处理节点
      */
-    private static void chunkingNode(Node node, StringBuilder textBuilder,
-                                     MarkdownHeading heading, List<MarkdownChunk> chunks,
-                                     MarkdownOptions options) {
+    private static Node processNode(Node node, StringBuilder textBuilder,
+                                    MarkdownHeading heading, List<MarkdownChunk> chunks,
+                                    MarkdownOptions options) {
+        Node processingNode = node;
         MarkdownSliceType sliceType = sliceType(node);
         if (node instanceof Heading) {
             buildTextChunk(textBuilder, heading, chunks, options);
@@ -193,12 +216,16 @@ public class MarkdownTool {
         } else if (chunkSliceTypes.contains(sliceType)) {
             buildTextChunk(textBuilder, heading, chunks, options);
             String url = node instanceof Image ? ((Image) node).getUrl().toString() : null;
-            List<MarkdownChunk> newChunks = buildChunk(sliceType,
-                    node.getChars().toString(), heading, url, options);
+            StringBuilder nodeText = new StringBuilder();
+            nodeText.append(node.getChars());
+            Node next = fillImageText(node, nodeText);
+            if (next != null) processingNode = next;
+            List<MarkdownChunk> newChunks = buildChunk(sliceType, nodeText.toString(), heading, url, options);
             pushChunks(newChunks, chunks, options);
         } else {
             textBuilder.append(node.getChars());
         }
+        return processingNode;
     }
 
     /**
@@ -217,8 +244,8 @@ public class MarkdownTool {
             node = queue.removeFirst();
             if (node == null) continue;
             if (node instanceof Paragraph) chunkingParagraph(node, textBuilder, heading, chunks, options);
-            else chunkingNode(node, textBuilder, heading, chunks, options);
-            if (node.getNext() != null) queue.addLast(node.getNext());
+            else node = processNode(node, textBuilder, heading, chunks, options);
+            if (node != null && node.getNext() != null) queue.addLast(node.getNext());
         }
         if (!textBuilder.isEmpty()) {
             List<MarkdownChunk> newChunks = buildChunk(MarkdownSliceType.PARAGRAPH,
