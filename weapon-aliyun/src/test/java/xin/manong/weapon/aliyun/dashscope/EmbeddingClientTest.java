@@ -28,9 +28,8 @@ public class EmbeddingClientTest {
 
     @Test
     public void testCall() {
-        TextEmbeddingRequest request = new TextEmbeddingRequest();
-        request.text = "测试文本";
-        request.model = "text-embedding-v4";
+        TextEmbeddingRequest request = new TextEmbeddingRequest.Builder().
+                text("测试文本").model("text-embedding-v4").build();
         Double[] vector = client.textEmbedding(request);
         Assert.assertNotNull(vector);
         Assert.assertEquals(768, vector.length);

@@ -24,6 +24,17 @@ public class TextEmbeddingRequest {
     public Integer dimension = DEFAULT_DIMENSION;
     public TextEmbeddingParam.TextType textType = TextEmbeddingParam.TextType.DOCUMENT;
 
+    private TextEmbeddingRequest() {}
+
+    private TextEmbeddingRequest(TextEmbeddingRequest request) {
+        text = request.text;
+        instruct = request.instruct;
+        model = request.model;
+        apiKey = request.apiKey;
+        dimension = request.dimension;
+        textType = request.textType;
+    }
+
     /**
      * 请求构建器
      */
@@ -99,6 +110,15 @@ public class TextEmbeddingRequest {
         public TextEmbeddingRequest.Builder textType(TextEmbeddingParam.TextType textType) {
             delegate.textType = textType;
             return this;
+        }
+
+        /**
+         * 构建实例
+         *
+         * @return 实例
+         */
+        public TextEmbeddingRequest build() {
+            return new TextEmbeddingRequest(delegate);
         }
     }
 
