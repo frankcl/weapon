@@ -75,6 +75,7 @@
         <tablestore.version>5.13.10</tablestore.version>
         <datahub.version>2.3.0-public</datahub.version>
         <rocketmq-client.version>5.3.3</rocketmq-client.version>
+        <rocketmq20220801.version>5.0.3</rocketmq20220801.version>
         <aliyun-log.version>0.6.82</aliyun-log.version>
         <aliyun-log-producer.version>0.3.12</aliyun-log-producer.version>
         <aliyun-mns.version>1.1.9.2</aliyun-mns.version>
@@ -356,6 +357,11 @@
                 <version>${rocketmq-client.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>rocketmq20220801</artifactId>
+                <version>${rocketmq20220801.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${oss.version}</version>
@@ -394,6 +400,12 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>dashscope-sdk-java</artifactId>
                 <version>${dashscope.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>co.elastic.clients</groupId>

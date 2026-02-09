@@ -91,6 +91,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>rocketmq20220801</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dashscope-sdk-java</artifactId>
             <optional>true</optional>
