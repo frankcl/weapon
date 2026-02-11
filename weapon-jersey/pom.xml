@@ -5,7 +5,7 @@
     <parent>
         <groupId>xin.manong</groupId>
         <artifactId>weapon</artifactId>
-        <version>0.3.2</version>
+        <version>0.3.3</version>
     </parent>
     <packaging>jar</packaging>
     <name>weapon-jersey</name>

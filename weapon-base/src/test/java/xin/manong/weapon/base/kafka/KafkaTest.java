@@ -22,15 +22,15 @@ public class KafkaTest {
 
     @Before
     public void setUp() throws Exception {
-        String username = "admin";
-        String password = "admin-123456";
+        String username = "client";
+        String password = "";
         String servers = "localhost:9092";
 
         KafkaAuthConfig authConfig = new KafkaAuthConfig();
         authConfig.securityProtocol = KafkaAuthConfig.PROTOCOL_SASL_PLAINTEXT;
-        authConfig.saslMechanism = "PLAIN";
+        authConfig.saslMechanism = "SCRAM-SHA-256";
         authConfig.saslJaasConfig = String.format(
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
+                "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";",
                 username, password);
         KafkaProduceConfig produceConfig = new KafkaProduceConfig();
         produceConfig.authConfig = authConfig;

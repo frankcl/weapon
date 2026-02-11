@@ -7,22 +7,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * kafka消息生产配置
+ * Kafka管理器配置
  *
  * @author frankcl
- * @date 2023-01-05 18:05:41
+ * @date 2026-02-11 11:24:26
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class KafkaProduceConfig extends KafkaAuthSupport {
+public class KafkaAdminConfig extends KafkaAuthSupport {
 
-    private final static Logger logger = LoggerFactory.getLogger(KafkaProduceConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaAdminConfig.class);
 
-    private final static int DEFAULT_RETRY_CNT = 3;
-    private final static int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
-
-    public int retryCnt = DEFAULT_RETRY_CNT;
-    public int requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
     public String servers;
 
     /**
@@ -36,8 +31,6 @@ public class KafkaProduceConfig extends KafkaAuthSupport {
             logger.error("Kafka servers are empty");
             return false;
         }
-        if (retryCnt <= 0) retryCnt = DEFAULT_RETRY_CNT;
-        if (requestTimeoutMs <= 0) requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS;
         return true;
     }
 }

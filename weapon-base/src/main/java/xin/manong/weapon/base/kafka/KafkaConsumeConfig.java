@@ -1,6 +1,7 @@
 package xin.manong.weapon.base.kafka;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.util.List;
  * @date 2023-01-05 16:15:45
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class KafkaConsumeConfig extends KafkaAuthSupport {
 
     private final static Logger logger = LoggerFactory.getLogger(KafkaConsumeConfig.class);
