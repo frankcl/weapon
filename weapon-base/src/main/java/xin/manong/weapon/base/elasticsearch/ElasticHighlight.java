@@ -19,6 +19,15 @@ public class ElasticHighlight {
     @JSONField(name = "field")
     @JsonProperty("field")
     public String field;
+    /**
+     * highlight类型：unified, fvh, plain
+     */
+    @JSONField(name = "type")
+    @JsonProperty("type")
+    public String type;
+    @JSONField(name = "fragment_offset")
+    @JsonProperty("fragment_offset")
+    public Integer fragmentOffset;
     @JSONField(name = "fragment_size")
     @JsonProperty("fragment_size")
     public Integer fragmentSize = 100;

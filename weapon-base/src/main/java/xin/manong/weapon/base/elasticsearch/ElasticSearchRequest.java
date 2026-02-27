@@ -2,6 +2,7 @@ package xin.manong.weapon.base.elasticsearch;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.RescoreQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,8 @@ public class ElasticSearchRequest {
     public int size = 10;
     public List<String> indices;
     public Query query;
+    public RescoreQuery rescoreQuery;
+    public Integer rescoreWindowSize;
     public boolean trackTotalHits = false;
     public List<ElasticSortOption> sortOptions;
     public List<FieldValue> cursor;

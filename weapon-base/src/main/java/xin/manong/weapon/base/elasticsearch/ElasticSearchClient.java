@@ -336,6 +336,7 @@ public class ElasticSearchClient {
             }
             handleIncludeExclude(builder, searchRequest);
             handleHighlight(builder, searchRequest);
+            handleRescoreQuery(builder, searchRequest);
             return builder;
         });
         return search(request, documentClass);
@@ -360,6 +361,7 @@ public class ElasticSearchClient {
             if (searchRequest.trackTotalHits) builder.trackTotalHits(new TrackHits.Builder().enabled(true).build());
             handleIncludeExclude(builder, searchRequest);
             handleHighlight(builder, searchRequest);
+            handleRescoreQuery(builder, searchRequest);
             return builder;
         });
         return search(request, documentClass);
@@ -472,9 +474,29 @@ public class ElasticSearchClient {
             b.fragmentSize(highlight.fragmentSize).numberOfFragments(highlight.fragmentNum);
             if (highlight.preTags != null) b.preTags(highlight.preTags);
             if (highlight.postTags != null) b.postTags(highlight.postTags);
+            if (StringUtils.isNotEmpty(highlight.type)) b.type(highlight.type);
+            if (highlight.fragmentOffset != null && highlight.fragmentOffset >= 0) {
+                b.fragmentOffset(highlight.fragmentOffset);
+            }
             highlightFieldMap.put(highlight.field, b.build());
         }
         builder.highlight(b -> b.fields(highlightFieldMap));
+    }
+
+    /**
+     * 处理重排序query
+     *
+     * @param builder 搜索请求构建器
+     * @param searchRequest ES搜索请求
+     */
+    private void handleRescoreQuery(SearchRequest.Builder builder, ElasticSearchRequest searchRequest) {
+        if (searchRequest.rescoreQuery == null) return;
+        Rescore.Builder rescoreBuilder = new Rescore.Builder();
+        rescoreBuilder.query(searchRequest.rescoreQuery);
+        if (searchRequest.rescoreWindowSize != null && searchRequest.rescoreWindowSize > 0) {
+            rescoreBuilder.windowSize(searchRequest.rescoreWindowSize);
+        }
+        builder.rescore(rescoreBuilder.build());
     }
 
     /**
