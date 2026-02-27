@@ -7,7 +7,7 @@
     <groupId>xin.manong</groupId>
     <artifactId>weapon</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.3</version>
+    <version>0.3.4</version>
     <name>weapon</name>
     <description>parent module of basic tools libraries for developing</description>
     <url>https://github.com/frankcl/weapon</url>
@@ -85,7 +85,7 @@
         <aspose-pdf.version>25.9</aspose-pdf.version>
         <flexmark.version>0.64.8</flexmark.version>
         <grpc.version>1.66.0</grpc.version>
-        <weapon.version>0.3.3</weapon.version>
+        <weapon.version>0.3.4</weapon.version>
     </properties>
 
     <profiles>
