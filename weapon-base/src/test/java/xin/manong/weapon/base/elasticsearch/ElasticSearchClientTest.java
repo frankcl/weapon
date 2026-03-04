@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import org.junit.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +35,39 @@ public class ElasticSearchClientTest {
     @After
     public void tearDown() {
         elasticSearchClient.close();
+    }
+
+    @Test
+    public void testGetIndicesStats() {
+        List<ElasticIndexStats> statsList = elasticSearchClient.getIndicesStats();
+        Assert.assertNotNull(statsList);
+    }
+
+    @Test
+    public void testGetMapping() {
+        String mapping = elasticSearchClient.getJSONMapping("test_full_ppn");
+        Assert.assertNotNull(mapping);
+    }
+
+    @Test
+    public void testSearchWithJsonDSL() {
+        String jsonDSL = """
+                {
+                  "query": {
+                    "bool": {
+                      "must": [
+                        { "match": { "product_number": "BD6230F" } }
+                      ]
+                    }
+                  },
+                  "size": 10,
+                  "from": 0
+                }
+                """;
+        ElasticSearchResponse<Object> response = elasticSearchClient.search(
+                "test_full_ppn", jsonDSL, Object.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(1, response.records.size());
     }
 
     @Test

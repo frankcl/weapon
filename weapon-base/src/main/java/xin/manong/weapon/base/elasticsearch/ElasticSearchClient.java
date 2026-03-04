@@ -3,11 +3,19 @@ package xin.manong.weapon.base.elasticsearch;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.elasticsearch.indices.GetMappingRequest;
+import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
+import co.elastic.clients.elasticsearch.indices.IndicesStatsResponse;
+import co.elastic.clients.elasticsearch.indices.get_mapping.IndexMappingRecord;
+import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
 import co.elastic.clients.json.JsonData;
+import co.elastic.clients.json.JsonpMapper;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import jakarta.json.stream.JsonGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -19,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,6 +117,86 @@ public class ElasticSearchClient {
             logger.warn("Conflict occurred when removing fields", e);
             return false;
         }
+    }
+
+    /**
+     * 获取索引mapping
+     *
+     * @param index 索引
+     * @return 成功返回mapping对象，否则返回null
+     */
+    public TypeMapping getMapping(String index) {
+        try {
+            GetMappingRequest request = GetMappingRequest.of(b -> b.index(index));
+            GetMappingResponse response = client.indices().getMapping(request);
+            IndexMappingRecord record = response.get(index);
+            return record == null ? null : record.mappings();
+        } catch (IOException e) {
+            logger.error("Get mapping failed for index:{}", index);
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 获取索引JSON格式mapping
+     *
+     * @param index 索引
+     * @return 成功返回JSON mapping字符串，否则返回null
+     */
+    public String getJSONMapping(String index) {
+        TypeMapping mapping = getMapping(index);
+        if (mapping == null) return null;
+        JsonpMapper mapper = client._jsonpMapper();
+        try (StringWriter writer = new StringWriter();
+             JsonGenerator generator = mapper.jsonProvider().createGenerator(writer)) {
+            mapper.serialize(mapping, generator);
+            generator.close();
+            return writer.toString();
+        } catch (IOException e) {
+            logger.error("Get json mapping failed for index:{}", index);
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 获取所有索引统计
+     *
+     * @return 索引统计
+     */
+    public Map<String, IndicesStats> getIndicesStatsMap() {
+        try {
+            IndicesStatsResponse response = client.indices().stats();
+            return response.indices();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return new HashMap<>();
+        }
+    }
+
+    /**
+     * 获取所有索引统计列表
+     *
+     * @return 统计列表
+     */
+    public List<ElasticIndexStats> getIndicesStats() {
+        List<ElasticIndexStats> statsList = new ArrayList<>();
+        Map<String, IndicesStats> indicesStatsMap = getIndicesStatsMap();
+        for (Map.Entry<String, IndicesStats> entry : indicesStatsMap.entrySet()) {
+            IndicesStats indicesStats = entry.getValue();
+            ElasticIndexStats elasticIndexStats = new ElasticIndexStats();
+            elasticIndexStats.index = entry.getKey();
+            elasticIndexStats.status = indicesStats.status() == null ? "Unknown" : indicesStats.status().jsonValue();
+            elasticIndexStats.health = indicesStats.health() == null ? "Unknown" : indicesStats.health().jsonValue();
+            elasticIndexStats.docCount = indicesStats.primaries() != null && indicesStats.primaries().docs() != null ?
+                    indicesStats.primaries().docs().count() : 0L;
+            elasticIndexStats.storageSizeBytes = indicesStats.primaries() != null &&
+                    indicesStats.primaries().store() != null ?
+                    indicesStats.primaries().store().sizeInBytes() : 0L;
+            statsList.add(elasticIndexStats);
+        }
+        return statsList;
     }
 
     /**
@@ -315,6 +405,22 @@ public class ElasticSearchClient {
                     return builder;
                 });
         return update(request, documentClass);
+    }
+
+    /**
+     * 根据DSL搜索数据
+     *
+     * @param index 索引
+     * @param jsonDSL DSL JSON字符串
+     * @param documentClass 文档类型
+     * @return 搜索响应
+     * @param <T> 数据类型
+     */
+    public <T> ElasticSearchResponse<T> search(String index, String jsonDSL, Class<T> documentClass) {
+
+        SearchRequest request = SearchRequest.of(builder ->
+                builder.index(index).withJson(new StringReader(jsonDSL)));
+        return search(request, documentClass);
     }
 
     /**
