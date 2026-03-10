@@ -15,6 +15,7 @@ import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.JsonpMapper;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.alibaba.fastjson.JSONObject;
 import jakarta.json.stream.JsonGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -142,9 +143,9 @@ public class ElasticSearchClient {
      * 获取索引JSON格式mapping
      *
      * @param index 索引
-     * @return 成功返回JSON mapping字符串，否则返回null
+     * @return 成功返回JSON mapping，否则返回null
      */
-    public String getJSONMapping(String index) {
+    public Map<String, Object> getJSONMapping(String index) {
         TypeMapping mapping = getMapping(index);
         if (mapping == null) return null;
         JsonpMapper mapper = client._jsonpMapper();
@@ -152,7 +153,7 @@ public class ElasticSearchClient {
              JsonGenerator generator = mapper.jsonProvider().createGenerator(writer)) {
             mapper.serialize(mapping, generator);
             generator.close();
-            return writer.toString();
+            return JSONObject.parseObject(writer.toString());
         } catch (IOException e) {
             logger.error("Get json mapping failed for index:{}", index);
             logger.error(e.getMessage(), e);

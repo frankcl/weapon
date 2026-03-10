@@ -45,7 +45,7 @@ public class ElasticSearchClientTest {
 
     @Test
     public void testGetMapping() {
-        String mapping = elasticSearchClient.getJSONMapping("test_full_ppn");
+        Map<String, Object> mapping = elasticSearchClient.getJSONMapping("test_full_ppn");
         Assert.assertNotNull(mapping);
     }
 
