@@ -413,14 +413,16 @@ public class ElasticSearchClient {
      *
      * @param index 索引
      * @param jsonDSL DSL JSON字符串
+     * @param size 返回数量
      * @param documentClass 文档类型
      * @return 搜索响应
      * @param <T> 数据类型
      */
-    public <T> ElasticSearchResponse<T> search(String index, String jsonDSL, Class<T> documentClass) {
-
+    public <T> ElasticSearchResponse<T> search(String index, String jsonDSL,
+                                               Integer size, Class<T> documentClass) {
+        int fetchSize = size == null || size <= 0 ? 10 : size;
         SearchRequest request = SearchRequest.of(builder ->
-                builder.index(index).withJson(new StringReader(jsonDSL)));
+                builder.index(index).withJson(new StringReader(jsonDSL)).size(fetchSize));
         return search(request, documentClass);
     }
 

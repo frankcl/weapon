@@ -65,7 +65,7 @@ public class ElasticSearchClientTest {
                 }
                 """;
         ElasticSearchResponse<Object> response = elasticSearchClient.search(
-                "test_full_ppn", jsonDSL, Object.class);
+                "test_full_ppn", jsonDSL, null, Object.class);
         Assert.assertNotNull(response);
         Assert.assertEquals(1, response.records.size());
     }
