@@ -27,7 +27,9 @@ public class ElasticSearchClientTest {
     @Before
     public void setUp() {
         ElasticSearchClientConfig config = new ElasticSearchClientConfig();
-        config.serverURL = "http://localhost:9200";
+        config.serverURL = "http://lumy-z4p.public.cn-hangzhou.es-serverless.aliyuncs.com:9200";
+        config.username = "lumy-z4p";
+        config.password = "0TQiqmXICEyq1wtwqKfsVKeJMr9OcF";
         elasticSearchClient = new ElasticSearchClient(config);
         Assert.assertTrue(elasticSearchClient.open());
     }

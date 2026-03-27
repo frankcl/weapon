@@ -20,13 +20,19 @@ import jakarta.json.stream.JsonGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -68,6 +74,24 @@ public class ElasticSearchClient {
             builder.setDefaultHeaders(new Header[] {
                     new BasicHeader("Authorization", "ApiKey " + config.apiKey)});
         }
+        if (StringUtils.isNotEmpty(config.username) && StringUtils.isNotEmpty(config.password)) {
+            try {
+                final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY,
+                        new UsernamePasswordCredentials(config.username, config.password));
+                SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(
+                        null, (chain, authType) -> true).build();
+                builder.setHttpClientConfigCallback(httpClientBuilder -> {
+                    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    httpClientBuilder.setSSLContext(sslContext);
+                    httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+                    return httpClientBuilder;
+                });
+            } catch (Exception e) {
+                logger.error("Set elasticsearch client username and password failed", e);
+                return false;
+            }
+        }
         RestClient restClient = builder.build();
         RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         client = new ElasticsearchClient(transport);
@@ -107,11 +131,9 @@ public class ElasticSearchClient {
                 if (ctx._source.containsKey(field)) {
                     ctx._source.remove(field);
                 }
-            }
-            """;
+            }""";
         UpdateRequest<TDocument, TPartialDocument> request = UpdateRequest.of(
-                builder -> builder.index(index).id(id).script(b -> b.inline(
-                        s -> s.source(script).params("fields", JsonData.of(fields)))));
+                builder -> builder.index(index).id(id).script(b -> b.source(script).params("fields", JsonData.of(fields))));
         try {
             return update(request, documentClass);
         } catch (ConflictVersionException e) {

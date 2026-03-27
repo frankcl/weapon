@@ -2,7 +2,6 @@ package xin.manong.weapon.base.elasticsearch;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
-import co.elastic.clients.json.JsonData;
 import org.apache.commons.lang3.StringUtils;
 import xin.manong.weapon.base.common.RangeValue;
 
@@ -158,17 +157,17 @@ public class ElasticSearchQuery {
     public static <T extends Number> Query convertRangeQuery(String field, RangeValue<T> rangeValue) {
         Objects.requireNonNull(field, "Field not allowed to be null");
         Objects.requireNonNull(rangeValue, "RangeValue not allowed to be null");
-        return RangeQuery.of(builder -> {
+        return NumberRangeQuery.of(builder -> {
             builder.field(field);
             if (rangeValue.start != null) {
-                if (rangeValue.includeLower) builder.gte(JsonData.of(rangeValue.start));
-                else builder.gt(JsonData.of(rangeValue.start));
+                if (rangeValue.includeLower) builder.gte(rangeValue.start.doubleValue());
+                else builder.gt(rangeValue.start.doubleValue());
             }
             if (rangeValue.end != null) {
-                if (rangeValue.includeUpper) builder.lte(JsonData.of(rangeValue.end));
-                else builder.lt(JsonData.of(rangeValue.end));
+                if (rangeValue.includeUpper) builder.lte(rangeValue.end.doubleValue());
+                else builder.lt(rangeValue.end.doubleValue());
             }
             return builder;
-        })._toQuery();
+        })._toRangeQuery()._toQuery();
     }
 }

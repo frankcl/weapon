@@ -21,6 +21,8 @@ public class ElasticSearchClientConfig {
 
     public String serverURL;
     public String apiKey;
+    public String username;
+    public String password;
 
     /**
      * 验证有效性
@@ -30,6 +32,10 @@ public class ElasticSearchClientConfig {
     public boolean check() {
         if (StringUtils.isEmpty(serverURL)) {
             logger.error("Server url is empty");
+            return false;
+        }
+        if (StringUtils.isNotEmpty(username) && StringUtils.isEmpty(password)) {
+            logger.error("Password is empty");
             return false;
         }
         try {
