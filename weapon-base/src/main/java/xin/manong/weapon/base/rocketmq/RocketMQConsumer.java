@@ -39,6 +39,7 @@ public class RocketMQConsumer {
             consumer.setConsumeThreadMax(config.consumeThreadNum);
             consumer.setConsumeMessageBatchMaxSize(config.consumeMessageBatchMaxSize);
             consumer.setMessageModel(MessageModel.CLUSTERING);
+            consumer.setConsumeTimeout(config.consumeTimeoutMinutes);
             for (RocketMQSubscribe subscribe : config.subscribes) consumer.subscribe(subscribe.topic, subscribe.tags);
             if (config.messageListener instanceof MessageListenerConcurrently) {
                 consumer.registerMessageListener((MessageListenerConcurrently) config.messageListener);

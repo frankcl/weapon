@@ -25,9 +25,11 @@ public class RocketMQConsumerConfig {
 
     private static final int DEFAULT_CONSUME_THREAD_NUM = 1;
     private static final int DEFAULT_CONSUME_BATCH_MAX_SIZE = 1;
+    private static final long DEFAULT_CONSUME_TIMEOUT_MINUTES = 15;
 
     public int consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
     public int consumeMessageBatchMaxSize = DEFAULT_CONSUME_BATCH_MAX_SIZE;
+    public long consumeTimeoutMinutes = DEFAULT_CONSUME_TIMEOUT_MINUTES;
     public String consumeId;
     public String endpoints;
     public String instanceId;
@@ -80,6 +82,7 @@ public class RocketMQConsumerConfig {
         }
         if (consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
         if (consumeMessageBatchMaxSize <= 0) consumeMessageBatchMaxSize = DEFAULT_CONSUME_BATCH_MAX_SIZE;
+        if (consumeTimeoutMinutes <= 0) consumeTimeoutMinutes = DEFAULT_CONSUME_TIMEOUT_MINUTES;
         return true;
     }
 
