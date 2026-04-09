@@ -37,6 +37,9 @@ public class RocketMQConsumer {
             consumer.setConsumerGroup(config.consumeId);
             consumer.setConsumeThreadMin(config.consumeThreadNum);
             consumer.setConsumeThreadMax(config.consumeThreadNum);
+            consumer.setPullBatchSize(config.pullBatchSize);
+            consumer.setPullThresholdForQueue(config.pullThresholdForQueue);
+            consumer.setPullThresholdForTopic(config.pullThresholdForTopic);
             consumer.setConsumeMessageBatchMaxSize(config.consumeMessageBatchMaxSize);
             consumer.setMessageModel(MessageModel.CLUSTERING);
             consumer.setConsumeTimeout(config.consumeTimeoutMinutes);

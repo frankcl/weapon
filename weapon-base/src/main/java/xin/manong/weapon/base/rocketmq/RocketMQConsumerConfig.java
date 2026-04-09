@@ -25,10 +25,16 @@ public class RocketMQConsumerConfig {
 
     private static final int DEFAULT_CONSUME_THREAD_NUM = 1;
     private static final int DEFAULT_CONSUME_BATCH_MAX_SIZE = 1;
+    private static final int DEFAULT_PULL_BATCH_SIZE = 32;
+    private static final int DEFAULT_PULL_THRESHOLD_FOR_QUEUE = 1000;
+    private static final int DEFAULT_PULL_THRESHOLD_FOR_TOPIC = -1;
     private static final long DEFAULT_CONSUME_TIMEOUT_MINUTES = 15;
 
     public int consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
     public int consumeMessageBatchMaxSize = DEFAULT_CONSUME_BATCH_MAX_SIZE;
+    public int pullBatchSize = DEFAULT_PULL_BATCH_SIZE;
+    public int pullThresholdForQueue = DEFAULT_PULL_THRESHOLD_FOR_QUEUE;
+    public int pullThresholdForTopic = DEFAULT_PULL_THRESHOLD_FOR_TOPIC;
     public long consumeTimeoutMinutes = DEFAULT_CONSUME_TIMEOUT_MINUTES;
     public String consumeId;
     public String endpoints;
@@ -82,6 +88,9 @@ public class RocketMQConsumerConfig {
         }
         if (consumeThreadNum <= 0) consumeThreadNum = DEFAULT_CONSUME_THREAD_NUM;
         if (consumeMessageBatchMaxSize <= 0) consumeMessageBatchMaxSize = DEFAULT_CONSUME_BATCH_MAX_SIZE;
+        if (pullBatchSize <= 0) pullBatchSize = DEFAULT_PULL_BATCH_SIZE;
+        if (pullThresholdForQueue <= 0) pullThresholdForQueue = DEFAULT_PULL_THRESHOLD_FOR_QUEUE;
+        if (pullThresholdForTopic <= 0) pullThresholdForTopic = DEFAULT_PULL_THRESHOLD_FOR_TOPIC;
         if (consumeTimeoutMinutes <= 0) consumeTimeoutMinutes = DEFAULT_CONSUME_TIMEOUT_MINUTES;
         return true;
     }
