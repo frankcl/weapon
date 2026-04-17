@@ -15,7 +15,7 @@ public class ThreadContextTest {
         Context context = new Context();
         ThreadContext.setContext(context);
         Assert.assertSame(ThreadContext.getContext(), context);
-        ThreadContext.commit("k1", "v1");
+        ThreadContext.put("k1", "v1");
         Assert.assertTrue(context.contains("k1"));
         Assert.assertEquals("v1", (String) context.get("k1"));
         ThreadContext.removeContext();

@@ -78,20 +78,20 @@ public class WebLogAspect {
             processHttpRequest();
             processRequest(joinPoint);
             response = joinPoint.proceed();
-            ThreadContext.commit(WebAspectConstants.SUCCESS, true);
+            ThreadContext.put(WebAspectConstants.SUCCESS, true);
             return response;
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
-            ThreadContext.commit(WebAspectConstants.SUCCESS, false);
-            ThreadContext.commit(WebAspectConstants.MESSAGE, t.getMessage());
-            ThreadContext.commit(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
+            ThreadContext.put(WebAspectConstants.SUCCESS, false);
+            ThreadContext.put(WebAspectConstants.MESSAGE, t.getMessage());
+            ThreadContext.put(WebAspectConstants.STACK_TRACE, ExceptionUtils.getStackTrace(t));
             throw t;
         } finally {
             EnableWebLogAspect annotation = getEnableWebLogAspect(joinPoint);
             if (response != null && annotation != null && annotation.commitResponse()) {
-                ThreadContext.commit(WebAspectConstants.RESPONSE, response);
+                ThreadContext.put(WebAspectConstants.RESPONSE, response);
             }
-            ThreadContext.commit(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
+            ThreadContext.put(WebAspectConstants.PROCESS_TIME, System.currentTimeMillis() - startTime);
             if (webAspectLogger != null) webAspectLogger.commit(ThreadContext.getContext().featureMap);
             else logger.warn("Web aspect logger is null");
             ThreadContext.removeContext();
@@ -182,10 +182,10 @@ public class WebLogAspect {
     private void processRequest(JoinPoint joinPoint) {
         String path = getRequestPath(joinPoint);
         if (StringUtils.isEmpty(path)) return;
-        ThreadContext.commit(WebAspectConstants.PATH, path);
+        ThreadContext.put(WebAspectConstants.PATH, path);
         String requestMethod = getRequestMethod(joinPoint);
         if (StringUtils.isEmpty(requestMethod)) return;
-        ThreadContext.commit(WebAspectConstants.METHOD, requestMethod);
+        ThreadContext.put(WebAspectConstants.METHOD, requestMethod);
         if (joinPoint.getArgs() == null) return;
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Parameter[] parameters = method.getParameters();
@@ -200,11 +200,11 @@ public class WebLogAspect {
             requestMap.put(StringUtils.isEmpty(annotatedKey) ? parameters[i].getName() : annotatedKey, arg);
         }
         if (requestMap.isEmpty()) return;
-        ThreadContext.commit(WebAspectConstants.REQUEST, requestMap);
+        ThreadContext.put(WebAspectConstants.REQUEST, requestMap);
         if (requestMap.size() == 1) {
             Object object = requestMap.values().iterator().next();
             if (!CommonUtil.isPrimitiveType(object)) {
-                ThreadContext.commit(WebAspectConstants.REQUEST, JSON.toJSON(object));
+                ThreadContext.put(WebAspectConstants.REQUEST, JSON.toJSON(object));
             }
         }
     }
@@ -255,7 +255,7 @@ public class WebLogAspect {
         }
         if (!StringUtils.isEmpty(remoteAddress)) {
             if (remoteAddress.equals("[0:0:0:0:0:0:0:1]")) remoteAddress = "127.0.0.1";
-            ThreadContext.commit(WebAspectConstants.REMOTE_ADDRESS, remoteAddress);
+            ThreadContext.put(WebAspectConstants.REMOTE_ADDRESS, remoteAddress);
         }
     }
 }

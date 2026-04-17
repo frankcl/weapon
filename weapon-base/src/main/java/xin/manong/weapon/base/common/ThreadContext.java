@@ -43,10 +43,29 @@ public class ThreadContext {
      * @param key 记录key
      * @param value 记录值
      */
-    public static void commit(String key, Object value) {
+    public static void put(String key, Object value) {
+        if (value == null) return;
         Context context = getContext();
-        if (context == null) return;
+        if (context == null) {
+            context = new Context();
+            THREAD_LOCAL_CONTEXT.set(context);
+        }
         context.put(key, value);
+    }
+
+    /**
+     * 从上下文获取值
+     *
+     * @param key 键
+     * @param valueType 值类型
+     * @return 成功返回值，否则返回null
+     * @param <T> 值类型
+     */
+    public static <T> T get(String key, Class<T> valueType) {
+        Context context = getContext();
+        if (context == null) return null;
+        Object value = context.get(key);
+        return value == null ? null : valueType.cast(value);
     }
 
     /**
