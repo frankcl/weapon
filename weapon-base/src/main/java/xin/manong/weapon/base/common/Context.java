@@ -64,7 +64,6 @@ public class Context {
      */
     public void sweep() {
         featureMap.clear();
-        featureMap = new HashMap<>();
     }
 
 }
